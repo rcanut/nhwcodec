@@ -3,7 +3,7 @@
 *  NHW Image Codec														   *
 *  file: colorspace.c											           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 11242012 nhw exp $							           *
+*  last update: $ 06012012 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -54,23 +54,33 @@
 
 void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 {
-	int i,j,Y,U,V,m,n;
+	int i,j,Y,U,V;
 	short *colorsY;
 	unsigned char *colors,*colorsU,*colorsV;
+	float color_balance;
 
 	colors=(unsigned char*)im->im_buffer4;
 	im->im_jpeg=(short*)malloc(4*IM_SIZE*sizeof(short));
 	colorsY=(short*)im->im_jpeg;
 
-	for (i=0,j=0,n=0;i<12*IM_SIZE;i+=3,j++)
+	for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 	{
 		//Convert RGB to YCbCr or YUV
 		/*Y = (( 66*colors[i] + 129*colors[i+1] +  25*colors[i+2] + 128)>>8)+ 16;
 		U = ((-38*colors[i] -  74*colors[i+1] + 112*colors[i+2] + 128)>>8)+128;
 		V = ((112*colors[i] -  94*colors[i+1] -  18*colors[i+2] + 128)>>8)+128;*/
+
 		Y = (int)( 0.299*colors[i] + 0.587*colors[i+1] +  0.114*colors[i+2]+0.5f);
-		U = (int)(-0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2] + 128.5f);
-		V = (int)(0.5*colors[i] -  0.41874*colors[i+1] -  0.0813*colors[i+2] + 128.5f);
+		/*U = (int)(-0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2] + 128.5f);
+		V = (int)(0.5*colors[i] -  0.41874*colors[i+1] -  0.0813*colors[i+2] + 128.5f);*/
+
+		color_balance = -0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2];
+		if (color_balance>=0) U = (int)(color_balance + 128.5f);
+		else U = (int)(color_balance + 128.4f);
+
+		color_balance = 0.5*colors[i] -  0.41874*colors[i+1] -  0.0813*colors[i+2];
+		if (color_balance>=0) V = (int)(color_balance + 128.5f);
+		else V = (int)(color_balance + 128.4f);
 
 		//Clip YUV values
 		//if ((Y>>8)!=0) colorsY[j]=( (Y<0) ? 0 : 255 );
