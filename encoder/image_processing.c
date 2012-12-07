@@ -381,19 +381,20 @@ void pre_processing(image_buffer *im)
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
 		{   
-						res	   =   (nhw_process[scan]<<3) -
-								    nhw_process[scan-1]-nhw_process[scan+1]-
-								    nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-									nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-									nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
+			res	   =   (nhw_process[scan]<<3) -
+						nhw_process[scan-1]-nhw_process[scan+1]-
+						nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+						nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+						nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
 
-						j++;scan++;
+			j++;scan++;
 
-						count   =  (nhw_process[scan]<<3) -
-								    nhw_process[scan-1]-nhw_process[scan+1]-
-								    nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-									nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-									nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
+			count   =  (nhw_process[scan]<<3) -
+						nhw_process[scan-1]-nhw_process[scan+1]-
+						nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+						nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+						nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
+
 
 			if (res>201) {im->im_jpeg[scan-1]-=2;e=4;}
 			else if (res<-201) {im->im_jpeg[scan-1]+=2;e=3;}
