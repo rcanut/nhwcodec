@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 09142012 nhw exp $							           *
+*  last update: $ 12072012 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -1508,7 +1508,16 @@ L_RUN_OVER_SEARCH:
 	
 	// U
 	im->im_jpeg=(short*)malloc(IM_SIZE*sizeof(short));
-	for (i=0;i<IM_SIZE;i++) im->im_jpeg[i]=(unsigned char)im->im_bufferU[i];
+	im->im_jpeg[0]=(unsigned char)im->im_bufferU[0];
+
+	for (i=1;i<IM_SIZE;i++) 
+	{
+		if (im->im_bufferU[i]>250 && im->im_bufferU[i-1]>250) 
+		{
+			im->im_jpeg[i]=251;im->im_jpeg[i-1]=251;
+		}
+		else im->im_jpeg[i]=(unsigned char)im->im_bufferU[i];
+	}
 	free(im->im_bufferU);
 
 	im->im_process=(short*)malloc(IM_SIZE*sizeof(short));
@@ -1665,7 +1674,14 @@ L_RUN_OVER_SEARCH:
 			}
 			else 
 			{
-				if (scan>255) scan=255;else if (scan<0) scan=0;
+				if (scan>255) 
+				{
+					scan=255;
+				}
+				else if (scan<0) 
+				{
+					scan=0;
+				}
 				enc->tree1[a++]=scan&254;nhw_process[j+i]=0;
 			}
 		}
@@ -1866,7 +1882,13 @@ L_RUN_OVER_SEARCH:
 			}
 			else 
 			{
-				if (scan>255) scan=255;else if (scan<0) scan=0;
+				if (scan>255) 
+				{
+					scan=255;
+				}else if (scan<0) 
+				{
+					scan=0;
+				}
 				enc->tree1[a++]=scan&254;nhw_process[j+i]=0;
 			}
 		}
