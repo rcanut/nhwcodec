@@ -72,13 +72,13 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 
 		Y = (int)( 0.299*colors[i] + 0.587*colors[i+1] +  0.114*colors[i+2]+0.5f);
 		/*U = (int)(-0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2] + 128.5f);
-		V = (int)(0.5*colors[i] -  0.41874*colors[i+1] -  0.0813*colors[i+2] + 128.5f);*/
+		V = (int)(0.5*colors[i] -  0.4187*colors[i+1] -  0.0813*colors[i+2] + 128.5f);*/
 
 		color_balance = -0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2];
 		if (color_balance>=0) U = (int)(color_balance + 128.5f);
 		else U = (int)(color_balance + 128.4f);
 
-		color_balance = 0.5*colors[i] -  0.41874*colors[i+1] -  0.0813*colors[i+2];
+		color_balance = 0.5*colors[i] -  0.4187*colors[i+1] -  0.0813*colors[i+2];
 		if (color_balance>=0) V = (int)(color_balance + 128.5f);
 		else V = (int)(color_balance + 128.4f);
 
