@@ -794,7 +794,7 @@ L_W5:			res256[count]=14000;
 				else if (res256[count]==12400) {res256[count]=124;enc->nhw_res3_word_len++;}
 				else if (res256[count]==12500) {res256[count]=125;enc->nhw_res3_word_len++;enc->nhw_res1_word_len++;}
 				else if (res256[count]==12600) {res256[count]=126;enc->nhw_res3_word_len++;enc->nhw_res1_word_len++;}
-				else if (res256[count]==14900) {res256[count]=145;enc->nhw_res5_word_len++;enc->nhw_res1_word_len++;}
+				else if (res256[count]==14900) {res256[count]=149;enc->nhw_res5_word_len++;enc->nhw_res1_word_len++;}
 			}
 		}	
 	}
