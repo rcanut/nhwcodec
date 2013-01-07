@@ -831,7 +831,8 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	{
 		if ((im_nhw[i]>>8)!=0)
 		{
-			nhw_scale[i]=CLIP(im_nhw[i]);
+			if (im_nhw[i]<0) nhw_scale[i]=0;
+			else if (im_nhw[i]>255) nhw_scale[i]=255;
 		}
 		else 
 		{
