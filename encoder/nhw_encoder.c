@@ -1508,16 +1508,7 @@ L_RUN_OVER_SEARCH:
 	
 	// U
 	im->im_jpeg=(short*)malloc(IM_SIZE*sizeof(short));
-	im->im_jpeg[0]=(unsigned char)im->im_bufferU[0];
-
-	for (i=1;i<IM_SIZE;i++) 
-	{
-		if (im->im_bufferU[i]>250 && im->im_bufferU[i-1]>250) 
-		{
-			im->im_jpeg[i]=251;im->im_jpeg[i-1]=251;
-		}
-		else im->im_jpeg[i]=(unsigned char)im->im_bufferU[i];
-	}
+	for (i=0;i<IM_SIZE;i++) im->im_jpeg[i]=(unsigned char)im->im_bufferU[i];
 	free(im->im_bufferU);
 
 	im->im_process=(short*)malloc(IM_SIZE*sizeof(short));
