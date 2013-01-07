@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 12072012 nhw exp $							           *
+*  last update: $ 01072013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -928,7 +928,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	{
 		for (scan=i+(IM_DIM>>1),j=(IM_DIM>>1);j<IM_DIM;j++,scan++)
 		{
-			if (im_nhw[scan>5000])
+			if (im_nhw[scan]>5000)
 			{
 				if (im_nhw[scan]==5005)
 				{
@@ -976,8 +976,13 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	for (i=0;i<IM_SIZE;i++) 
 	{
-		if ((im->im_process[i]>>8)!=0) CLIP(im->im_process[i]);
+		if ((im->im_process[i]>>8)!=0) 
+		{
+			if (im->im_process[i]<0) im->im_process[i]=0;
+			else if (im->im_process[i]>255) im->im_process[i]=255;
+		}
 	}
+
 	im->scale=(unsigned char*)malloc(2*IM_SIZE*sizeof(char));
 	im_nhw=(short*)im->im_process;
 	nhw_scale=(unsigned char*)im->scale;
@@ -1131,7 +1136,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	{
 		for (scan=i+(IM_DIM>>1),j=(IM_DIM>>1);j<IM_DIM;j++,scan++)
 		{
-			if (im_nhw[scan>5000])
+			if (im_nhw[scan]>5000)
 			{
 				if (im_nhw[scan]==5005)
 				{
@@ -1180,8 +1185,13 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	for (i=0;i<IM_SIZE;i++) 
 	{
-		if ((im->im_process[i]>>8)!=0) CLIP(im->im_process[i]);
+		if ((im->im_process[i]>>8)!=0) 
+		{
+			if (im->im_process[i]<0) im->im_process[i]=0;
+			else if (im->im_process[i]>255) im->im_process[i]=255;
+		}
 	}
+
 	im->scale=(unsigned char*)malloc(2*IM_SIZE*sizeof(char));
 	im_nhw=(short*)im->im_process;
 	nhw_scale=(unsigned char*)im->scale;
