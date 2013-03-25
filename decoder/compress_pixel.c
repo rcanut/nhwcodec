@@ -8,7 +8,7 @@
 ****************************************************************************
 ****************************************************************************
 
-/* Copyright (C) 2007-2012 NHW Project
+/* Copyright (C) 2007-2013 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
