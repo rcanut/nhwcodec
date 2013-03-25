@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 12072012 nhw exp $							           *
+*  last update: $ 03252013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2012 NHW Project
+/* Copyright (C) 2007-2013 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -281,7 +281,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	{
 		for (count=i,j=0;j<(((2*IM_DIM)>>2)-3);j++,count++)
 		{
-			if ((nhw_process[count]&1)==1 && (nhw_process[count+1]&1)==1 && (nhw_process[count+2]&1)==1 && (nhw_process[count+3]&1)==1)
+			if ((nhw_process[count]&1)==1 && (nhw_process[count+1]&1)==1 && (nhw_process[count+2]&1)==1 && (nhw_process[count+3]&1)==1 && abs(nhw_process[count]-nhw_process[count+3])>1)
 			{
 				nhw_process[count]+=24000;nhw_process[count+1]+=16000;//printf("\n %d ",count);
 				nhw_process[count+2]+=16000;nhw_process[count+3]+=16000;
@@ -317,7 +317,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			{
 				if (j<((IM_DIM>>1)-2) && (nhw_process[count+2]&1)==1 /*&& !(nhw_process[count+3]&1)*/) 
 				{
-					nhw_process[count+1]++;
+					if (abs(scan-nhw_process[count+2])>1) nhw_process[count+1]++;
 				}
 				/*else if (j<((IM_DIM>>1)-4) && (nhw_process[count+2]&1)==1 && (nhw_process[count+3]&1)==1
 						&& !(nhw_process[count+4]&1)) 
