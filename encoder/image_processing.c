@@ -500,7 +500,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 		{
 			for (a=i,j=0;j<((IM_DIM>>1)-3);j++,a++)
 			{
-				if ((nhw1[a]&1)==1 && (nhw1[a+1]&1)==1 && (nhw1[a+2]&1)==1 && (nhw1[a+3]&1)==1)
+				if ((nhw1[a]&1)==1 && (nhw1[a+1]&1)==1 && (nhw1[a+2]&1)==1 && (nhw1[a+3]&1)==1 && abs(nhw1[a]-nhw1[a+3])>1)
 				{
 					nhw1[a]+=16000;nhw1[a+1]+=16000;nhw1[a+2]+=16000;nhw1[a+3]+=16000;
 					j+=3;a+=3;
@@ -514,7 +514,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 		{
 			for (a=i,j=0;j<((IM_DIM>>1)-3);j++,a++)
 			{
-				if ((nhw1[a]&1)==1 && (nhw1[a+1]&1)==1 && (nhw1[a+2]&1)==1 && (nhw1[a+3]&1)==1)
+				if ((nhw1[a]&1)==1 && (nhw1[a+1]&1)==1 && (nhw1[a+2]&1)==1 && (nhw1[a+3]&1)==1 && abs(nhw1[a]-nhw1[a+3])>1)
 				{
 					nhw1[a]+=16000;nhw1[a+2]+=16000;
 					j+=3;a+=3;
@@ -542,9 +542,9 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 			}
 			else if ((nhw1[a]&1)==1 && a>i && (nhw1[a+1]&1)==1 /*&& !(nhw1[a-1]&1)*/)
 			{
-				if (j<((IM_DIM>>1)-2) && (im->im_process[a+2]&1)==1 /*&& !(im->im_process[a+3]&1)*/)
+				if (j<((IM_DIM>>1)-2) && (nhw1[a+2]&1)==1 /*&& !(im->im_process[a+3]&1)*/)
 				{
-					im->im_process[a+1]++;
+					if (abs(nhw1[a]-nhw1[a+2])>1) im->im_process[a+1]++;
 				}
 				/*else if (j<((IM_DIM>>1)-4) && (im->im_process[a+2]&1)==1 && (im->im_process[a+3]&1)==1
 						&& !(im->im_process[a+4]&1))
