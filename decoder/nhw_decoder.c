@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 01072013 nhw exp $							           *
+*  last update: $ 04082013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -941,30 +941,69 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 				}
 				else if (im_nhw[scan]==5003) 
 				{
-					im_nhw2[scan-(IM_DIM>>1)]-=7;im_nhw[scan]=0;
+					im_nhw2[scan-(IM_DIM>>1)]-=6;im_nhw[scan]=0;
 				}
 				else if (im_nhw[scan]==5004)
 				{
-					im_nhw2[scan-(IM_DIM>>1)]+=7;im_nhw[scan]=0;
+					im_nhw2[scan-(IM_DIM>>1)]+=6;im_nhw[scan]=0;
 				}
 			}
 		}
 	}
 
-	/*for (i=(IM_SIZE>>1);i<(IM_SIZE);i+=IM_DIM)
+	for (i=(IM_SIZE>>1);i<(IM_SIZE);i+=IM_DIM)
 	{
-		for (scan=i,j=0;j<(IM_DIM>>1);j++,scan++)
+		for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 		{
-			if (im_nhw[scan]==1003) 
+			if (im_nhw[scan]>5000)
 			{
-				im_nhw[scan-(IM_SIZE>>1)]-=7;im_nhw[scan]=0;
-			}
-			else if (im_nhw[scan]==1004)
-			{
-				im_nhw[scan-(IM_SIZE>>1)]+=7;im_nhw[scan]=0;
+				if (im_nhw[scan]==5005)
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]-=4;im_nhw2[scan-(IM_SIZE>>1)+1]-=4;im_nhw[scan]=0;
+					}
+					else
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]-=4;im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)+1]-=4;im_nhw[scan]=0;
+					}
+				}
+				else if (im_nhw[scan]==5006)
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]+=4;im_nhw2[scan-(IM_SIZE>>1)+1]+=4;im_nhw[scan]=0;
+					}
+					else
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]+=4;im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)+1]+=4;im_nhw[scan]=0;
+					}
+				}
+				else if (im_nhw[scan]==5003) 
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]-=6;im_nhw[scan]=0;
+					}
+					else
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]-=6;im_nhw[scan]=0;
+					}
+				}
+				else if (im_nhw[scan]==5004)
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]+=6;im_nhw[scan]=0;
+					}
+					else 
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]+=6;im_nhw[scan]=0;
+					}
+				}
 			}
 		}
-	}*/
+	}
 
 	for (i=0;i<(IM_DIM>>1);i++,im_nhw+=(IM_DIM))
 	{
@@ -1149,31 +1188,70 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 				}
 				else if (im_nhw[scan]==5003) 
 				{
-					im_nhw2[scan-(IM_DIM>>1)]-=7;im_nhw[scan]=0;
+					im_nhw2[scan-(IM_DIM>>1)]-=6;im_nhw[scan]=0;
 				}
 				else if (im_nhw[scan]==5004)
 				{
-					im_nhw2[scan-(IM_DIM>>1)]+=7;im_nhw[scan]=0;
+					im_nhw2[scan-(IM_DIM>>1)]+=6;im_nhw[scan]=0;
 				}
 			}
 		}
 	}
 
 
-	/*for (i=(IM_SIZE>>1);i<(IM_SIZE);i+=IM_DIM)
+	for (i=(IM_SIZE>>1);i<(IM_SIZE);i+=IM_DIM)
 	{
-		for (scan=i,j=0;j<(IM_DIM>>1);j++,scan++)
+		for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 		{
-			if (im_nhw[scan]==1003) 
+			if (im_nhw[scan]>5000)
 			{
-				im_nhw[scan-(IM_SIZE>>1)]-=7;im_nhw[scan]=0;
-			}
-			else if (im_nhw[scan]==1004)
-			{
-				im_nhw[scan-(IM_SIZE>>1)]+=7;im_nhw[scan]=0;
+				if (im_nhw[scan]==5005)
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]-=4;im_nhw2[scan-(IM_SIZE>>1)+1]-=4;im_nhw[scan]=0;
+					}
+					else
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]-=4;im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)+1]-=4;im_nhw[scan]=0;
+					}
+				}
+				else if (im_nhw[scan]==5006)
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]+=4;im_nhw2[scan-(IM_SIZE>>1)+1]+=4;im_nhw[scan]=0;
+					}
+					else
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]+=4;im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)+1]+=4;im_nhw[scan]=0;
+					}
+				}
+				else if (im_nhw[scan]==5003) 
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]-=6;im_nhw[scan]=0;
+					}
+					else
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]-=6;im_nhw[scan]=0;
+					}
+				}
+				else if (im_nhw[scan]==5004)
+				{
+					if (j<(IM_DIM>>1))
+					{
+						im_nhw2[scan-(IM_SIZE>>1)]+=6;im_nhw[scan]=0;
+					}
+					else 
+					{
+						im_nhw2[scan-(IM_SIZE>>1)-(IM_DIM>>1)]+=6;im_nhw[scan]=0;
+					}
+				}
 			}
 		}
-	}*/
+	}
 
 	for (i=0;i<(IM_DIM>>1);i++,im_nhw+=(IM_DIM))
 	{
