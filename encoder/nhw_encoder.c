@@ -633,9 +633,13 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			{
 L_W1:			stage = (j<<9)+(i>>9)+(IM_DIM);
 
-				if (nhw_process[stage]==7 || (nhw_process[stage]&65534)==8)
+				if (nhw_process[stage]==7)
 				{
-					if (nhw_process[stage-1]>0 && nhw_process[stage-1]<8) nhw_process[stage]+=2;
+					if (nhw_process[stage-1]>=0 && nhw_process[stage-1]<8) nhw_process[stage]+=2;
+				}
+				else if (nhw_process[stage]==8)
+				{
+					if (nhw_process[stage-1]>=-2 && nhw_process[stage-1]<8) nhw_process[stage]+=2;
 				}
 			}
 			else if (res==-2)
@@ -648,7 +652,7 @@ L_W2:			stage = (j<<9)+(i>>9)+(IM_DIM);
 				}
 				else if (nhw_process[stage]==7 || (nhw_process[stage]&65534)==8)
 				{
-					if (nhw_process[stage-1]>=0) nhw_process[stage]+=3;
+					if (nhw_process[stage-1]>=-2) nhw_process[stage]+=3;
 				}
 			}
 			else if (res==-3) 
@@ -663,7 +667,7 @@ L_W3:			if (im->setup->quality_setting==HIGH1) {res256[count]=14500;}
 				}
 				else if (nhw_process[(j<<9)+(i>>9)+(IM_DIM)]>=0 && ((nhw_process[(j<<9)+(i>>9)+(IM_DIM)]+2)&65532)==8)
 				{
-					if (nhw_process[(j<<9)+(i>>9)+(IM_DIM-1)]>=0) nhw_process[(j<<9)+(i>>9)+(IM_DIM)]=10;
+					if (nhw_process[(j<<9)+(i>>9)+(IM_DIM-1)]>=-2) nhw_process[(j<<9)+(i>>9)+(IM_DIM)]=10;
 				}
 				else if (nhw_process[(j<<9)+(i>>9)+(IM_DIM)]>14 && (nhw_process[(j<<9)+(i>>9)+(IM_DIM)]&7)==7)
 				{
@@ -697,7 +701,7 @@ L_W5:			res256[count]=14000;
 						}
 						else if (nhw_process[stage]==7 || nhw_process[stage]==8)
 						{
-							if (nhw_process[stage-1]>=0 && nhw_process[stage-1]<8) nhw_process[stage]+=3;
+							if (nhw_process[stage-1]>=-1 && nhw_process[stage-1]<8) nhw_process[stage]+=3;
 						}
 					}
 				}
@@ -731,11 +735,11 @@ L_W5:			res256[count]=14000;
 					if (nhw_process[stage]>15 && !(nhw_process[stage]&7)) nhw_process[stage]--;
 					else if (nhw_process[stage]==-7 || nhw_process[stage]==-8) 
 					{
-						if (nhw_process[stage-1]<=0) nhw_process[stage]=-9;
+						if (nhw_process[stage-1]<=1) nhw_process[stage]=-9;
 					}
 					else if (nhw_process[stage]==-6) 
 					{
-						if (nhw_process[stage-1]<=-2 && nhw_process[stage-1]>-8) nhw_process[stage]=-9;
+						if (nhw_process[stage-1]<=-1 && nhw_process[stage-1]>-8) nhw_process[stage]=-9;
 					}
 				}
 				else if (res==3)
@@ -748,7 +752,7 @@ L_W5:			res256[count]=14000;
 						if (nhw_process[stage]>15 && !(nhw_process[stage]&7)) nhw_process[stage]--;
 						else if (nhw_process[stage]<=0 && ((((-nhw_process[stage])+2)&65532)==8)) 
 						{
-							if (nhw_process[stage-1]<=0) nhw_process[stage]=-10;
+							if (nhw_process[stage-1]<=2) nhw_process[stage]=-10;
 						}
 					}
 				}
@@ -762,7 +766,7 @@ L_W5:			res256[count]=14000;
 
 						if (nhw_process[stage]==7 || (nhw_process[stage]&65534)==8)
 						{
-							if (nhw_process[stage-1]>0 && nhw_process[stage-1]<8) nhw_process[stage]+=2;
+							if (nhw_process[stage-1]>=0 && nhw_process[stage-1]<8) nhw_process[stage]+=2;
 						}
 					}
 					else if (res>6) 
@@ -778,7 +782,7 @@ L_W5:			res256[count]=14000;
 							if (nhw_process[stage]>15 && !(nhw_process[stage]&7)) nhw_process[stage]--;
 							else if (nhw_process[stage]==-6 || nhw_process[stage]==-7 || nhw_process[stage]==-8) 
 							{
-								if (nhw_process[stage-1]<-1 && nhw_process[stage-1]>-8) nhw_process[stage]=-9;
+								if (nhw_process[stage-1]<0 && nhw_process[stage-1]>-8) nhw_process[stage]=-9;
 							}
 						}
 					}
