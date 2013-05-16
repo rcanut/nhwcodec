@@ -1342,6 +1342,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 {
 	FILE *compressed_file;
 	int i,j,ch,e,a=0,mem,run,nhw;
+	char uv_small_dc_offset[8][2]={{0,4},{0,-4},{4,0},{-4,0},{4,4},{4,-4},{-4,4},{-4,-4}};
 
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
 
@@ -1662,18 +1663,30 @@ L7:	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 		{
 			os->res_ch[i]-=192;
 
-			ch = (os->res_ch[i])>>3;
-			ch <<=2;
-			os->res_comp[j]= (ch-16)+ os->res_comp[j-1];
+			ch = (os->res_ch[i])>>2;
+			os->res_comp[j]= uv_small_dc_offset[ch][0]+ os->res_comp[j-1];
+			j++;
+			os->res_comp[j]= uv_small_dc_offset[ch][1]+ os->res_comp[j-1];
 			j++;
 
-			ch = ((os->res_ch[i])&7);
-			ch <<=2;
-			os->res_comp[j]= (ch-16)+ os->res_comp[j-1];
-			j++;
+			ch=os->res_ch[i]&3;
 
-			os->res_comp[j]=os->res_comp[j-1]+(os->res_comp[j-1]&7);
-			j++;
+			if (!ch)
+			{
+				os->res_comp[j]=os->res_comp[j-1];j++;
+			}
+			else if (ch==1)
+			{
+				os->res_comp[j]=os->res_comp[j-1]+4;j++;
+			}
+			else if (ch==2)
+			{
+				os->res_comp[j]=os->res_comp[j-1]-4;j++;
+			}
+			else
+			{
+				os->res_comp[j]=os->res_comp[j-1]+8;j++;
+			}
 		}
 		else if (os->res_ch[i]>=128)
 		{
