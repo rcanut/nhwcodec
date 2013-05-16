@@ -814,19 +814,55 @@ END_RES3:
 			a=0;res=0;
 			j++;
 		}
+		else if (abs(scan)<=4 && abs(count)<=4)
+		{
+			if (!scan && count==4) res=0;
+			else if (!scan && count==-4) res=1;
+			else if (scan==4 && !count) res=2;
+			else if (scan==-4 && !count) res=3;
+			else if (scan==4 && count==4) res=4;
+			else if (scan==4 && count==-4) res=5;
+			else if (scan==-4 && count==4) res=6;
+			else if (scan==-4 && count==-4) res=7;
+
+			if (!(highres[i+2]-highres[i+1])) 
+			{
+				ch_comp[j++]=128 + 64 + (res<<2);i+=2;
+			}
+			else if ((highres[i+2]-highres[i+1])==4) 
+			{
+				ch_comp[j++]=128 + 64 + (res<<2) + 1;i+=2;
+			}
+			else if ((highres[i+2]-highres[i+1])==-4) 
+			{
+				ch_comp[j++]=128 + 64 + (res<<2) + 2;i+=2;
+			}
+			else if ((highres[i+2]-highres[i+1])==8) 
+			{
+				ch_comp[j++]=128 + 64 + (res<<2) + 3;i+=2;
+			}
+			else 
+			{
+				scan+=16;count+=16;
+				ch_comp[j++]= (scan<<1) + (count>>2);
+				i++;
+			}
+
+			res=0;
+		}
 		else if (abs(scan)<=16 && abs(count)<=16)
 		{
-			scan+=16;count+=16;e=(highres[i+1]>>2)&1;
+			scan+=16;count+=16;//e=(highres[i+1]>>2)&1;
 			if (scan==32 || count==32) 
 			{
 				ch_comp[j++]=(1<<7)+(highres[i]>>2);
 				//if (highres[i+1]==128) {ch_comp[j-1]+=(1<<6);i++;}
 				//else {ch_comp[j++]=(1<<7)+(highres[i+1]>>2);i++;}
 			}
-			else if (((highres[i+2]-highres[i+1])==0 && !e)|| ((highres[i+2]-highres[i+1])==4 && e==1))
+			/*else if (((highres[i+2]-highres[i+1])==0 && !e)|| ((highres[i+2]-highres[i+1])==4 && e==1))
 			{
 				ch_comp[j++]=128 + 64 + (scan<<1) + (count>>2);i+=2;
-			}
+			}*/
 			else 
 			{
 				ch_comp[j++]= (scan<<1) + (count>>2);
