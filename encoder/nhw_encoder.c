@@ -390,7 +390,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	free(im->im_jpeg);
 
-	for (i=(2*IM_DIM),count=0,res=0;i<(2*IM_SIZE-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),count=0,res=0;i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+(IM_DIM+1),j=(IM_DIM+1);j<((2*IM_DIM)-1);j++,scan++)
 		{
@@ -425,10 +425,12 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			else if (nhw_process[scan]==8)
 			{
 				if ((nhw_process[scan-1]&65534)==6 || (nhw_process[scan+1]&65534)==6) nhw_process[scan]=10;
+				else if (nhw_process[scan+1]==8) {nhw_process[scan]=9;nhw_process[scan+1]=9;}
 			}
 			else if (nhw_process[scan]==-8)
 			{
 				if (((-nhw_process[scan-1])&65534)==6 || ((-nhw_process[scan+1])&65534)==6) nhw_process[scan]=-9;
+				else if (nhw_process[scan+1]==-8) {nhw_process[scan]=-9;nhw_process[scan+1]=-9;}
 			}
 		}
 	}
