@@ -12,7 +12,7 @@
 *  remark: -image parameters, wavelet orders, ... (beta version)		   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2013 NHW Project
+/* Copyright (C) 2007-2012 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -63,8 +63,10 @@
 #define IM_DIM 256	
 
 // QUALITY SETTING
-#define HIGH1 1
-#define NORM 0
+#define HIGH1 3
+#define NORM 2
+#define LOW1 1
+#define LOW2 0
 
 /*==========================================*/
 

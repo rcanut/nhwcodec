@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 04082013 nhw exp $							           *
+*  last update: $ 05292013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -56,8 +56,9 @@ void main(int argc, char **argv)
 	image_buffer im;
 	decode_state dec;
 	FILE *res_image;
-	int i,Y,U,V,R,G,B,len,t;
+	int i,Y,U,V,R,G,B,len,m,t;
 	unsigned char *icolorY,*icolorU,*icolorV,*iNHW;
+	float Y_q_setting,Y_inv;
 	char OutputFile[200];
 	unsigned char bmp_header[54]={66,77,54,0,12,0,0,0,0,0,
 							  54,0,0,0,40,0,0,0,0,2,
@@ -84,32 +85,6 @@ void main(int argc, char **argv)
 	im.im_buffer4=(unsigned char*)malloc(3*IM_SIZE*sizeof(char));
 	iNHW=(unsigned char*)im.im_buffer4;
 
-	for (i=0,t=0;i<IM_SIZE;i++,t+=3)
-	{
-		//Y = icolorY[i]*298;
-		Y = icolorY[i];
-		U = icolorU[i];
-		V = icolorV[i];
-
-		//Matrix  YCbCr (or YUV) to RGB
-		/*R = ((Y         + 409*V + R_COMP)>>8); 
-		G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-		B = ((Y + 516*U         + B_COMP)>>8);*/
-		R = (int)(Y  + 1.402*(V-128)+0.5f);   
-		G = (int)(Y-0.34414*(U-128)-0.71414*(V-128)+0.5f); 
-		B = (int)(Y+1.772*(U-128)+0.5f);
-
-		//Clip RGB Values
-		if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-		else iNHW[t]=R;
-
-		if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-		else iNHW[t+1]=G;
-
-		if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-		else iNHW[t+2]=B;
-	}
-
 	// Create the Output Decompressed .BMP File
 	len=strlen(argv[1]);
 	memset(argv[1]+len-4,0,4);
@@ -124,91 +99,75 @@ void main(int argc, char **argv)
 
 	// WRITE DECODED DATA
 	fwrite(bmp_header,54,1,res_image);
-	fwrite(iNHW,3*IM_SIZE,1,res_image);
 
-	for (i=IM_SIZE,t=0;i<2*IM_SIZE;i++,t+=3)
+	if (im.setup->quality_setting>=NORM)
 	{
-		//Y = icolorY[i]*298;
-		Y = icolorY[i];
-		U = icolorU[i];
-		V = icolorV[i];
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				//Y = icolorY[i]*298;
+				Y = icolorY[i];
+				U = icolorU[i];
+				V = icolorV[i];
 
-		//Matrix  YCbCr (or YUV) to RGB
-		/*R = ((Y         + 409*V + R_COMP)>>8); 
-		G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-		B = ((Y + 516*U         + B_COMP)>>8);*/
-		R = (int)(Y  + 1.402*(V-128)+0.5f);   
-		G = (int)(Y-0.34414*(U-128)-0.71414*(V-128)+0.5f); 
-		B = (int)(Y+1.772*(U-128)+0.5f);
+				//Matrix  YCbCr (or YUV) to RGB
+				/*R = ((Y         + 409*V + R_COMP)>>8); 
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
+				B = ((Y + 516*U         + B_COMP)>>8);*/
+				R = (int)(Y  + 1.402*(V-128)+0.5f);   
+				G = (int)(Y  -0.34414*(U-128) -0.71414*(V-128)+0.5f); 
+				B = (int)(Y  +1.772*(U-128)+0.5f);
 
-		//Clip RGB Values
-		if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-		else iNHW[t]=R;
+				//Clip RGB Values
+				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
+				else iNHW[t]=R;
 
-		if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-		else iNHW[t+1]=G;
+				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+				else iNHW[t+1]=G;
 
-		if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-		else iNHW[t+2]=B;
+				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
+				else iNHW[t+2]=B;
+			}
+
+			fwrite(iNHW,3*IM_SIZE,1,res_image);
+		}
 	}
-
-	fwrite(iNHW,3*IM_SIZE,1,res_image);
-
-	for (i=2*IM_SIZE,t=0;i<3*IM_SIZE;i++,t+=3)
+	else
 	{
-		//Y = icolorY[i]*298;
-		Y = icolorY[i];
-		U = icolorU[i];
-		V = icolorV[i];
+		if (im.setup->quality_setting==LOW1) Y_inv=1.06952;else Y_inv=1.136364; // (1/0.935 and 1/0.88)
 
-		//Matrix  YCbCr (or YUV) to RGB
-		/*R = ((Y         + 409*V + R_COMP)>>8); 
-		G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-		B = ((Y + 516*U         + B_COMP)>>8);*/
-		R = (int)(Y  + 1.402*(V-128)+0.5f);   
-		G = (int)(Y-0.34414*(U-128)-0.71414*(V-128)+0.5f); 
-		B = (int)(Y+1.772*(U-128)+0.5f);
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				//Y = icolorY[i]*298;
+				Y_q_setting =(float)(icolorY[i]*Y_inv);
+				U = icolorU[i];
+				V = icolorV[i];
 
-		//Clip RGB Values
-		if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-		else iNHW[t]=R;
+				//Matrix  YCbCr (or YUV) to RGB
+				/*R = ((Y         + 409*V + R_COMP)>>8); 
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
+				B = ((Y + 516*U         + B_COMP)>>8);*/
+				R = (int)(Y_q_setting  + 1.402*(V-128)+0.5f);   
+				G = (int)(Y_q_setting  -0.34414*(U-128) -0.71414*(V-128)+0.5f); 
+				B = (int)(Y_q_setting  +1.772*(U-128)+0.5f);
 
-		if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-		else iNHW[t+1]=G;
+				//Clip RGB Values
+				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
+				else iNHW[t]=R;
 
-		if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-		else iNHW[t+2]=B;
+				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+				else iNHW[t+1]=G;
+
+				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
+				else iNHW[t+2]=B;
+			}
+
+			fwrite(iNHW,3*IM_SIZE,1,res_image);
+		}
 	}
-
-	fwrite(iNHW,3*IM_SIZE,1,res_image);
-
-	for (i=3*IM_SIZE,t=0;i<4*IM_SIZE;i++,t+=3)
-	{
-		//Y = icolorY[i]*298;
-		Y = icolorY[i];
-		U = icolorU[i];
-		V = icolorV[i];
-
-		//Matrix  YCbCr (or YUV) to RGB
-		/*R = ((Y         + 409*V + R_COMP)>>8); 
-		G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-		B = ((Y + 516*U         + B_COMP)>>8);*/
-		R = (int)(Y  + 1.402*(V-128)+0.5f);   
-		G = (int)(Y-0.34414*(U-128)-0.71414*(V-128)+0.5f); 
-		B = (int)(Y+1.772*(U-128)+0.5f);
-
-		//Clip RGB Values
-		if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-		else iNHW[t]=R;
-
-		if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-		else iNHW[t+1]=G;
-
-		if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-		else iNHW[t+2]=B;
-	}
-
-	fwrite(iNHW,3*IM_SIZE,1,res_image);
 
 	fclose(res_image);
 	free(im.im_bufferY);
@@ -441,6 +400,9 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+	if (im->setup->quality_setting>=LOW1)
+	{
+
 	nhwres3I=(unsigned short*)calloc((os->nhw_res3_bit_len<<3),sizeof(short));stage=0;
 	os->d_size_tree1=0;os->end_ch_res=0;os->res_f1=0;os->res_f2=0;
 
@@ -536,6 +498,8 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	free(nhwres3I);
 	free(os->nhw_res3_word);
+
+	}
 
 	for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 	{
@@ -712,33 +676,38 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	}
 	free(nhwres2);
 
-	for (i=0;i<os->end_ch_res;i++) {
-		im_nhw2[((nhwres3[i]&65280)<<1)+(nhwres3[i]&255)]-=4;
-														im_nhw2[((nhwres3[i]&65280)<<1)+(nhwres3[i]&255)+(2*IM_DIM)]-=3;}
-	free(nhwres3);
-
-	for (i=0;i<os->d_size_tree1;i++) {
-		im_nhw2[((nhwres4[i]&65280)<<1)+(nhwres4[i]&255)]+=4;
-														im_nhw2[((nhwres4[i]&65280)<<1)+(nhwres4[i]&255)+(2*IM_DIM)]+=3;}
-	free(nhwres4);
-
-	for (i=0;i<os->res_f1;i++) 
+	if (im->setup->quality_setting>=LOW1)
 	{
-		im_nhw2[((nhwres5[i]&65280)<<1)+(nhwres5[i]&255)]+=2;
-		im_nhw2[((nhwres5[i]&65280)<<1)+(nhwres5[i]&255)+(2*IM_DIM)]+=2;
-		im_nhw2[((nhwres5[i]&65280)<<1)+(nhwres5[i]&255)+(4*IM_DIM)]+=2;
+		for (i=0;i<os->end_ch_res;i++) 
+		{
+			im_nhw2[((nhwres3[i]&65280)<<1)+(nhwres3[i]&255)]-=4;
+			im_nhw2[((nhwres3[i]&65280)<<1)+(nhwres3[i]&255)+(2*IM_DIM)]-=3;
+		}
+		free(nhwres3);
 
+		for (i=0;i<os->d_size_tree1;i++) 
+		{
+			im_nhw2[((nhwres4[i]&65280)<<1)+(nhwres4[i]&255)]+=4;
+			im_nhw2[((nhwres4[i]&65280)<<1)+(nhwres4[i]&255)+(2*IM_DIM)]+=3;
+		}
+		free(nhwres4);
+
+		for (i=0;i<os->res_f1;i++) 
+		{
+			im_nhw2[((nhwres5[i]&65280)<<1)+(nhwres5[i]&255)]+=2;
+			im_nhw2[((nhwres5[i]&65280)<<1)+(nhwres5[i]&255)+(2*IM_DIM)]+=2;
+			im_nhw2[((nhwres5[i]&65280)<<1)+(nhwres5[i]&255)+(4*IM_DIM)]+=2;
+		}
+		free(nhwres5);
+
+		for (i=0;i<os->res_f2;i++) 
+		{
+			im_nhw2[((nhwres6[i]&65280)<<1)+(nhwres6[i]&255)]-=2;
+			im_nhw2[((nhwres6[i]&65280)<<1)+(nhwres6[i]&255)+(2*IM_DIM)]-=2;
+			im_nhw2[((nhwres6[i]&65280)<<1)+(nhwres6[i]&255)+(4*IM_DIM)]-=2;
+		}
+		free(nhwres6);
 	}
-	free(nhwres5);
-
-	for (i=0;i<os->res_f2;i++) 
-	{
-		im_nhw2[((nhwres6[i]&65280)<<1)+(nhwres6[i]&255)]-=2;
-		im_nhw2[((nhwres6[i]&65280)<<1)+(nhwres6[i]&255)+(2*IM_DIM)]-=2;
-		im_nhw2[((nhwres6[i]&65280)<<1)+(nhwres6[i]&255)+(4*IM_DIM)]-=2;
-
-	}
-	free(nhwres6);
 
 	for (i=(2*IM_DIM),stage=0;i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -1373,10 +1342,13 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(&os->tree_end,2,1,compressed_file);
 	fread(&os->exw_Y_end,2,1,compressed_file);
 	fread(&os->nhw_res1_len,2,1,compressed_file);
-	fread(&os->nhw_res3_len,2,1,compressed_file);
+	if (imd->setup->quality_setting>=LOW1)
+	{
+		fread(&os->nhw_res3_len,2,1,compressed_file);
+		fread(&os->nhw_res3_bit_len,2,1,compressed_file);
+	}
 	fread(&os->nhw_res4_len,2,1,compressed_file);
 	fread(&os->nhw_res1_bit_len,2,1,compressed_file);
-	fread(&os->nhw_res3_bit_len,2,1,compressed_file);
 
 	if (imd->setup->quality_setting==HIGH1)
 	{
@@ -1397,12 +1369,15 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	os->d_tree2=(unsigned char*)calloc(os->d_size_tree2,sizeof(char));
 	os->exw_Y=(unsigned char*)malloc(os->exw_Y_end*sizeof(char));
 	os->nhw_res1=(unsigned char*)malloc(os->nhw_res1_len*sizeof(char));
-	os->nhw_res3=(unsigned char*)malloc(os->nhw_res3_len*sizeof(char));
-	os->nhw_res4=(unsigned char*)malloc(os->nhw_res4_len*sizeof(char));
 	os->nhw_res1_bit=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
-	os->nhw_res3_bit=(unsigned char*)malloc(os->nhw_res3_bit_len*sizeof(char));
 	os->nhw_res1_word=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
-	os->nhw_res3_word=(unsigned char*)malloc((os->nhw_res3_bit_len<<1)*sizeof(char));
+	if (imd->setup->quality_setting>=LOW1)
+	{
+		os->nhw_res3=(unsigned char*)malloc(os->nhw_res3_len*sizeof(char));
+		os->nhw_res3_bit=(unsigned char*)malloc(os->nhw_res3_bit_len*sizeof(char));
+		os->nhw_res3_word=(unsigned char*)malloc((os->nhw_res3_bit_len<<1)*sizeof(char));
+	}
+	os->nhw_res4=(unsigned char*)malloc(os->nhw_res4_len*sizeof(char));
 	os->nhw_select_word1=(unsigned char*)malloc(os->nhw_select1*sizeof(char));
 	os->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
 	os->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
@@ -1416,12 +1391,16 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(os->d_tree2,os->d_size_tree2,1,compressed_file);
 	fread(os->exw_Y,os->exw_Y_end,1,compressed_file);
 	fread(os->nhw_res1,os->nhw_res1_len,1,compressed_file);
-	fread(os->nhw_res3,os->nhw_res3_len,1,compressed_file);
-	fread(os->nhw_res4,os->nhw_res4_len,1,compressed_file);
 	fread(os->nhw_res1_bit,os->nhw_res1_bit_len,1,compressed_file);
 	fread(os->nhw_res1_word,os->nhw_res1_bit_len,1,compressed_file);
-	fread(os->nhw_res3_bit,os->nhw_res3_bit_len,1,compressed_file);
-	fread(os->nhw_res3_word,(os->nhw_res3_bit_len<<1),1,compressed_file);
+	fread(os->nhw_res4,os->nhw_res4_len,1,compressed_file);
+
+	if (imd->setup->quality_setting>=LOW1)
+	{
+		fread(os->nhw_res3,os->nhw_res3_len,1,compressed_file);
+		fread(os->nhw_res3_bit,os->nhw_res3_bit_len,1,compressed_file);
+		fread(os->nhw_res3_word,(os->nhw_res3_bit_len<<1),1,compressed_file);
+	}
 
 	if (imd->setup->quality_setting==HIGH1)
 	{
