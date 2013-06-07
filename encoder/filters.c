@@ -396,20 +396,20 @@ void downfilter97(short *_X,int N,int decalage,short *_RES)
 
 		for (k=5;k<N-1;k+=2)
 		{
-			_RES[e++]=(short)(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
+			_RES[e++]=floor(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
 			__FIR[0]=__FIR[2];__FIR[1]=__FIR[3];__FIR[2]=__FIR[4];
 			__FIR[3]=__FIR[5];__FIR[4]=__FIR[6];__FIR[5]=_X[k];__FIR[6]=_X[k+1];
 		}
 
-		_RES[e++]=(short)(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
+		_RES[e++]=floor(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
 		__FIR[0]=__FIR[2];__FIR[1]=__FIR[3];__FIR[2]=__FIR[4];
 		__FIR[3]=__FIR[5];__FIR[4]=__FIR[6];__FIR[5]=_X[N-1];__FIR[6]=_X[0];
 
-		_RES[e++]=(short)(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
+		_RES[e++]=floor(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
 		__FIR[0]=__FIR[2];__FIR[1]=__FIR[3];__FIR[2]=__FIR[4];
 		__FIR[3]=__FIR[5];__FIR[4]=__FIR[6];__FIR[5]=_X[1];__FIR[6]=_X[2];
 
-		_RES[e++]=(int)(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
+		_RES[e++]=floor(W976*__FIR[3]+W977*(__FIR[2]+__FIR[4])+W978*(__FIR[1]+__FIR[5])+W979*(__FIR[0]+__FIR[6])+0.5f);
 	}
 	else
 	{
@@ -419,23 +419,23 @@ void downfilter97(short *_X,int N,int decalage,short *_RES)
 
 		for (k=5;k<N-1;k+=2)
 		{
-			_RES[e++]=(short)(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
+			_RES[e++]=floor(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
 								+W975*(__FIR[0]+__FIR[8])+0.5f);	
 			__FIR[0]=__FIR[2];__FIR[1]=__FIR[3];__FIR[2]=__FIR[4];__FIR[3]=__FIR[5];
 			__FIR[4]=__FIR[6];__FIR[5]=__FIR[7];__FIR[6]=__FIR[8];__FIR[7]=_X[k];__FIR[8]=_X[k+1];
 		}
 
-		_RES[e++]=(short)(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
+		_RES[e++]=floor(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
 								+W975*(__FIR[0]+__FIR[8])+0.5f);
 		__FIR[0]=__FIR[2];__FIR[1]=__FIR[3];__FIR[2]=__FIR[4];__FIR[3]=__FIR[5];
 		__FIR[4]=__FIR[6];__FIR[5]=__FIR[7];__FIR[6]=__FIR[8];__FIR[7]=_X[N-1];__FIR[8]=_X[0];
 
-		_RES[e++]=(short)(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
+		_RES[e++]=floor(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
 								+W975*(__FIR[0]+__FIR[8])+0.5f);	
 		__FIR[0]=__FIR[2];__FIR[1]=__FIR[3];__FIR[2]=__FIR[4];__FIR[3]=__FIR[5];
 		__FIR[4]=__FIR[6];__FIR[5]=__FIR[7];__FIR[6]=__FIR[8];__FIR[7]=_X[1];__FIR[8]=_X[2];
 
-		_RES[e++]=(short)(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
+		_RES[e++]=floor(W971*__FIR[4]+W972*(__FIR[3]+__FIR[5])+W973*(__FIR[2]+__FIR[6])+W974*(__FIR[1]+__FIR[7])
 								+W975*(__FIR[0]+__FIR[8])+0.5f);	
 	}
 }
@@ -639,32 +639,32 @@ void upfilter97(short *_X,int M,int E,short *_RES)
 
 	if (E)
 	{
-		_RES[e++]=(short)(W976*_X[0]+W978*(_X[1]+_X[M-1])+0.5f);_RES[e++]=(short)(W97S3*(_X[1]+_X[0])+W97S4*(_X[2]+_X[M-1])+0.5f);
+		_RES[e++]=floor(W976*_X[0]+W978*(_X[1]+_X[M-1])+0.5f);_RES[e++]=floor(W97S3*(_X[1]+_X[0])+W97S4*(_X[2]+_X[M-1])+0.5f);
 
 		for (j=3;j<M;j++)
 		{
-			_RES[e++]=(short)(W976*_X[j-2]+W978*(_X[j-1]+_X[j-3])+0.5f);_RES[e++]=(short)(W97S3*(_X[j-1]+_X[j-2])+W97S4*(_X[j]+_X[j-3])+0.5f);
+			_RES[e++]=floor(W976*_X[j-2]+W978*(_X[j-1]+_X[j-3])+0.5f);_RES[e++]=floor(W97S3*(_X[j-1]+_X[j-2])+W97S4*(_X[j]+_X[j-3])+0.5f);
 		}
 
-		_RES[e++]=(short)(W976*_X[M-2]+W978*(_X[M-1]+_X[M-3])+0.5f);_RES[e++]=(short)(W97S3*(_X[M-1]+_X[M-2])+W97S4*(_X[0]+_X[M-3])+0.5f);
-		_RES[e++]=(short)(W976*_X[M-1]+W978*(_X[0]+_X[M-2])+0.5f);_RES[e++]=(short)(W97S3*(_X[0]+_X[M-1])+W97S4*(_X[1]+_X[M-2])+0.5f);
+		_RES[e++]=floor(W976*_X[M-2]+W978*(_X[M-1]+_X[M-3])+0.5f);_RES[e++]=floor(W97S3*(_X[M-1]+_X[M-2])+W97S4*(_X[0]+_X[M-3])+0.5f);
+		_RES[e++]=floor(W976*_X[M-1]+W978*(_X[0]+_X[M-2])+0.5f);_RES[e++]=floor(W97S3*(_X[0]+_X[M-1])+W97S4*(_X[1]+_X[M-2])+0.5f);
 	}
 	else
 	{
-		_RES[e++]+=(short)(W97S1*(_X[M-1]+_X[0])+W97S2*(_X[M-2]+_X[1])+0.5f);
-		_RES[e++]+=(short)(W971*_X[0]+W973*(_X[M-1]+_X[1])+W975*(_X[M-2]+_X[2])+0.5f);
-		_RES[e++]+=(short)(W97S1*(_X[0]+_X[1])+W97S2*(_X[M-1]+_X[2])+0.5f);
-		_RES[e++]+=(short)(W971*_X[1]+W973*(_X[0]+_X[2])+W975*(_X[M-1]+_X[3])+0.5f);
+		_RES[e++]+=floor(W97S1*(_X[M-1]+_X[0])+W97S2*(_X[M-2]+_X[1])+0.5f);
+		_RES[e++]+=floor(W971*_X[0]+W973*(_X[M-1]+_X[1])+W975*(_X[M-2]+_X[2])+0.5f);
+		_RES[e++]+=floor(W97S1*(_X[0]+_X[1])+W97S2*(_X[M-1]+_X[2])+0.5f);
+		_RES[e++]+=floor(W971*_X[1]+W973*(_X[0]+_X[2])+W975*(_X[M-1]+_X[3])+0.5f);
 
 		for (j=4;j<M;j++)
 		{
-			_RES[e++]+=(short)(W97S1*(_X[j-3]+_X[j-2])+W97S2*(_X[j-4]+_X[j-1])+0.5f);
-			_RES[e++]+=(short)(W971*_X[j-2]+W973*(_X[j-3]+_X[j-1])+W975*(_X[j-4]+_X[j])+0.5f);
+			_RES[e++]+=floor(W97S1*(_X[j-3]+_X[j-2])+W97S2*(_X[j-4]+_X[j-1])+0.5f);
+			_RES[e++]+=floor(W971*_X[j-2]+W973*(_X[j-3]+_X[j-1])+W975*(_X[j-4]+_X[j])+0.5f);
 		}
 
-		_RES[e++]+=(short)(W97S1*(_X[M-3]+_X[M-2])+W97S2*(_X[M-4]+_X[M-1])+0.5f);
-		_RES[e++]+=(short)(W971*_X[M-2]+W973*(_X[M-3]+_X[M-1])+W975*(_X[M-4]+_X[0])+0.5f);
-		_RES[e++]+=(short)(W97S1*(_X[M-2]+_X[M-1])+W97S2*(_X[M-3]+_X[0])+0.5f);
-		_RES[e++]+=(short)(W971*_X[M-1]+W973*(_X[M-2]+_X[0])+W975*(_X[M-3]+_X[1])+0.5f);
+		_RES[e++]+=floor(W97S1*(_X[M-3]+_X[M-2])+W97S2*(_X[M-4]+_X[M-1])+0.5f);
+		_RES[e++]+=floor(W971*_X[M-2]+W973*(_X[M-3]+_X[M-1])+W975*(_X[M-4]+_X[0])+0.5f);
+		_RES[e++]+=floor(W97S1*(_X[M-2]+_X[M-1])+W97S2*(_X[M-3]+_X[0])+0.5f);
+		_RES[e++]+=floor(W971*_X[M-1]+W973*(_X[M-2]+_X[0])+W975*(_X[M-3]+_X[1])+0.5f);
 	}
 }
