@@ -33,7 +33,7 @@
 
 -----------------------------------------------------------------------------------------
 
-last version : 0.1.3 03252013 nhw
+last version : 0.1.3 05292013 nhw
 
 This codec allows to compress a bitmap color image (with 512x512 size for the moment) using notably a wavelet transform.
 
@@ -43,9 +43,9 @@ This codec allows to compress a bitmap color image (with 512x512 size for the mo
 
 encoder option:  nhw_encoder.exe filename.bmp 
 		     nhw_encoder.exe filename.bmp -h1
+		     nhw_encoder.exe filename.bmp -l1
+		     nhw_encoder.exe filename.bmp -l2
 
-		    (nhw_encoder.exe filename.bmp h -> no high and low
-		     nhw_encoder.exe filename.bmp l -> and other settings for this version)
 
 -----------------------------------------------------------------------------------------
 
