@@ -69,7 +69,7 @@ void main(int argc, char **argv)
 	}
 
 	im.setup=(codec_setup*)malloc(sizeof(codec_setup));
-	im.setup->quality_setting=LOW2;
+	im.setup->quality_setting=NORM;
 
 	if (argv[2]==NULL || argv[2]==0) select=8;
 	else
