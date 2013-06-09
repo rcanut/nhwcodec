@@ -54,7 +54,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 	short *data,*res,*data2;
 	int i,j,IM_SYNTH=IM_DIM,a;
 
-	if (Y)
+	if (Y==1 || Y==2)
 	{
 	data=im->im_jpeg;
 	res=im->im_process;
@@ -114,7 +114,10 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 		a=i;
 		for (j=0;j<norder;j++,a+=(2*IM_DIM)) res[j]=data[a];
 	}
-
+	}
+	
+	if (Y==1 || Y==3)
+	{
 	data=im->im_jpeg;
 	res=im->im_process;
 	data2=im->im_jpeg + norder/2;
@@ -138,7 +141,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 		}
 	}
 	}
-	else 
+	else if (!Y)
 	{
 	data=im->im_jpeg;
 	res=im->im_process;
