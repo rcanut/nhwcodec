@@ -766,17 +766,15 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		for (scan=i,j=0;j<IM_DIM;j++,scan+=(2*IM_DIM)) im_nhw[j]=im_nhw2[scan];
 	}
 
-	wavelet_synthesis(im,(2*IM_DIM),end_transform,1);
-	
-	free(im->im_jpeg);
+	wavelet_synthesis(im,(2*IM_DIM),end_transform,2);
 
-	im_nhw=(short*)im->im_process;
+	im_nhw=(short*)im->im_jpeg;
 
 	for (i=0;i<count;i++)
 	{
 		scan=nhwres1[i]>>8;
 		scan<<=10;
-		scan+=((nhwres1[i]&255)<<1);
+		scan+=(nhwres1[i]&255);
 
 		res	   =   (im_nhw[scan]<<3) -
 					im_nhw[scan-1]-im_nhw[scan+1]-
@@ -792,6 +790,12 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	}
 
 	free(nhwres1);
+
+	wavelet_synthesis(im,(2*IM_DIM),end_transform,3);
+	
+	free(im->im_jpeg);
+
+	im_nhw=(short*)im->im_process;
 
 	im->im_bufferY=(unsigned char*)malloc(4*IM_SIZE*sizeof(char));
 	nhw_scale=(unsigned char*)im->im_bufferY;

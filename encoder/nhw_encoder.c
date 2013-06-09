@@ -69,16 +69,13 @@ void main(int argc, char **argv)
 	}
 
 	im.setup=(codec_setup*)malloc(sizeof(codec_setup));
-	im.setup->quality_setting=NORM;
+	im.setup->quality_setting=LOW2;
 
 	if (argv[2]==NULL || argv[2]==0) select=8;
 	else
 	{
 		*argv++;*argv++;arg=*argv++;
-		/*if(strcmp(arg,"h")==0) select=6;
-		if (strcmp(arg,"m")==0) select=7;
-		else if (strcmp(arg,"l")==0) select=8;
-		else select=8;*/
+		
 		if (strcmp(arg,"-h1")==0) im.setup->quality_setting=HIGH1; 
 		else if (strcmp(arg,"-l1")==0) im.setup->quality_setting=LOW1; 
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
