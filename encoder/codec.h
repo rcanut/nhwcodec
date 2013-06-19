@@ -63,10 +63,12 @@
 #define IM_DIM 256
 
 //QUALITY SETTINGS
-#define HIGH1 3
-#define NORM 2
-#define LOW1 1
-#define LOW2 0
+#define HIGH1 4
+#define NORM 3
+#define LOW1 2
+#define LOW2 1
+#define LOW3 0
+
 
 /*==========================================*/
 

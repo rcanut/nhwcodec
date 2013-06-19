@@ -105,46 +105,40 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 	}
 	else
 	{
-		if (im->setup->quality_setting==LOW1) Y_quant=0.935;else Y_quant=0.88;
+		if (im->setup->quality_setting==LOW1) Y_quant=0.935;
+		else if (im->setup->quality_setting==LOW2) Y_quant=0.88;
+		else Y_quant=0.77;
 
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 		{
-		//Convert RGB to YCbCr or YUV
-		/*Y = (( 66*colors[i] + 129*colors[i+1] +  25*colors[i+2] + 128)>>8)+ 16;
-		U = ((-38*colors[i] -  74*colors[i+1] + 112*colors[i+2] + 128)>>8)+128;
-		V = ((112*colors[i] -  94*colors[i+1] -  18*colors[i+2] + 128)>>8)+128;*/
 
-		Y = (int)( (0.299*colors[i] + 0.587*colors[i+1] +  0.114*colors[i+2])*Y_quant+0.5f);
-		/*U = (int)(-0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2] + 128.5f);
-		V = (int)(0.5*colors[i] -  0.4187*colors[i+1] -  0.0813*colors[i+2] + 128.5f);*/
+			Y = (int)( (0.299*colors[i] + 0.587*colors[i+1] +  0.114*colors[i+2])*Y_quant+0.5f);
+			/*U = (int)(-0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2] + 128.5f);
+			V = (int)(0.5*colors[i] -  0.4187*colors[i+1] -  0.0813*colors[i+2] + 128.5f);*/
 
-		color_balance = -0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2];
-		if (color_balance>=0) U = (int)(color_balance + 128.5f);
-		else U = (int)(color_balance + 128.4f);
+			color_balance = -0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2];
+			if (color_balance>=0) U = (int)(color_balance + 128.5f);
+			else U = (int)(color_balance + 128.4f);
 
-		color_balance = 0.5*colors[i] -  0.4187*colors[i+1] -  0.0813*colors[i+2];
-		if (color_balance>=0) V = (int)(color_balance + 128.5f);
-		else V = (int)(color_balance + 128.4f);
+			color_balance = 0.5*colors[i] -  0.4187*colors[i+1] -  0.0813*colors[i+2];
+			if (color_balance>=0) V = (int)(color_balance + 128.5f);
+			else V = (int)(color_balance + 128.4f);
 
-		//Clip YUV values
-		//if ((Y>>8)!=0) colorsY[j]=( (Y<0) ? 0 : 255 );
-		//else colorsY[j]=Y;
-		colorsY[j]=Y;
+			colorsY[j]=Y;
 
-		if ((U>>8)!=0) 
-		{
-			colors[i+1]=( (U<0) ? 0 : 255);
+			if ((U>>8)!=0) 
+			{
+				colors[i+1]=( (U<0) ? 0 : 255);
+			}
+			else colors[i+1]=U;
+
+
+			if ((V>>8)!=0) 
+			{
+				colors[i+2]=( (V<0) ? 0 : 255 );
+			}
+			else colors[i+2]=V;
 		}
-		else colors[i+1]=U;
-
-
-		if ((V>>8)!=0) 
-		{
-			colors[i+2]=( (V<0) ? 0 : 255 );
-		}
-		else colors[i+2]=V;
-		}
-
 	}
 
 	/*my >>=18; if (my>255) my=255;else if (my<0) my=0; enc->m_y=my;
