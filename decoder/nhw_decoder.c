@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 06192013 nhw exp $							           *
+*  last update: $ 06232013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -598,7 +598,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 					else {im->im_jpeg[scan-IM_DIM]=7;im->im_jpeg[scan-(3*IM_DIM)]=7;im->im_jpeg[scan]=0;}
 				}
 			}
-			else if (abs(im_nhw[scan])>8)
+			else if (abs(im_nhw[scan])>8 && abs(im_nhw[scan])<16)
 			{
 				if (j>IM_DIM && j<((2*IM_DIM)-1) && abs(im_nhw[scan-1])<8 && abs(im_nhw[scan+1])<8)
 				{
