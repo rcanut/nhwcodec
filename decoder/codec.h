@@ -63,6 +63,7 @@
 #define IM_DIM 256	
 
 // QUALITY SETTING
+#define HIGH2 5
 #define HIGH1 4
 #define NORM 3
 #define LOW1 2
@@ -115,6 +116,7 @@ typedef struct{
 	unsigned short nhw_res3_len;
 	unsigned short nhw_res4_len;
 	unsigned short nhw_res5_len;
+	unsigned long nhw_res6_len;
 	unsigned short nhw_res1_bit_len;
 	unsigned short nhw_res2_bit_len;
 	unsigned short nhw_res3_bit_len;
@@ -125,13 +127,20 @@ typedef struct{
 	unsigned char *nhw_res3;
 	unsigned char *nhw_res4;
 	unsigned char *nhw_res5;
+	unsigned char *nhw_res6;
 	unsigned char *nhw_res1_bit;
 	unsigned char *nhw_res1_word;
 	unsigned char *nhw_res3_bit;
 	unsigned char *nhw_res3_word;
 	unsigned char *nhw_res5_bit;
 	unsigned char *nhw_res5_word;
+	unsigned char *nhw_res6_bit;
+	unsigned char *nhw_res6_word;
+	unsigned long *nhwresH3;
+	unsigned long *nhwresH4;
 	unsigned char *nhw_select_word1;
+	unsigned short *nhw_char_res1;
+	unsigned short nhw_char_res1_len;
 	unsigned short res_f1;
 	unsigned short res_f2;
 	unsigned short d_size_tree1;
@@ -159,6 +168,7 @@ extern int parse_file(image_buffer *imd,decode_state *os,char **argv);
 extern int write_image_decompressed(char **argv,image_buffer *im);
 
 extern void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y);
+extern void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_stage,int Y);
 extern void upfilter53(short *x,int M,short *res);
 extern void upfilter53I(short *x,int M,short *res);
 extern void upfilter53III(short *x,int M,short *res);

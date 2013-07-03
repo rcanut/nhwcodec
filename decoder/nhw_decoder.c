@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 06232013 nhw exp $							           *
+*  last update: $ 07032013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -70,7 +70,7 @@ void main(int argc, char **argv)
 
 	if (argv[1]==NULL || argv[1]==0)
 	{
-		printf("\n Copyright (C) 2007-2012 NHW Project (Raphael C.)\n");
+		printf("\n Copyright (C) 2007-2013 NHW Project (Raphael C.)\n");
 		printf("\n-> nhw_decoder.exe filename.nhw\n");
 		exit(-1);
 	}
@@ -180,11 +180,12 @@ void main(int argc, char **argv)
 
 void decode_image(image_buffer *im,decode_state *os,char **argv)
 {
-	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,*res_decompr,exw1,res,nhw_selectII;
+	int nhw,stage,wavelet_order,end_transform,i,j,e=0,t1,t2,count,scan,*res_decompr,exw1,res,nhw_selectII;
 	short *im_nhw,*im_nhw2;
 	char *res256;
 	unsigned char *nhw_scale,*nhw_chr;
 	unsigned short *nhwresH1,*nhwresH2,*nhwresH1I;
+	unsigned long *nhwresH3I;
 	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres4I,*nhwres5,*nhwres6;
 
 	wavelet_order=parse_file(im,os,argv);
@@ -307,7 +308,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if (im->setup->quality_setting==HIGH1)
+	if (im->setup->quality_setting>=HIGH1)
 	{
 
 	nhwresH1I=(unsigned short*)calloc((os->nhw_res5_bit_len<<3),sizeof(short));stage=0;
@@ -396,11 +397,126 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	free(os->nhw_res5_word);
 
 	os->nhw_res5_bit_len=os->end_ch_res;
-	os->nhw_res6_bit_len=os->d_size_tree1;
+	os->nhw_res5_len=os->d_size_tree1;
 
 	}
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	if (im->setup->quality_setting>HIGH1)
+	{
+
+	nhwresH3I=(unsigned long*)calloc((os->nhw_res6_bit_len<<3),sizeof(long));stage=0;
+
+	if (os->nhw_res6[0]==127)
+	{
+		count=IM_DIM;
+	}
+	else 
+	{
+		nhwresH3I[stage++]=(os->nhw_res6[0]<<1);count=0;
+	}
+
+	for (i=1;i<os->nhw_res6_len;i++)
+	{
+		if (stage>=3718)
+		{
+			i++;i--;
+		}
+
+		if (os->nhw_res6[i]>=128)
+		{
+			e=(os->nhw_res6[i]-128);e>>=4;
+			scan=os->nhw_res6[i]&15;
+			if (os->nhw_res6[i-1]!=127) j=(nhwresH3I[stage-1]&255)+(e<<1);
+			else {os->nhw_res6[i]=127;count+=(2*IM_DIM);continue;}
+
+			if (j>=254) {count+=IM_DIM;os->nhw_res6[i]=127;}
+			else nhwresH3I[stage++]=(j)+count;
+
+			j+=(scan<<1);
+			if (j>=254) {count+=IM_DIM;os->nhw_res6[i]=127;}
+			else nhwresH3I[stage++]=(j)+count;
+		}
+		else
+		{
+			if (os->nhw_res6[i]==127) count+=IM_DIM;
+			else
+			{
+				if (((os->nhw_res6[i]<<1)<(nhwresH3I[stage-1]&255)) && (os->nhw_res6[i-1]!=127)) count+=IM_DIM;
+
+				nhwresH3I[stage++]=(os->nhw_res6[i]<<1)+count;
+			}
+		}
+	}
+
+	for (i=0,count=0;i<os->nhw_res6_bit_len;i++)
+	{
+		nhwresH3I[count++]+=os->nhw_res6_bit[i]>>7;
+		nhwresH3I[count++]+=(os->nhw_res6_bit[i]>>6)&1;
+		nhwresH3I[count++]+=(os->nhw_res6_bit[i]>>5)&1;
+		nhwresH3I[count++]+=(os->nhw_res6_bit[i]>>4)&1;
+		nhwresH3I[count++]+=(os->nhw_res6_bit[i]>>3)&1;
+		nhwresH3I[count++]+=(os->nhw_res6_bit[i]>>2)&1;
+		nhwresH3I[count++]+=(os->nhw_res6_bit[i]>>1)&1;
+		nhwresH3I[count++]+=os->nhw_res6_bit[i]&1;
+	}
+
+	free(os->nhw_res6);
+	free(os->nhw_res6_bit);
+
+	os->end_ch_res=0;os->d_size_tree1=0;
+	for (i=0,count=0;i<os->nhw_res6_bit_len-1;i++)
+	{
+		if (!(os->nhw_res6_word[i]>>7)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!((os->nhw_res6_word[i]>>6)&1)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!((os->nhw_res6_word[i]>>5)&1)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!((os->nhw_res6_word[i]>>4)&1)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!((os->nhw_res6_word[i]>>3)&1)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!((os->nhw_res6_word[i]>>2)&1)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!((os->nhw_res6_word[i]>>1)&1)) os->d_size_tree1++;else os->end_ch_res++;
+		if (!(os->nhw_res6_word[i]&1)) os->d_size_tree1++;else os->end_ch_res++;
+	}
+
+	os->nhwresH3=(unsigned long*)malloc(os->end_ch_res*sizeof(long));
+	os->nhwresH4=(unsigned long*)malloc(os->d_size_tree1*sizeof(long));
+
+	for (i=0,count=0,scan=0,res=0;i<os->nhw_res6_bit_len-1;i++)
+	{
+		if (!(os->nhw_res6_word[i]>>7)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++]; 
+
+		if (!((os->nhw_res6_word[i]>>6)&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+
+		if (!((os->nhw_res6_word[i]>>5)&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+
+		if (!((os->nhw_res6_word[i]>>4)&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+
+		if (!((os->nhw_res6_word[i]>>3)&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+
+		if (!((os->nhw_res6_word[i]>>2)&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+
+		if (!((os->nhw_res6_word[i]>>1)&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+
+		if (!(os->nhw_res6_word[i]&1)) os->nhwresH4[scan++]=nhwresH3I[count++];
+		else os->nhwresH3[res++]=nhwresH3I[count++];
+	}
+
+	free(nhwresH3I);
+	free(os->nhw_res6_word);
+
+	os->nhw_res6_bit_len=os->end_ch_res;
+	os->nhw_res6_len=os->d_size_tree1;
+
+	}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	if (im->setup->quality_setting>=LOW1)
 	{
@@ -689,7 +805,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	wavelet_synthesis(im,(2*IM_DIM)>>1,end_transform++,1);
 
-	if (im->setup->quality_setting==HIGH1)
+	if (im->setup->quality_setting>=HIGH1)
 	{
 		for (i=0;i<os->nhw_res5_bit_len;i++) 
 		{
@@ -697,7 +813,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		}
 		free(nhwresH1);
 
-		for (i=0;i<os->nhw_res6_bit_len;i++) 
+		for (i=0;i<os->nhw_res5_len;i++) 
 		{
 			im_nhw2[((nhwresH2[i]&65280)<<1)+(nhwresH2[i]&255)]+=3;
 		}
@@ -806,7 +922,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		for (scan=i,j=0;j<IM_DIM;j++,scan+=(2*IM_DIM)) im_nhw[j]=im_nhw2[scan];
 	}
 
-	wavelet_synthesis(im,(2*IM_DIM),end_transform,2);
+	wavelet_synthesis2(im,os,(2*IM_DIM),end_transform,1);
 
 	im_nhw=(short*)im->im_jpeg;
 
@@ -1394,7 +1510,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(&os->nhw_res4_len,2,1,compressed_file);
 	fread(&os->nhw_res1_bit_len,2,1,compressed_file);
 
-	if (imd->setup->quality_setting==HIGH1)
+	if (imd->setup->quality_setting>=HIGH1)
 	{
 		fread(&os->nhw_res5_len,2,1,compressed_file);
 		fread(&os->nhw_res5_bit_len,2,1,compressed_file);
@@ -1402,6 +1518,18 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		os->nhw_res5=(unsigned char*)malloc(os->nhw_res5_len*sizeof(char));
 		os->nhw_res5_bit=(unsigned char*)malloc(os->nhw_res5_bit_len*sizeof(char));
 		os->nhw_res5_word=(unsigned char*)malloc(os->nhw_res5_bit_len*sizeof(char));
+	}
+
+	if (imd->setup->quality_setting>HIGH1)
+	{
+		fread(&os->nhw_res6_len,4,1,compressed_file);
+		fread(&os->nhw_res6_bit_len,2,1,compressed_file);
+		fread(&os->nhw_char_res1_len,2,1,compressed_file);
+
+		os->nhw_res6=(unsigned char*)malloc(os->nhw_res6_len*sizeof(char));
+		os->nhw_res6_bit=(unsigned char*)malloc(os->nhw_res6_bit_len*sizeof(char));
+		os->nhw_res6_word=(unsigned char*)malloc(os->nhw_res6_bit_len*sizeof(char));
+		os->nhw_char_res1=(unsigned short*)malloc(os->nhw_char_res1_len*sizeof(short));
 	}
 
 	fread(&os->nhw_select1,2,1,compressed_file);
@@ -1446,11 +1574,19 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		fread(os->nhw_res3_word,(os->nhw_res3_bit_len<<1),1,compressed_file);
 	}
 
-	if (imd->setup->quality_setting==HIGH1)
+	if (imd->setup->quality_setting>=HIGH1)
 	{
 		fread(os->nhw_res5,os->nhw_res5_len,1,compressed_file);
 		fread(os->nhw_res5_bit,os->nhw_res5_bit_len,1,compressed_file);
 		fread(os->nhw_res5_word,os->nhw_res5_bit_len,1,compressed_file);
+	}
+
+	if (imd->setup->quality_setting>HIGH1)
+	{
+		fread(os->nhw_res6,os->nhw_res6_len,1,compressed_file);
+		fread(os->nhw_res6_bit,os->nhw_res6_bit_len,1,compressed_file);
+		fread(os->nhw_res6_word,os->nhw_res6_bit_len,1,compressed_file);
+		fread(os->nhw_char_res1,os->nhw_char_res1_len,2,compressed_file);
 	}
 
 	fread(os->nhw_select_word1,os->nhw_select1,1,compressed_file);

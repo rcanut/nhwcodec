@@ -54,7 +54,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 	short *data,*res,*data2;
 	int i,j,IM_SYNTH=IM_DIM,a;
 
-	if (Y==1 || Y==2)
+	if (Y==1)
 	{
 	data=im->im_jpeg;
 	res=im->im_process;
@@ -107,6 +107,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 	{
 		for (j=0;j<norder;j++) im->im_jpeg[i*(2*IM_SYNTH)+j]=im->im_process[i+j*(2*IM_SYNTH)];
 	}*/
+
 	//faster version
 	res=im->im_jpeg;data=im->im_process;
 	for (i=0;i<norder;i++,res+=(2*IM_DIM))
@@ -230,6 +231,111 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 			for (j=0;j<norder;j++,a+=(IM_DIM)) res[j]=data[a];
 		}
 	}*/
+	}
+}
+
+void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_stage,int Y)
+{
+	short *data,*res,*data2;
+	int i,j,IM_SYNTH=IM_DIM,a;
+
+	data=im->im_jpeg;
+	res=im->im_process;
+	data2=im->im_jpeg + norder/2;
+
+	if (last_stage==0)
+	{
+		for (i=0;i<norder/2;i++)
+		{
+			//upfilter97(data,norder/2,1,res);upfilter97(data2,norder/2,0,res);	
+			upfilter53I(data,norder/2,res);upfilter53III(data2,norder/2,res);	
+			data +=(2*IM_SYNTH);res +=(2*IM_SYNTH);data2 +=(2*IM_SYNTH);
+		}
+	}
+	else if (last_stage==1)
+	{
+		for (i=0;i<norder/2;i++)
+		{
+			//upfilter97(data,norder/2,1,res);upfilter97(data2,norder/2,0,res);	
+			upfilter53I(data,norder/2,res);upfilter53III(data2,norder/2,res);	
+			data +=(2*IM_SYNTH);res +=(2*IM_SYNTH);data2 +=(2*IM_SYNTH);
+		}
+	}
+
+	data=im->im_jpeg + norder*((2*IM_SYNTH)>>1);
+	res=im->im_process + norder*((2*IM_SYNTH)>>1);
+	data2=im->im_jpeg + norder*((2*IM_SYNTH)>>1) + norder/2;
+
+	if (last_stage==1)
+	{
+		for (i=norder/2;i<norder;i++)
+		{
+			//upfilter97(data,norder/2,1,res);upfilter97(data2,norder/2,0,res);	
+			upfilter53I(data,norder/2,res);upfilter53III(data2,norder/2,res);
+			data +=(2*IM_SYNTH);res +=(2*IM_SYNTH);data2 +=(2*IM_SYNTH);
+		}
+	}
+	else if (last_stage==0)
+	{
+		for (i=norder/2;i<norder;i++)
+		{
+			//upfilter97(data,norder/2,1,res);upfilter97(data2,norder/2,0,res);
+			upfilter53I(data,norder/2,res);upfilter53III(data2,norder/2,res);
+			data +=(2*IM_SYNTH);res +=(2*IM_SYNTH);data2 +=(2*IM_SYNTH);
+		}
+	}
+
+	//image transposition
+	/*for (i=0;i<norder;i++)
+	{
+		for (j=0;j<norder;j++) im->im_jpeg[i*(2*IM_SYNTH)+j]=im->im_process[i+j*(2*IM_SYNTH)];
+	}*/
+
+	data=(short*)im->im_process;
+
+	if (im->setup->quality_setting>HIGH1)
+	{
+		for (i=0;i<os->nhw_res6_bit_len;i++) 
+		{
+			data[os->nhwresH3[i]]-=4;
+		}
+		free(os->nhwresH3);
+
+		for (i=0;i<os->nhw_res6_len;i++) 
+		{
+			data[os->nhwresH4[i]]+=4;
+		}
+		free(os->nhwresH4);
+
+		for (i=0;i<os->nhw_char_res1_len;i++)
+		{
+			if ((os->nhw_char_res1[i]&3)==0)
+			{
+				data[((os->nhw_char_res1[i]<<1)+IM_DIM-2)]+=4;
+			}
+			else if ((os->nhw_char_res1[i]&3)==1)
+			{
+				data[(((os->nhw_char_res1[i]-1)<<1)+IM_DIM-2)]-=4;
+			}
+			else if ((os->nhw_char_res1[i]&3)==2)
+			{
+				data[(((os->nhw_char_res1[i]-2)<<1)+IM_DIM-1)]+=4;
+			}
+			else
+			{
+				data[(((os->nhw_char_res1[i]-3)<<1)+IM_DIM-1)]-=4;
+			}
+		}
+
+		free(os->nhw_char_res1);
+	}
+
+	//faster version
+	res=im->im_jpeg;data=im->im_process;
+	for (i=0;i<norder;i++,res+=(2*IM_DIM))
+	{
+		a=i;
+		for (j=0;j<norder;j++,a+=(2*IM_DIM)) res[j]=data[a];
 	}
 }
 
