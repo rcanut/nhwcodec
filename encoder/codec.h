@@ -52,8 +52,6 @@
 
 /*==========================================*/
 
-//ENTER YOUR MODE
-//#define LOSSLESS
 #define LOSSY  
 
 // IMAGE SIZE (PER COMPONENT)
@@ -63,6 +61,7 @@
 #define IM_DIM 256
 
 //QUALITY SETTINGS
+#define HIGH2 5
 #define HIGH1 4
 #define NORM 3
 #define LOW1 2
@@ -79,6 +78,8 @@
 // WAVELET TYPE DEFINITION
 #define WVLTS_53 0
 #define WVLTS_97 1
+
+#define WVLT_ENERGY_NHW 123
 
 //#define NHW_BOOKS
 
@@ -98,6 +99,9 @@ typedef struct{
 	unsigned char *im_bufferV;
 	unsigned char *im_buffer4;
 	unsigned char *im_nhw;
+	short *im_wavelet_first_order;
+	short *im_quality_setting;
+	short *im_wavelet_band;
 	codec_setup *setup;
 }image_buffer;
 
@@ -109,22 +113,30 @@ typedef struct{
 	unsigned short nhw_res3_len;
 	unsigned short nhw_res4_len;
 	unsigned short nhw_res5_len;
+	unsigned long nhw_res6_len;
 	unsigned short nhw_res1_word_len;
 	unsigned short nhw_res3_word_len;
 	unsigned short nhw_res5_word_len;
+	unsigned short nhw_res6_word_len;
 	unsigned short nhw_res1_bit_len;
 	unsigned short nhw_res3_bit_len;
 	unsigned short nhw_res5_bit_len;
+	unsigned short nhw_res6_bit_len;
 	unsigned char *nhw_res1;
 	unsigned char *nhw_res3;
 	unsigned char *nhw_res4;
 	unsigned char *nhw_res5;
+	unsigned char *nhw_res6;
 	unsigned char *nhw_res1_bit;
 	unsigned char *nhw_res3_bit;
 	unsigned char *nhw_res5_bit;
+	unsigned char *nhw_res6_bit;
 	unsigned char *nhw_res1_word;
 	unsigned char *nhw_res3_word;
 	unsigned char *nhw_res5_word;
+	unsigned char *nhw_res6_word;
+	unsigned short *nhw_char_res1;
+	unsigned short *nhw_char_res1_len;
 	unsigned short nhw_select1;
 	unsigned char *nhw_select_word1;
 	int size_data1;
@@ -172,8 +184,9 @@ extern void upfilter97(short *_X,int M,int E,short *_RES);
 
 extern void pre_processing(image_buffer *im);
 extern void offsetY(image_buffer *im,encode_state *enc,int m1);
-extern void offsetY_recons(image_buffer *im, int m1);
 extern void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part);
+extern void im_recons_wavelet_band(image_buffer *im);
+extern void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc);
 extern void offsetUV_recons256(image_buffer *im, int m1, int comp);
 extern void offsetUV(image_buffer *im,encode_state *enc,int m2);
 extern void quantizationY(image_buffer *im);

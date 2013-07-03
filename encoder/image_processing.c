@@ -184,7 +184,7 @@ L_OVER4N:	a = -a;
 
 void offsetY(image_buffer *im,encode_state *enc, int m1)
 {
-	int i,j,wavelet_order,exw,a,r;
+	int i,j,wavelet_order,exw,a,r,scan,t1=0;
 
 	wavelet_order=im->setup->wvlts_order;
 
@@ -366,7 +366,41 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 		im->im_process[i]=a&248;
 	
 	}
+}
 
+void im_recons_wavelet_band(image_buffer *im)
+{
+	int i,j,a,r,scan,count;
+
+	im->im_wavelet_band=(short*)calloc(IM_SIZE,sizeof(short));
+		
+	for (i=0,r=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
+	{ 
+		for (scan=i+IM_DIM,j=0;j<IM_DIM;j++,scan++)
+		{
+			a = im->im_process[scan];
+
+			if (a==128) {r++;continue;}
+			else if (a==127) {im->im_wavelet_band[r-1]=5;im->im_wavelet_band[r]=6;im->im_wavelet_band[r+1]=5;r+=2;j++;scan++;}
+			else if (a==129) {im->im_wavelet_band[r-1]=-5;im->im_wavelet_band[r]=-7;im->im_wavelet_band[r+1]=-5;r+=2;j++;scan++;}
+			else if ((a&7)!=0)
+			{
+				if (extra_table[a]>0) 
+				{
+					im->im_wavelet_band[r++]=WVLT_ENERGY_NHW+(extra_table[a]<<3);
+				}
+				else 
+				{
+					im->im_wavelet_band[r++]=(extra_table[a]<<3)-WVLT_ENERGY_NHW;
+				}
+			}
+			else 
+			{
+				if (a>0x80) im->im_wavelet_band[r++]=(a-125);
+				else im->im_wavelet_band[r++]=(a-131);
+			}	
+		}
+	}
 }
 
 void pre_processing(image_buffer *im)
@@ -729,6 +763,36 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				}
 		}
 	}
+
+	/*if (!part && im->setup->quality_setting>HIGH1)
+	{
+		for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+		{
+			for (a=i+IM_DIM+1,j=IM_DIM+1;j<((2*IM_DIM)-1);j++,a++)
+			{
+				if (im->im_process[a]>4 && im->im_process[a]<8)
+				{
+					if (im->im_process[a-1]>3 && im->im_process[a-1]<=7)
+					{
+						if (im->im_process[a+1]>3 && im->im_process[a+1]<=7)
+						{
+							im->im_process[a-1]=15300;im->im_process[a]=0;im->im_jpeg[a]=5;im->im_jpeg[a+1]=5;j++;a++;
+						}
+					}
+				}
+				else if (im->im_process[a]<-4 && im->im_process[a]>-8)
+				{
+					if (im->im_process[a-1]<-3 && im->im_process[a-1]>=-7)
+					{
+						if (im->im_process[a+1]<-3 && im->im_process[a+1]>=-7)
+						{
+							im->im_process[a-1]=15400;im->im_process[a]=0;im->im_jpeg[a]=-6;im->im_jpeg[a+1]=-5;j++;a++;	 
+						}
+					}
+				}
+			}
+		}
+	}*/
 
 	if (!part)
 	{
