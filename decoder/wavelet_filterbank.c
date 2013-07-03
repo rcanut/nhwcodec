@@ -297,13 +297,13 @@ void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_st
 	{
 		for (i=0;i<os->nhw_res6_bit_len;i++) 
 		{
-			data[os->nhwresH3[i]]-=4;
+			data[os->nhwresH3[i]]-=32;
 		}
 		free(os->nhwresH3);
 
 		for (i=0;i<os->nhw_res6_len;i++) 
 		{
-			data[os->nhwresH4[i]]+=4;
+			data[os->nhwresH4[i]]+=32;
 		}
 		free(os->nhwresH4);
 
@@ -311,19 +311,19 @@ void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_st
 		{
 			if ((os->nhw_char_res1[i]&3)==0)
 			{
-				data[((os->nhw_char_res1[i]<<1)+IM_DIM-2)]+=4;
+				data[((os->nhw_char_res1[i]<<1)+IM_DIM-2)]+=32;
 			}
 			else if ((os->nhw_char_res1[i]&3)==1)
 			{
-				data[(((os->nhw_char_res1[i]-1)<<1)+IM_DIM-2)]-=4;
+				data[(((os->nhw_char_res1[i]-1)<<1)+IM_DIM-2)]-=32;
 			}
 			else if ((os->nhw_char_res1[i]&3)==2)
 			{
-				data[(((os->nhw_char_res1[i]-2)<<1)+IM_DIM-1)]+=4;
+				data[(((os->nhw_char_res1[i]-2)<<1)+IM_DIM-1)]+=32;
 			}
 			else
 			{
-				data[(((os->nhw_char_res1[i]-3)<<1)+IM_DIM-1)]-=4;
+				data[(((os->nhw_char_res1[i]-3)<<1)+IM_DIM-1)]-=32;
 			}
 		}
 
