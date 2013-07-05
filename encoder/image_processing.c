@@ -764,36 +764,6 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 		}
 	}
 
-	/*if (!part && im->setup->quality_setting>HIGH1)
-	{
-		for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
-		{
-			for (a=i+IM_DIM+1,j=IM_DIM+1;j<((2*IM_DIM)-1);j++,a++)
-			{
-				if (im->im_process[a]>4 && im->im_process[a]<8)
-				{
-					if (im->im_process[a-1]>3 && im->im_process[a-1]<=7)
-					{
-						if (im->im_process[a+1]>3 && im->im_process[a+1]<=7)
-						{
-							im->im_process[a-1]=15300;im->im_process[a]=0;im->im_jpeg[a]=5;im->im_jpeg[a+1]=5;j++;a++;
-						}
-					}
-				}
-				else if (im->im_process[a]<-4 && im->im_process[a]>-8)
-				{
-					if (im->im_process[a-1]<-3 && im->im_process[a-1]>=-7)
-					{
-						if (im->im_process[a+1]<-3 && im->im_process[a+1]>=-7)
-						{
-							im->im_process[a-1]=15400;im->im_process[a]=0;im->im_jpeg[a]=-6;im->im_jpeg[a+1]=-5;j++;a++;	 
-						}
-					}
-				}
-			}
-		}
-	}*/
-
 	if (!part)
 	{
 		for (i=0;i<(IM_SIZE);i+=(2*IM_DIM))

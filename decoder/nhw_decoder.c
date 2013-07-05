@@ -419,11 +419,6 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	for (i=1;i<os->nhw_res6_len;i++)
 	{
-		if (stage>=3718)
-		{
-			i++;i--;
-		}
-
 		if (os->nhw_res6[i]>=128)
 		{
 			e=(os->nhw_res6[i]-128);e>>=4;
