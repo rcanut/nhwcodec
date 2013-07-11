@@ -137,7 +137,7 @@ void main(int argc, char **argv)
 	{
 		if (im.setup->quality_setting==LOW1) Y_inv=1.06952; // 1/0.935
 		else if (im.setup->quality_setting==LOW2) Y_inv=1.136364; // 1/0.88
-		else Y_inv=1.298702; // 1/0.77
+		else Y_inv=1.265823; // 1/0.79
 
 		for (m=0;m<4;m++)
 		{
@@ -180,7 +180,7 @@ void main(int argc, char **argv)
 
 void decode_image(image_buffer *im,decode_state *os,char **argv)
 {
-	int nhw,stage,wavelet_order,end_transform,i,j,e=0,t1,t2,count,scan,*res_decompr,exw1,res,nhw_selectII;
+	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,*res_decompr,exw1,res,nhw_selectII;
 	short *im_nhw,*im_nhw2;
 	char *res256;
 	unsigned char *nhw_scale,*nhw_chr;
@@ -709,7 +709,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 					else {im->im_jpeg[scan-IM_DIM]=7;im->im_jpeg[scan-(3*IM_DIM)]=7;im->im_jpeg[scan]=0;}
 				}
 			}
-			else if (abs(im_nhw[scan])>8 && abs(im_nhw[scan])<16)
+			else if (abs(im_nhw[scan])>8 && abs(im_nhw[scan])<16 && im->setup->quality_setting<HIGH3)
 			{
 				if (j>IM_DIM && j<((2*IM_DIM)-1) && abs(im_nhw[scan-1])<8 && abs(im_nhw[scan+1])<8)
 				{
@@ -1525,6 +1525,12 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		os->nhw_res6_bit=(unsigned char*)malloc(os->nhw_res6_bit_len*sizeof(char));
 		os->nhw_res6_word=(unsigned char*)malloc(os->nhw_res6_bit_len*sizeof(char));
 		os->nhw_char_res1=(unsigned short*)malloc(os->nhw_char_res1_len*sizeof(short));
+
+		if (imd->setup->quality_setting>HIGH2)
+		{
+			fread(&os->qsetting3_len,2,1,compressed_file);
+			os->high_qsetting3=(unsigned long*)malloc(os->qsetting3_len*sizeof(long));
+		}
 	}
 
 	fread(&os->nhw_select1,2,1,compressed_file);
@@ -1582,6 +1588,11 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		fread(os->nhw_res6_bit,os->nhw_res6_bit_len,1,compressed_file);
 		fread(os->nhw_res6_word,os->nhw_res6_bit_len,1,compressed_file);
 		fread(os->nhw_char_res1,os->nhw_char_res1_len,2,compressed_file);
+
+		if (imd->setup->quality_setting>HIGH2)
+		{
+			fread(os->high_qsetting3,os->qsetting3_len,4,compressed_file);
+		}
 	}
 
 	fread(os->nhw_select_word1,os->nhw_select1,1,compressed_file);

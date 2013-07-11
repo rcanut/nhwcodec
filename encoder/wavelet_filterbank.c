@@ -497,7 +497,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 
 void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc)
 {
-	int i,j,e,res,Y,scan,count;
+	int i,j,e,res,Y,scan,count,wavelet_half_synth_res;
 	short *wavelet_half_synthesis,*data,*res_w,*data2;
 	unsigned char *nhw_res6I_word,*ch_comp,*highres,*scan_run;
 
@@ -507,20 +507,31 @@ void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc)
 	data=(short*)im->im_wavelet_first_order;
 	data2=(short*)im->im_wavelet_band;
 	
-
 	for (i=0;i<IM_DIM;i++)
 	{
 		upfilter53I(data,IM_DIM,res_w);upfilter53III(data2,IM_DIM,res_w);	
 		data +=(IM_DIM);res_w +=(2*IM_DIM);data2 +=(IM_DIM);
 	}
 
-	//for (i=3000;i<3300;i++) printf("%d %d %d\n",i,im->im_quality_setting[i],wavelet_half_synthesis[i]);
+	if (im->setup->quality_setting>HIGH2) wavelet_half_synth_res=32;
+	else wavelet_half_synth_res=36;
 
-	for (i=0,count=0,scan=0;i<2*IM_SIZE;i++) 
+	for (i=0,count=0,scan=0,e=0;i<(2*IM_SIZE);i++) 
 	{
-		if (abs(im->im_quality_setting[i]-wavelet_half_synthesis[i])>36)
+		if (abs(im->im_quality_setting[i]-wavelet_half_synthesis[i])>wavelet_half_synth_res)
 		{
-			if ((im->im_quality_setting[i]-wavelet_half_synthesis[i])>0) 
+			if (im->setup->quality_setting>HIGH2 && abs(im->im_quality_setting[i]-wavelet_half_synthesis[i])>56)
+			{
+				if ((im->im_quality_setting[i]-wavelet_half_synthesis[i])>0) 
+				{
+					wavelet_half_synthesis[i]=32000;e++;
+				}
+				else 
+				{
+					wavelet_half_synthesis[i]=32500;e++;
+				}
+			}
+			else if ((im->im_quality_setting[i]-wavelet_half_synthesis[i])>0) 
 			{
 				wavelet_half_synthesis[i]=30000;count++;
 			}
@@ -534,6 +545,25 @@ void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc)
 	free(im->im_quality_setting);
 	free(im->im_wavelet_first_order);
 	free(im->im_wavelet_band);
+
+	if (im->setup->quality_setting>HIGH2)
+	{
+		enc->high_qsetting3=(unsigned long*)malloc(e*sizeof(long));
+
+		for (i=0,e=0;i<(2*IM_SIZE);i++) 
+		{
+			if (wavelet_half_synthesis[i]==32000)
+			{
+				enc->high_qsetting3[e++]=(i<<1);
+			}
+			else if (wavelet_half_synthesis[i]==32500)
+			{
+				enc->high_qsetting3[e++]=(i<<1)+1;
+			}
+		}
+
+		enc->qsetting3_len=e;
+	}
 
 	highres=(unsigned char*)malloc((count+(2*IM_DIM))*sizeof(char));
 	nhw_res6I_word=(unsigned char*)malloc(count*sizeof(char));

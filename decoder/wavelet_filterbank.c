@@ -330,6 +330,23 @@ void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_st
 		free(os->nhw_char_res1);
 	}
 
+	if (im->setup->quality_setting>HIGH2)
+	{
+		for (i=0;i<os->qsetting3_len;i++)
+		{
+			if (!(os->high_qsetting3[i]&1))
+			{
+				data[(os->high_qsetting3[i]>>1)]+=56;
+			}
+			else
+			{
+				data[(os->high_qsetting3[i]>>1)]-=56;
+			}
+		}
+
+		free(os->high_qsetting3);
+	}
+
 	//faster version
 	res=im->im_jpeg;data=im->im_process;
 	for (i=0;i<norder;i++,res+=(2*IM_DIM))
