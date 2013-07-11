@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 07032013 nhw exp $							           *
+*  last update: $ 07112013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -76,7 +76,8 @@ void main(int argc, char **argv)
 	{
 		*argv++;*argv++;arg=*argv++;
 
-		if (strcmp(arg,"-h2")==0) im.setup->quality_setting=HIGH2; 
+		if (strcmp(arg,"-h3")==0) im.setup->quality_setting=HIGH3;
+		else if (strcmp(arg,"-h2")==0) im.setup->quality_setting=HIGH2; 
 		else if (strcmp(arg,"-h1")==0) im.setup->quality_setting=HIGH1; 
 		else if (strcmp(arg,"-l1")==0) im.setup->quality_setting=LOW1; 
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
@@ -97,7 +98,7 @@ void main(int argc, char **argv)
 
 void encode_image(image_buffer *im,encode_state *enc, int ratio)
 {
-	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet;
+	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet,y_wavelet2;
 	unsigned char *highres,*ch_comp,*scan_run,*nhw_res1I_word,*nhw_res3I_word,*nhw_res5I_word;
 	short *res256,*resIII,*nhw_process;
 
@@ -1331,6 +1332,15 @@ L_W5:			res256[count]=14000;
 
 	free(resIII);
 
+	if (im->setup->quality_setting>HIGH2) 
+	{
+		y_wavelet=8;y_wavelet2=4;
+	}
+	else
+	{
+		y_wavelet=9;y_wavelet2=9;
+	}
+
 	for (i=(2*IM_DIM),count=0,scan=0;i<((4*IM_SIZE>>1)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (j=(IM_DIM+1);j<(2*IM_DIM-1);j++)
@@ -1339,14 +1349,14 @@ L_W5:			res256[count]=14000;
 			{
 				a=i+j;
 
-				if (abs(nhw_process[a])<9)
+				if (abs(nhw_process[a])<y_wavelet2)
 				{
 					if (((abs(nhw_process[a-1]))+2)>=8) scan++;
 					if (((abs(nhw_process[a+1]))+2)>=8) scan++;
 					if (((abs(nhw_process[a-(2*IM_DIM)]))+2)>=8) scan++;
 					if (((abs(nhw_process[a+(2*IM_DIM)]))+2)>=8) scan++;
 
-					if (scan<3 && nhw_process[a]<9 && nhw_process[a]>-9) 
+					if (scan<3 && nhw_process[a]<y_wavelet && nhw_process[a]>-y_wavelet) 
 					{
 						//printf("%d %d %d\n",nhw_process[a-1],nhw_process[a],nhw_process[a+1]);
 						if (nhw_process[a]<-6) nhw_process[a]=-7;
@@ -1387,7 +1397,18 @@ L_W5:			res256[count]=14000;
 		}
 	}
 
-	if (im->setup->quality_setting>LOW3) y_wavelet=8;else y_wavelet=9;
+	if (im->setup->quality_setting>HIGH2) 
+	{
+		y_wavelet=8;y_wavelet2=4;
+	}
+	else if (im->setup->quality_setting>LOW3)
+	{
+		y_wavelet=8;y_wavelet2=9;
+	}
+	else 
+	{
+		y_wavelet=9;y_wavelet2=9;
+	}
 
 	for (i=((4*IM_SIZE)>>1),scan=0;i<(4*IM_SIZE-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -1397,7 +1418,7 @@ L_W5:			res256[count]=14000;
 			{	
 				a=i+j;
 
-				if (abs(nhw_process[a])<9)
+				if (abs(nhw_process[a])<y_wavelet2)
 				{
 					if (((abs(nhw_process[a-1]))+2)>=8) scan++;
 					if (((abs(nhw_process[a+1]))+2)>=8) scan++;
@@ -1408,7 +1429,7 @@ L_W5:			res256[count]=14000;
 					{
 						if (nhw_process[a]<0) nhw_process[a]=-7;else nhw_process[a]=7;
 					}
-					else if (!scan && abs(nhw_process[a])<9)
+					else if (!scan && abs(nhw_process[a])<y_wavelet2)
 					{
 						if (nhw_process[a]<0) nhw_process[a]=-7;else nhw_process[a]=7;
 					}
@@ -1442,6 +1463,9 @@ L_W5:			res256[count]=14000;
 		}
 	}
 
+	if (im->setup->quality_setting>HIGH2) y_wavelet=8;
+	else y_wavelet=11;
+
 	for (i=((4*IM_SIZE)>>1),scan=0,count=0;i<(4*IM_SIZE-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (j=(IM_DIM+1);j<(2*IM_DIM-1);j++)
@@ -1450,14 +1474,14 @@ L_W5:			res256[count]=14000;
 			{	
 				a=i+j;
 
-				if (abs(nhw_process[a])<11)
+				if (abs(nhw_process[a])<y_wavelet)
 				{
 					if (((abs(nhw_process[a-1]))+2)>=8) scan++;
 					if (((abs(nhw_process[a+1]))+2)>=8) scan++;
 					if (((abs(nhw_process[a-(2*IM_DIM)]))+2)>=8) scan++;
 					if (((abs(nhw_process[a+(2*IM_DIM)]))+2)>=8) scan++;
 
-					if (scan<3 && nhw_process[a]<11 && nhw_process[a]>-11)
+					if (scan<3 && nhw_process[a]<y_wavelet && nhw_process[a]>-y_wavelet)
 					{
 						if (nhw_process[a]<0) nhw_process[a]=-7;else nhw_process[a]=7;
 					}
@@ -2180,6 +2204,11 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 		fwrite(&enc->nhw_char_res1_len,2,1,compressed);
 	}
 
+	if (im->setup->quality_setting>HIGH2)
+	{
+		fwrite(&enc->qsetting3_len,2,1,compressed);
+	}
+
 	fwrite(&enc->nhw_select1,2,1,compressed);
 	fwrite(&enc->highres_comp_len,2,1,compressed);
 	fwrite(&enc->end_ch_res,2,1,compressed);
@@ -2211,6 +2240,12 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 		fwrite(enc->nhw_res6_bit,enc->nhw_res6_bit_len,1,compressed);
 		fwrite(enc->nhw_res6_word,enc->nhw_res6_word_len,1,compressed);
 		fwrite(enc->nhw_char_res1,enc->nhw_char_res1_len,2,compressed);
+	}
+
+	if (im->setup->quality_setting>HIGH2)
+	{
+		fwrite(enc->high_qsetting3,enc->qsetting3_len,4,compressed);
+
 	}
 
 	fwrite(enc->nhw_select_word1,enc->nhw_select1,1,compressed);
@@ -2249,6 +2284,11 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 		free(enc->nhw_res6_bit);
 		free(enc->nhw_res6_word);
 		free(enc->nhw_char_res1);
+	}
+
+	if (im->setup->quality_setting>HIGH2)
+	{
+		free(enc->high_qsetting3);
 	}
 
 	free(enc->exw_Y);
