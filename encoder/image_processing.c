@@ -407,9 +407,13 @@ void pre_processing(image_buffer *im)
 {
 	int i,j,scan,res,count,e=0,a=0;
 	short *nhw_process;
+	char lower_quality_setting_on;
 
 	nhw_process=(short*)im->im_process;
 	memcpy(im->im_process,im->im_jpeg,4*IM_SIZE*sizeof(short));
+
+	if (im->setup->quality_setting<LOW2) lower_quality_setting_on=1;
+	else lower_quality_setting_on=0;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -429,6 +433,20 @@ void pre_processing(image_buffer *im)
 						nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 						nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
 
+
+			if (lower_quality_setting_on)
+			{
+				if (abs(count)>4 && abs(count)<65 && abs(res)<35)
+				{
+					if (abs(nhw_process[scan-(2*IM_DIM)]-nhw_process[scan-1])<9 && abs(nhw_process[scan-1]-nhw_process[scan+(2*IM_DIM)])<9 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+1])<9 && abs(nhw_process[scan+1]-nhw_process[scan-(2*IM_DIM)])<9)
+					{
+						im->im_jpeg[scan]=( (nhw_process[scan]<<2) +
+											 nhw_process[scan-1]+nhw_process[scan+1]+
+											 nhw_process[scan-(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)]+4 )>>3;
+
+					}
+				}
+			}
 
 			if (res>201) {im->im_jpeg[scan-1]-=2;e=4;}
 			else if (res<-201) {im->im_jpeg[scan-1]+=2;e=3;}
@@ -667,8 +685,6 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 			}
 		}
 	}*/
-
-	//if (!part) for (i=0;i<200;i++) printf("%d %d\n",i,im->im_jpeg[i]);
 
 	for (i=0;i<(IM_SIZE);i+=(2*IM_DIM))
 	{

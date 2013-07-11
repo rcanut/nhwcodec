@@ -107,7 +107,7 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 	{
 		if (im->setup->quality_setting==LOW1) Y_quant=0.935;
 		else if (im->setup->quality_setting==LOW2) Y_quant=0.88;
-		else Y_quant=0.77;
+		else Y_quant=0.79;
 
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 		{
