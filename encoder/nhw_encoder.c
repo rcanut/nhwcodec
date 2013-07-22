@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 07112013 nhw exp $							           *
+*  last update: $ 07222013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -100,9 +100,12 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 {
 	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet,y_wavelet2;
 	unsigned char *highres,*ch_comp,*scan_run,*nhw_res1I_word,*nhw_res3I_word,*nhw_res5I_word;
-	short *res256,*resIII,*nhw_process;
+	short *res256,*resIII,*nhw_process,*nhw_process2;
 
 	im->im_process=(short*)malloc(4*IM_SIZE*sizeof(short));
+
+	if (im->setup->quality_setting<=LOW3) block_variance_avg(im);
+
 	nhw_process=(short*)im->im_process;
 
 	pre_processing(im);
