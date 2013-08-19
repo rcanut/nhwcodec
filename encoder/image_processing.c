@@ -439,7 +439,7 @@ void pre_processing(image_buffer *im)
 
 			if (lower_quality_setting_on)
 			{
-				if (abs(count)>4 && abs(count)<65 && abs(res)<32)
+				if (abs(count)>4 && abs(count)<65 && abs(res)<30)
 				{
 					if (abs(nhw_process[scan-(2*IM_DIM)]-nhw_process[scan-1])<9 && abs(nhw_process[scan-1]-nhw_process[scan+(2*IM_DIM)])<9 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+1])<9 && abs(nhw_process[scan+1]-nhw_process[scan-(2*IM_DIM)])<9)
 					{
@@ -543,15 +543,18 @@ void pre_processing(image_buffer *im)
 
 void block_variance_avg(image_buffer *im)
 {
-	int i,j,e,t1,scan,count,avg,variance;
+	int i,j,e,a,t1,scan,count,avg,variance;
 	short *nhw_process,*nhw_process2;
+	unsigned char *block_var;
 
 	memcpy(im->im_process,im->im_jpeg,4*IM_SIZE*sizeof(short));
 
 	nhw_process=(short*)im->im_jpeg;
 	nhw_process2=(short*)im->im_process;
 
-	for (i=0;i<(4*IM_SIZE);i+=(8*2*IM_DIM))
+	block_var=(unsigned char*)calloc(((4*IM_SIZE)>>6),sizeof(char));
+
+	for (i=0,a=0;i<(4*IM_SIZE);i+=(8*2*IM_DIM))
 	{
 		for (scan=i,j=0;j<(2*IM_DIM);j+=8,scan+=8)
 		{
@@ -585,6 +588,8 @@ void block_variance_avg(image_buffer *im)
 
 			if (variance<1500)
 			{
+				block_var[a++]=1;
+
 				for (e=(2*IM_DIM);e<(7*2*IM_DIM);e+=(2*IM_DIM))
 				{
 					for (t1=0;t1<6;t1++)
@@ -599,6 +604,69 @@ void block_variance_avg(image_buffer *im)
 					}
 
 					scan-=6;
+				}
+			}
+			else a++;
+		}
+	}
+
+	for (i=0;i<((4*IM_SIZE)>>6)-(IM_DIM>>2);i+=(IM_DIM>>2))
+	{
+		for (count=i,j=0;j<(IM_DIM>>2)-1;j++,count++)
+		{
+			if (block_var[count])
+			{
+				if (block_var[count+1])
+				{
+					scan=(i*8*8)+(j*8);
+
+					for (e=(2*IM_DIM);e<(7*2*IM_DIM);e+=(2*IM_DIM))
+					{
+						scan+=7;
+
+						nhw_process[scan+e]=((nhw_process2[scan+e]<<3)+
+											nhw_process2[scan+e-1]+nhw_process2[scan+e+1]+
+											nhw_process2[scan+e-(2*IM_DIM)]+nhw_process2[scan+e+(2*IM_DIM)]+
+											nhw_process2[scan+e-1-(2*IM_DIM)]+nhw_process2[scan+e+1-(2*IM_DIM)]+
+											nhw_process2[scan+e-1+(2*IM_DIM)]+nhw_process2[scan+e+1+(2*IM_DIM)]+8)>>4;
+
+						scan++;
+
+						nhw_process[scan+e]=((nhw_process2[scan+e]<<3)+
+											nhw_process2[scan+e-1]+nhw_process2[scan+e+1]+
+											nhw_process2[scan+e-(2*IM_DIM)]+nhw_process2[scan+e+(2*IM_DIM)]+
+											nhw_process2[scan+e-1-(2*IM_DIM)]+nhw_process2[scan+e+1-(2*IM_DIM)]+
+											nhw_process2[scan+e-1+(2*IM_DIM)]+nhw_process2[scan+e+1+(2*IM_DIM)]+8)>>4;
+
+						scan-=8;
+					}
+				}
+
+				if (block_var[count+(IM_DIM>>2)])
+				{
+					scan=(i*8*8)+(j*8);
+
+					scan+=(7*2*IM_DIM);
+
+					for (e=1;e<7;e++)
+					{
+						nhw_process[scan+e]=((nhw_process2[scan+e]<<3)+
+											nhw_process2[scan+e-1]+nhw_process2[scan+e+1]+
+											nhw_process2[scan+e-(2*IM_DIM)]+nhw_process2[scan+e+(2*IM_DIM)]+
+											nhw_process2[scan+e-1-(2*IM_DIM)]+nhw_process2[scan+e+1-(2*IM_DIM)]+
+											nhw_process2[scan+e-1+(2*IM_DIM)]+nhw_process2[scan+e+1+(2*IM_DIM)]+8)>>4;
+					}
+
+					scan+=(2*IM_DIM);
+
+					for (e=1;e<7;e++)
+					{
+						nhw_process[scan+e]=((nhw_process2[scan+e]<<3)+
+											nhw_process2[scan+e-1]+nhw_process2[scan+e+1]+
+											nhw_process2[scan+e-(2*IM_DIM)]+nhw_process2[scan+e+(2*IM_DIM)]+
+											nhw_process2[scan+e-1-(2*IM_DIM)]+nhw_process2[scan+e+1-(2*IM_DIM)]+
+											nhw_process2[scan+e-1+(2*IM_DIM)]+nhw_process2[scan+e+1+(2*IM_DIM)]+8)>>4;
+					}
 				}
 			}
 		}
