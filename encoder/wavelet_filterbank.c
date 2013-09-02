@@ -513,8 +513,8 @@ void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc)
 		data +=(IM_DIM);res_w +=(2*IM_DIM);data2 +=(IM_DIM);
 	}
 
-	if (im->setup->quality_setting>HIGH2) wavelet_half_synth_res=32;
-	else wavelet_half_synth_res=36;
+	if (im->setup->quality_setting>HIGH2) wavelet_half_synth_res=30;
+	else wavelet_half_synth_res=34;
 
 	for (i=0,count=0,scan=0,e=0;i<(2*IM_SIZE);i++) 
 	{

@@ -108,7 +108,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	nhw_process=(short*)im->im_process;
 
-	pre_processing(im);
+	if (im->setup->quality_setting<HIGH2) 
+	{
+		pre_processing(im);
+	}
 
 	end_transform=0;
 	wavelet_order=im->setup->wvlts_order;
