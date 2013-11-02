@@ -300,19 +300,21 @@ L_ZE:	if (pos>=110 && pos<174 && zone_entrance)
 				enc->encode[a] |= (((1<<6)|(pos-110))&((1<<match)-1))<<(32-match);
 				pack=match;
 			}
-			goto L_TAG;
 		}
-		if (pos>=174) if (zone_entrance) pos -=64;
-		pack += len[pos];
-
-		if (pack<=32) enc->encode[a] |= huffman_tree[pos]<<(32-pack); 
 		else
 		{
-			match=pack-32;
-			enc->encode[a] |= huffman_tree[pos]>>match;
-			a++;
-			enc->encode[a] |= (huffman_tree[pos]&((1<<match)-1))<<(32-match);
-			pack=match;
+			if (pos>=174) if (zone_entrance) pos -=64;
+			pack += len[pos];
+
+			if (pack<=32) enc->encode[a] |= huffman_tree[pos]<<(32-pack); 
+			else
+			{
+				match=pack-32;
+				enc->encode[a] |= huffman_tree[pos]>>match;
+				a++;
+				enc->encode[a] |= (huffman_tree[pos]&((1<<match)-1))<<(32-match);
+				pack=match;
+			}
 		}
 L_TAG:	e=1;
 		// check the tag, maybe can be elsewhere faster...

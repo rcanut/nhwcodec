@@ -671,6 +671,8 @@ void block_variance_avg(image_buffer *im)
 			}
 		}
 	}
+
+	free(block_var);
 }
 
 void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
