@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 08192013 nhw exp $							           *
+*  last update: $ 11022013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -108,16 +108,16 @@ void main(int argc, char **argv)
 			{
 				//Y = icolorY[i]*298;
 				Y = icolorY[i];
-				U = icolorU[i];
-				V = icolorV[i];
+				U = icolorU[i]-128;
+				V = icolorV[i]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
 				/*R = ((Y         + 409*V + R_COMP)>>8); 
 				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
 				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)(Y  + 1.402*(V-128)+0.5f);   
-				G = (int)(Y  -0.34414*(U-128) -0.71414*(V-128)+0.5f); 
-				B = (int)(Y  +1.772*(U-128)+0.5f);
+				R = (int)(Y  + 1.402*V+0.5f);   
+				G = (int)(Y  -0.34414*U -0.71414*V +0.5f); 
+				B = (int)(Y  +1.772*U +0.5f);
 
 				//Clip RGB Values
 				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
@@ -145,16 +145,16 @@ void main(int argc, char **argv)
 			{
 				//Y = icolorY[i]*298;
 				Y_q_setting =(float)(icolorY[i]*Y_inv);
-				U = icolorU[i];
-				V = icolorV[i];
+				U = icolorU[i]-128;
+				V = icolorV[i]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
 				/*R = ((Y         + 409*V + R_COMP)>>8); 
 				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
 				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)(Y_q_setting  + 1.402*(V-128)+0.5f);   
-				G = (int)(Y_q_setting  -0.34414*(U-128) -0.71414*(V-128)+0.5f); 
-				B = (int)(Y_q_setting  +1.772*(U-128)+0.5f);
+				R = (int)(Y_q_setting  + 1.402*V +0.5f);   
+				G = (int)(Y_q_setting  -0.34414*U -0.71414*V +0.5f); 
+				B = (int)(Y_q_setting  +1.772*U +0.5f);
 
 				//Clip RGB Values
 				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
@@ -711,10 +711,20 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 			}
 			else if (abs(im_nhw[scan])>8 && abs(im_nhw[scan])<16 && im->setup->quality_setting<HIGH3)
 			{
-				if (j>IM_DIM && j<((2*IM_DIM)-1) && abs(im_nhw[scan-1])<8 && abs(im_nhw[scan+1])<8)
+				if (j>IM_DIM && j<((2*IM_DIM)-1))
 				{
-					if (im_nhw[scan]>0) im_nhw[scan]++;
-					else im_nhw[scan]--;
+					if (abs(im_nhw[scan-1])<8) count++;
+					if (abs(im_nhw[scan+1])<8) count++;
+					if (abs(im_nhw[scan-(2*IM_DIM)])<8) count++;
+					if (abs(im_nhw[scan+(2*IM_DIM)])<8) count++;
+
+					if (count>=2)
+					{
+						if (im_nhw[scan]>0) im_nhw[scan]++;
+						else im_nhw[scan]--;
+					}
+
+					count=0;
 				}
 			}
 		}
@@ -1138,17 +1148,44 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	free(im->im_jpeg);
 
+	im_nhw=(short*)im->im_process;
+
+	for (i=IM_DIM;i<IM_SIZE-IM_DIM;i+=(IM_DIM))
+	{
+		for (scan=i+1,j=1;j<(IM_DIM-1);j++,scan++)
+		{
+			res	   =   (im_nhw[scan]<<3) -
+						im_nhw[scan-1]-im_nhw[scan+1]-
+						im_nhw[scan-(IM_DIM)]-im_nhw[scan+(IM_DIM)]-
+						im_nhw[scan-(IM_DIM+1)]-im_nhw[scan+(IM_DIM-1)]-
+						im_nhw[scan-(IM_DIM-1)]-im_nhw[scan+(IM_DIM+1)];
+
+			if (abs(res)>60)
+			{
+				if (res>0)
+				{
+					if (res>160) im_nhw[scan]+=3;
+					else if (res>60) im_nhw[scan]+=2;
+				}
+				else 
+				{
+					if (res<-160) im_nhw[scan]-=3;
+					else if (res<-60) im_nhw[scan]-=2;
+				}
+			}
+		}
+	}
+
 	for (i=0;i<IM_SIZE;i++) 
 	{
-		if ((im->im_process[i]>>8)!=0) 
+		if ((im_nhw[i]>>8)!=0) 
 		{
-			if (im->im_process[i]<0) im->im_process[i]=0;
-			else if (im->im_process[i]>255) im->im_process[i]=255;
+			if (im_nhw[i]<0) im_nhw[i]=0;
+			else if (im_nhw[i]>255) im_nhw[i]=255;
 		}
 	}
 
 	im->scale=(unsigned char*)malloc(2*IM_SIZE*sizeof(char));
-	im_nhw=(short*)im->im_process;
 	nhw_scale=(unsigned char*)im->scale;
 
 	/*for (j=0;j<IM_DIM;j++)
@@ -1386,17 +1423,44 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	free(im->im_jpeg);
 
+	im_nhw=(short*)im->im_process;
+
+	for (i=IM_DIM;i<IM_SIZE-IM_DIM;i+=(IM_DIM))
+	{
+		for (scan=i+1,j=1;j<(IM_DIM-1);j++,scan++)
+		{
+			res	   =   (im_nhw[scan]<<3) -
+						im_nhw[scan-1]-im_nhw[scan+1]-
+						im_nhw[scan-(IM_DIM)]-im_nhw[scan+(IM_DIM)]-
+						im_nhw[scan-(IM_DIM+1)]-im_nhw[scan+(IM_DIM-1)]-
+						im_nhw[scan-(IM_DIM-1)]-im_nhw[scan+(IM_DIM+1)];
+
+			if (abs(res)>60)
+			{
+				if (res>0)
+				{
+					if (res>160) im_nhw[scan]+=3;
+					else if (res>60) im_nhw[scan]+=2;
+				}
+				else 
+				{
+					if (res<-160) im_nhw[scan]-=3;
+					else if (res<-60) im_nhw[scan]-=2;
+				}
+			}
+		}
+	}
+
 	for (i=0;i<IM_SIZE;i++) 
 	{
-		if ((im->im_process[i]>>8)!=0) 
+		if ((im_nhw[i]>>8)!=0) 
 		{
-			if (im->im_process[i]<0) im->im_process[i]=0;
-			else if (im->im_process[i]>255) im->im_process[i]=255;
+			if (im_nhw[i]<0) im_nhw[i]=0;
+			else if (im_nhw[i]>255) im_nhw[i]=255;
 		}
 	}
 
 	im->scale=(unsigned char*)malloc(2*IM_SIZE*sizeof(char));
-	im_nhw=(short*)im->im_process;
 	nhw_scale=(unsigned char*)im->scale;
 
 	/*for (j=0;j<IM_DIM;j++)
