@@ -61,14 +61,16 @@
 #define IM_DIM 256
 
 //QUALITY SETTINGS
-#define HIGH3 6
-#define HIGH2 5
-#define HIGH1 4
-#define NORM 3
-#define LOW1 2
-#define LOW2 1
-#define LOW3 0
-
+#define HIGH3 9
+#define HIGH2 8
+#define HIGH1 7
+#define NORM 6
+#define LOW1 5
+#define LOW2 4
+#define LOW3 3
+#define LOW4 2
+#define LOW5 1
+#define LOW6 0
 
 /*==========================================*/
 
@@ -149,6 +151,7 @@ typedef struct{
 	unsigned short exw_Y_end;
 	unsigned short end_ch_res;
 	unsigned short qsetting3_len;
+	unsigned char q2;
 	unsigned long *high_qsetting3;
 	unsigned short highres_mem_len;
 	unsigned short highres_comp_len;

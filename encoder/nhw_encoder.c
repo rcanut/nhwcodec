@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 11022013 nhw exp $							           *
+*  last update: $ 11152013 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -82,6 +82,9 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l1")==0) im.setup->quality_setting=LOW1; 
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
 		else if (strcmp(arg,"-l3")==0) im.setup->quality_setting=LOW3; 
+		else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
+		else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
+		else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -104,7 +107,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	im->im_process=(short*)malloc(4*IM_SIZE*sizeof(short));
 
-	if (im->setup->quality_setting<=LOW3) block_variance_avg(im);
+	//if (im->setup->quality_setting<=LOW3) block_variance_avg(im);
 
 	nhw_process=(short*)im->im_process;
 
@@ -2132,6 +2135,8 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 {
 	int i;
 	FILE *im256;
+	unsigned char *im4;
+	float q_setting;
  
 	// INITS & MEMORY ALLOCATION FOR ENCODING
 	//im->setup=(codec_setup*)malloc(sizeof(codec_setup));
@@ -2155,6 +2160,24 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	// READ IMAGE DATA
 	fread(im->im_buffer4,4*3*IM_SIZE,1,im256); 
 	fclose(im256);
+
+	if (im->setup->quality_setting<=LOW3)
+	{
+		if (im->setup->quality_setting==LOW3) q_setting=0.7;
+		else if (im->setup->quality_setting==LOW4) q_setting=0.6;
+		else if (im->setup->quality_setting==LOW5) q_setting=0.52;
+		else if (im->setup->quality_setting==LOW6) q_setting=0.44;
+
+		im4=(unsigned char*)im->im_buffer4;
+
+		for (i=0;i<4*3*IM_SIZE;i++)
+		{
+			im4[i]=(unsigned char)(im4[i]*q_setting +0.5f);
+		}
+
+		os->q2=im->setup->quality_setting;im->setup->quality_setting=NORM;
+	}
+	else os->q2=255;
 
 	downsample_YUV420(im,os,rate);
 
@@ -2180,8 +2203,11 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	im->setup->RES_HIGH+=im->setup->wavelet_type;
 
+	if (enc->q2!=255) im->setup->quality_setting=enc->q2;
+
 	fwrite(&im->setup->RES_HIGH,1,1,compressed);
 	fwrite(&im->setup->quality_setting,1,1,compressed);
+	if (enc->q2!=255) im->setup->quality_setting=NORM;
 	fwrite(&enc->size_tree1,2,1,compressed);
 	fwrite(&enc->size_tree2,2,1,compressed);
 	fwrite(&enc->size_data1,4,1,compressed);

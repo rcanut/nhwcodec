@@ -437,7 +437,7 @@ void pre_processing(image_buffer *im)
 						nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
 
 
-			if (lower_quality_setting_on)
+			/*if (lower_quality_setting_on)
 			{
 				if (abs(count)>4 && abs(count)<65 && abs(res)<30)
 				{
@@ -449,7 +449,7 @@ void pre_processing(image_buffer *im)
 
 					}
 				}
-			}
+			}*/
 
 			if (res>201) {im->im_jpeg[scan-1]-=2;e=4;}
 			else if (res<-201) {im->im_jpeg[scan-1]+=2;e=3;}
