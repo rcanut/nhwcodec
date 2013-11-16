@@ -83,8 +83,8 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
 		else if (strcmp(arg,"-l3")==0) im.setup->quality_setting=LOW3; 
 		else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
-		else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
-		else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
+		//else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
+		//else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
