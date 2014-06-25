@@ -1636,8 +1636,7 @@ for (i=4,enc->nhw_select1=0,count=0,res=0;i<((4*IM_SIZE)-4);i++)
 
 	for (i=0,count=0;i<(4*IM_SIZE);i++)
 	{
-L_RUN_OVER_SEARCH:
-		if (scan_run[i]==128 && scan_run[i+1]==128)   
+		while (scan_run[i]==128 && scan_run[i+1]==128)   
 		{
 			count++;
 
@@ -1655,21 +1654,18 @@ L_RUN_OVER_SEARCH:
 				if (scan_run[i+3]==153) scan_run[i+3]=124;
 				else if (scan_run[i+3]==155) scan_run[i+3]=123;
 
-				i--;count=0;goto L_RUN_OVER_SEARCH;
+				i--;count=0;
 			}
-
-			i++;goto L_RUN_OVER_SEARCH;
+			else i++;
 		}
-		else 
+		 
+		if (count>=252)
 		{
-			if (count>=252)
-			{
-				if (scan_run[i+1]==153) scan_run[i+1]=124;
-				else if (scan_run[i+1]==155) scan_run[i+1]=123;
-			}
-
-			count=0;
+			if (scan_run[i+1]==153) scan_run[i+1]=124;
+			else if (scan_run[i+1]==155) scan_run[i+1]=123;
 		}
+
+		count=0;
 	}
 	
 	// U
