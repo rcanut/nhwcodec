@@ -101,7 +101,7 @@ void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned lon
 
 	for (i=0;i<j;i++) nhw_rle[i]=(os->book[i]>>8);
 
-	nhw_book=(unsigned char*)os->book;
+	nhw_book=(unsigned short*)os->book;
 
 	free(os->d_tree1);
 	free(decode1);
@@ -263,7 +263,7 @@ void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned lon
 					goto L_TREE;
 				}
 
-				temp1=tr<<(0xe-size);
+				temp1=tr<<(14-size);
 				dec=ntree[temp1];
 				if (dec!=0 && size==dec>>9) goto L_STREAM;
 				goto L_TREE;
@@ -564,7 +564,7 @@ void retrieve_pixel_UV_comp(image_buffer *im,decode_state *os,int p1,unsigned lo
 					goto L_TREEUV;
 				}
 
-				temp1=tr<<(0xe-size);
+				temp1=tr<<(14-size);
 				dec=ntree[temp1];
 				if (dec!=0 && size==dec>>9) goto L_STREAMUV;
 				goto L_TREEUV;
