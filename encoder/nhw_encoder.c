@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 11152013 nhw exp $							           *
+*  last update: $ 08102015 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2013 NHW Project
+/* Copyright (C) 2007-2015 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -1571,10 +1571,10 @@ L_W5:			res256[count]=14000;
 			{
 				if  (scan_run[i+3]==128)
 				{
-					if (scan_run[i]==136 && scan_run[i+4]==136) {scan_run[i]=132;scan_run[i+4]=112;i+=4;}
-					else if (scan_run[i]==136 && scan_run[i+4]==120) {scan_run[i]=133;scan_run[i+4]=112;i+=4;}
-					else if (scan_run[i]==120 && scan_run[i+4]==136) {scan_run[i]=134;scan_run[i+4]=112;i+=4;}
-					else if (scan_run[i]==120 && scan_run[i+4]==120) {scan_run[i]=135;scan_run[i+4]=112;i+=4;}
+					if (scan_run[i]==136 && scan_run[i+4]==136) {scan_run[i]=132;scan_run[i+4]=201;i+=4;}
+					else if (scan_run[i]==136 && scan_run[i+4]==120) {scan_run[i]=133;scan_run[i+4]=201;i+=4;}
+					else if (scan_run[i]==120 && scan_run[i+4]==136) {scan_run[i]=134;scan_run[i+4]=201;i+=4;}
+					else if (scan_run[i]==120 && scan_run[i+4]==120) {scan_run[i]=135;scan_run[i+4]=201;i+=4;}
 					//else if (scan_run[i]==136 && scan_run[i+4]==112) {scan_run[i]=127;i+=4;}
 					//else if (scan_run[i]==112 && scan_run[i+4]==136) {scan_run[i]=126;i+=4;}
 					//else if (scan_run[i]==136 && scan_run[i+4]==144) {scan_run[i]=125;i+=4;}
@@ -1667,6 +1667,7 @@ for (i=4,enc->nhw_select1=0,count=0,res=0;i<((4*IM_SIZE)-4);i++)
 
 		count=0;
 	}
+
 	
 	// U
 	im->im_jpeg=(short*)malloc(IM_SIZE*sizeof(short));

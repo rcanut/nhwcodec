@@ -273,9 +273,9 @@ void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned lon
 
 			if (dec!=0 && size==dec>>9) 
 			{
-L_STREAM:		dec&=MSW;
+L_STREAM:			dec&=MSW;
 				if (dec>=ZONE1) if (zone_number==1) dec+=UNZONE1; 
-SKIP_ZONE: 		word=(unsigned char)nhw_book[dec];
+SKIP_ZONE: 			word=(unsigned char)nhw_book[dec];
 
 				if (word==0x80) 
 				{
@@ -411,8 +411,8 @@ L_INVQ:					if (word>0x80) im3[e++]=(word-INV_QUANT1);
 					}
 				}
 
-L_SCAN_END:	  	if (e>=p1) goto L4;
-				tr=0;size=0;path=0;ntree=nhw_table1;zone=zone_number;
+L_SCAN_END:	  		if (e>=p1) goto L4;
+				tr=0;size=0;if (path) {path=0;ntree=nhw_table1;} zone=zone_number;
 			}
 
 L_TREE:		tr <<=1;

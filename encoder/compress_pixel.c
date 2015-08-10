@@ -250,19 +250,22 @@ L_RATIO:
 	{
 		pixel=nhw_comp[i];
 
-		if (pixel==153) 
+		if (pixel>=153)
 		{
-			nhw_s1[c++]=0;
-			goto L_TAG;
-		}
-		else if (pixel==155) 
-		{
-			nhw_s1[c++]=1;
-			goto L_TAG;
-		}
-		else if (pixel==159) 
-		{
-			goto L_TAG;
+			if (pixel==153) 
+			{
+				nhw_s1[c++]=0;
+				goto L_TAG;
+			}
+			else if (pixel==155) 
+			{
+				nhw_s1[c++]=1;
+				goto L_TAG;
+			}
+			else if (pixel==159) 
+			{
+				goto L_TAG;
+			}
 		}
 
 		if (pixel!=128 && pixel<136 && pixel>120)
