@@ -78,15 +78,15 @@ L1:	if (part==0) select=4; else select=3;
 
 	for (i=p1;i<p2-1;i++)   
 	{
-
-L_RUN1:	if (nhw_comp[i]==128 && nhw_comp[i+1]==128)   
+L_RUN1:	if (nhw_comp[i]==128)   
 		{
-			e++;c=1;
-			if (e>255) {e=254;rle_128[254]++;i--;e=0;c=0;goto L_RUN1;}
-			i++;goto L_RUN1;
+			while (nhw_comp[i+1]==128)
+			{
+				e++;c=1;
+				if (e>255) {e=254;rle_128[254]++;i--;e=0;c=0;goto L_RUN1;}
+				else i++;
+			}
 		}
-
-L_END_RUN:
 
 		if (c) 
 		{
@@ -273,23 +273,25 @@ L_RATIO:
 			goto L_ZE;
 		}
 
-L_START:if (pixel==128 && nhw_comp[i+1]==128)   
+		if (pixel==128)   
 		{
-			e++;
-			if (e>255) {e=254;i--;goto L_JUMP;}
-			i++;goto L_START;
-		}
-		else
-		{
+			while (nhw_comp[i+1]==128)
+			{
+				e++;
+				if (e>255) {e=254;i--;goto L_JUMP;}
+				else i++;
+			}
+
 			if (e>1) 
 			{ 
 				if (e<select) {i-=(e-1);tag=e;e=1;}
 			}
 		}
+
 L_JUMP:	if (e==1) pos=(unsigned short)rle_buf[pixel];
 		else pos=(unsigned short)rle_128[e];
 
-L_ZE:	if (pos>=110 && pos<174 && zone_entrance)
+L_ZE:		if (pos>=110 && pos<174 && zone_entrance)
 		{
 			pack += 15;
 			if (pack<=32) enc->encode[a] |= ((1<<6)|(pos-110))<<(32-pack); 
@@ -317,6 +319,7 @@ L_ZE:	if (pos>=110 && pos<174 && zone_entrance)
 				pack=match;
 			}
 		}
+
 L_TAG:	e=1;
 		// check the tag, maybe can be elsewhere faster...
 		if (tag>0) {tag--;if (tag>0){i++;goto L_JUMP;}} 
