@@ -12,7 +12,7 @@
 *  rmk: -mixed entropy coding                        					   * 
 ***************************************************************************/
 
-/* Copyright (C) 2007-2013 NHW Project
+/* Copyright (C) 2007-2015 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -254,17 +254,15 @@ L_RATIO:
 		{
 			if (pixel==153) 
 			{
-				nhw_s1[c++]=0;
-				goto L_TAG;
+				nhw_s1[c++]=0;continue;
 			}
 			else if (pixel==155) 
 			{
-				nhw_s1[c++]=1;
-				goto L_TAG;
+				nhw_s1[c++]=1;continue;
 			}
 			else if (pixel==159) 
 			{
-				goto L_TAG;
+				continue;
 			}
 		}
 
