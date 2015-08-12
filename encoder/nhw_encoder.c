@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 08102015 nhw exp $							           *
+*  last update: $ 08122015 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -1592,17 +1592,23 @@ L_W5:			res256[count]=14000;
 	scan_run[0]=128;scan_run[1]=128;scan_run[2]=128;scan_run[3]=128;
 	scan_run[(4*IM_SIZE)-4]=128;scan_run[(4*IM_SIZE)-3]=128;scan_run[(4*IM_SIZE)-2]=128;scan_run[(4*IM_SIZE)-1]=128;
 
-for (i=4,enc->nhw_select1=0,count=0,res=0;i<((4*IM_SIZE)-4);i++)
+	for (i=4,enc->nhw_select1=0,enc->nhw_select2=0,count=0,res=0;i<((4*IM_SIZE)-4);i++)
 	{
 		if (scan_run[i]==136)
 		{
-			if (scan_run[i+2]==128 && (scan_run[i+1]==120)  && scan_run[i-1]==128 && scan_run[i-2]==128 && scan_run[i-3]==128 && scan_run[i-4]==128)
+			if (scan_run[i+2]==128 && (scan_run[i+1]==120 || scan_run[i+1]==136)  && scan_run[i-1]==128 && scan_run[i-2]==128 && scan_run[i-3]==128 && scan_run[i-4]==128)
 			{
-				scan_run[i+1]=159;//printf("\n %d %d",i,res++);
+				if (scan_run[i+1]==120) scan_run[i+1]=157;
+				else scan_run[i+1]=159;
+
+				enc->nhw_select2++;
 			}
-			else if (scan_run[i-1]==128 && (scan_run[i+1]==120) && scan_run[i+2]==128 && scan_run[i+3]==128 && scan_run[i+4]==128 && scan_run[i+5]==128)
+			else if (scan_run[i-1]==128 && (scan_run[i+1]==120 || scan_run[i+1]==136) && scan_run[i+2]==128 && scan_run[i+3]==128 && scan_run[i+4]==128 && scan_run[i+5]==128)
 			{
-				scan_run[i+1]=159;//printf("\n %d %d",i,res++);
+				if (scan_run[i+1]==120) scan_run[i+1]=157;
+				else scan_run[i+1]=159;
+
+				enc->nhw_select2++;
 			}
 			else if (scan_run[i-1]==128 && scan_run[i-2]==128 && scan_run[i-3]==128 && scan_run[i-4]==128 && scan_run[i+1]==128)
 			{
@@ -1615,13 +1621,19 @@ for (i=4,enc->nhw_select1=0,count=0,res=0;i<((4*IM_SIZE)-4);i++)
 		}
 		else if (scan_run[i]==120)
 		{
-			if (scan_run[i+2]==128 && (scan_run[i+1]==136)  && scan_run[i-1]==128 && scan_run[i-2]==128 && scan_run[i-3]==128 && scan_run[i-4]==128)
+			if (scan_run[i+2]==128 && (scan_run[i+1]==120 || scan_run[i+1]==136)  && scan_run[i-1]==128 && scan_run[i-2]==128 && scan_run[i-3]==128 && scan_run[i-4]==128)
 			{
-				scan_run[i+1]=159;//printf("\n %d %d",i,res++);
+				if (scan_run[i+1]==120) scan_run[i+1]=157;
+				else scan_run[i+1]=159;
+
+				enc->nhw_select2++;
 			}
-			else if (scan_run[i-1]==128 && (scan_run[i+1]==136) && scan_run[i+2]==128 && scan_run[i+3]==128 && scan_run[i+4]==128 && scan_run[i+5]==128)
+			else if (scan_run[i-1]==128 && (scan_run[i+1]==120 || scan_run[i+1]==136) && scan_run[i+2]==128 && scan_run[i+3]==128 && scan_run[i+4]==128 && scan_run[i+5]==128)
 			{
-				scan_run[i+1]=159;//printf("\n %d %d",i,res++);
+				if (scan_run[i+1]==120) scan_run[i+1]=157;
+				else scan_run[i+1]=159;
+
+				enc->nhw_select2++;
 			}
 			else if (scan_run[i-1]==128 && scan_run[i-2]==128 && scan_run[i-3]==128 && scan_run[i-4]==128 && scan_run[i+1]==128)
 			{
@@ -1633,6 +1645,7 @@ for (i=4,enc->nhw_select1=0,count=0,res=0;i<((4*IM_SIZE)-4);i++)
 			}
 		}
 	}
+
 
 	for (i=0,count=0;i<(4*IM_SIZE);i++)
 	{
@@ -2239,6 +2252,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	}
 
 	fwrite(&enc->nhw_select1,2,1,compressed);
+	fwrite(&enc->nhw_select2,2,1,compressed);
 	fwrite(&enc->highres_comp_len,2,1,compressed);
 	fwrite(&enc->end_ch_res,2,1,compressed);
 	fwrite(enc->tree1,enc->size_tree1,1,compressed);
@@ -2278,6 +2292,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	}
 
 	fwrite(enc->nhw_select_word1,enc->nhw_select1,1,compressed);
+	fwrite(enc->nhw_select_word2,enc->nhw_select2,1,compressed);
 	fwrite(enc->res_U_64,(IM_DIM<<1),1,compressed);
 	fwrite(enc->res_V_64,(IM_DIM<<1),1,compressed);
 	fwrite(enc->highres_word,enc->highres_comp_len,1,compressed);
@@ -2292,6 +2307,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	free(enc->nhw_res1_bit);
 	free(enc->nhw_res1_word);
 	free(enc->nhw_select_word1);
+	free(enc->nhw_select_word2);
 
 	if (im->setup->quality_setting>=LOW1)
 	{

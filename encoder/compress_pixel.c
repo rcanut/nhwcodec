@@ -55,7 +55,7 @@ int wavlts2packet(image_buffer *im,encode_state *enc)
 	int i,j,k,e,a,b,c,select,tag,thresh,pos,pack,match,part,p1,p2;
 	unsigned long weight[354],weight2[354],l1,l2,huffman_word;
 	unsigned short rle_tree[580];
-	unsigned char codebook[580],zone_entrance,color,pixel,*nhw_s1;
+	unsigned char codebook[580],zone_entrance,color,pixel,*nhw_s1,*nhw_s2;
 	unsigned char *nhw_comp;
 	int rle_buf[256],rle_128[256];
 
@@ -244,8 +244,9 @@ L_RATIO:
 	if (part==1) zone_entrance=0;
 
 	nhw_s1=(unsigned char*)malloc(enc->nhw_select1*sizeof(char));
+	nhw_s2=(unsigned char*)malloc(enc->nhw_select2*sizeof(char));
 
-	e=1;match=0;pack=0;tag=0;c=0;
+	e=1;match=0;pack=0;tag=0;c=0,j=0;
 	for (i=p1;i<p2-1;i++)   
 	{
 		pixel=nhw_comp[i];
@@ -260,9 +261,13 @@ L_RATIO:
 			{
 				nhw_s1[c++]=1;continue;
 			}
+			else if (pixel==157) 
+			{
+				nhw_s2[j++]=0;continue;
+			}
 			else if (pixel==159) 
 			{
-				continue;
+				nhw_s2[j++]=1;continue;
 			}
 		}
 
@@ -346,6 +351,21 @@ L_TAG:	e=1;
 	free(nhw_s1);
 
 	enc->nhw_select1=e;
+
+	b=(j>>3)+1;e=0;
+	enc->nhw_select_word2=(unsigned char*)malloc((b<<3)*sizeof(char));
+
+	for (i=0;i<(b<<3);i+=8)
+	{
+		enc->nhw_select_word2[e++]=((nhw_s2[i]&1)<<7)|((nhw_s2[i+1]&1)<<6)|
+								   ((nhw_s2[i+2]&1)<<5)|((nhw_s2[i+3]&1)<<4)|
+								   ((nhw_s2[i+4]&1)<<3)|((nhw_s2[i+5]&1)<<2)|
+								   ((nhw_s2[i+6]&1)<<1)|((nhw_s2[i+7]&1));	
+	}
+
+	free(nhw_s2);
+
+	enc->nhw_select2=e;
 
 	e=0;b=0;c=0;
 	for (i=0;i<k;i++)

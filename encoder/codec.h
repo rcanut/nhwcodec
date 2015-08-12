@@ -141,7 +141,9 @@ typedef struct{
 	unsigned short *nhw_char_res1;
 	unsigned short *nhw_char_res1_len;
 	unsigned short nhw_select1;
+	unsigned short nhw_select2;
 	unsigned char *nhw_select_word1;
+	unsigned char *nhw_select_word2;
 	int size_data1;
 	int size_data2;
 	unsigned short size_tree1;
