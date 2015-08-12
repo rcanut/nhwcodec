@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 11152013 nhw exp $							           *
+*  last update: $ 08122015 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2013 NHW Project
+/* Copyright (C) 2007-2015 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -1644,6 +1644,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	}
 
 	fread(&os->nhw_select1,2,1,compressed_file);
+	fread(&os->nhw_select2,2,1,compressed_file);
 	fread(&os->highres_comp_len,2,1,compressed_file);
 	fread(&os->end_ch_res,2,1,compressed_file);
 
@@ -1654,14 +1655,17 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	os->nhw_res1=(unsigned char*)malloc(os->nhw_res1_len*sizeof(char));
 	os->nhw_res1_bit=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
 	os->nhw_res1_word=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
+
 	if (imd->setup->quality_setting>=LOW1)
 	{
 		os->nhw_res3=(unsigned char*)malloc(os->nhw_res3_len*sizeof(char));
 		os->nhw_res3_bit=(unsigned char*)malloc(os->nhw_res3_bit_len*sizeof(char));
 		os->nhw_res3_word=(unsigned char*)malloc((os->nhw_res3_bit_len<<1)*sizeof(char));
 	}
+
 	os->nhw_res4=(unsigned char*)malloc(os->nhw_res4_len*sizeof(char));
 	os->nhw_select_word1=(unsigned char*)malloc(os->nhw_select1*sizeof(char));
+	os->nhw_select_word2=(unsigned char*)malloc(os->nhw_select2*sizeof(char));
 	os->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
 	os->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
 	os->highres_comp=(unsigned char*)malloc(os->highres_comp_len*sizeof(char));
@@ -1706,6 +1710,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	}
 
 	fread(os->nhw_select_word1,os->nhw_select1,1,compressed_file);
+	fread(os->nhw_select_word2,os->nhw_select2,1,compressed_file);
 	fread(os->res_U_64,(IM_DIM<<1),1,compressed_file);
 	fread(os->res_V_64,(IM_DIM<<1),1,compressed_file);
 	fread(os->highres_comp,os->highres_comp_len,1,compressed_file);

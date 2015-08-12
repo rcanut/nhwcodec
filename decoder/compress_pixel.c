@@ -8,7 +8,7 @@
 ****************************************************************************
 ****************************************************************************
 
-/* Copyright (C) 2007-2013 NHW Project
+/* Copyright (C) 2007-2015 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned lon
 {
 	int i,j,tr,size,path,temp1,e,word,zone,INV_QUANT1,INV_QUANT2,zone_number,mem,mem2,nhw_ac1,run_over,t,t2;
 	unsigned short *ntree,*nhw_book,dec;
-	unsigned char *decode1,*dec_select_word1,*nhw_rle;
+	unsigned char *decode1,*dec_select_word1,*dec_select_word2,*nhw_rle;
 
 	dec_select_word1=(unsigned char*)malloc((os->nhw_select1<<3)*sizeof(char));
 
@@ -67,6 +67,22 @@ void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned lon
 	}
 
 	free(os->nhw_select_word1);
+
+	dec_select_word2=(unsigned char*)malloc((os->nhw_select2<<3)*sizeof(char));
+
+	for (i=0,e=0;i<os->nhw_select2;i++)
+	{
+		dec_select_word2[e++]=(os->nhw_select_word2[i]>>7);
+		dec_select_word2[e++]=((os->nhw_select_word2[i]>>6)&1);
+		dec_select_word2[e++]=((os->nhw_select_word2[i]>>5)&1);
+		dec_select_word2[e++]=((os->nhw_select_word2[i]>>4)&1);
+		dec_select_word2[e++]=((os->nhw_select_word2[i]>>3)&1);
+		dec_select_word2[e++]=((os->nhw_select_word2[i]>>2)&1);
+		dec_select_word2[e++]=((os->nhw_select_word2[i]>>1)&1);
+		dec_select_word2[e++]=(os->nhw_select_word2[i]&1);
+	}
+
+	free(os->nhw_select_word2);
 
 	decode1=(unsigned char*)calloc(DEPTH1,sizeof(short));
 
@@ -285,11 +301,11 @@ SKIP_ZONE: 			word=(unsigned char)nhw_book[dec];
 					{
 						if (!im3[e-2] && !im3[e-3] && !im3[e-4] && !im3[e-5])
 						{
-							if (im3[e-1]==11) im3[e++]=-11;else if (im3[e-1]==-11) im3[e++]=11;
+							if (!dec_select_word2[t2++]) im3[e++]=-11;else im3[e++]=11;
 						}
 						else if (nhw_rle[dec]>=4 && !im3[e-2])
 						{
-							if (im3[e-1]==11) im3[e++]=-11;else if (im3[e-1]==-11) im3[e++]=11;
+							if (!dec_select_word2[t2++]) im3[e++]=-11;else im3[e++]=11;
 						}
 
 						mem2=0;
@@ -421,9 +437,10 @@ L_TREE:		tr <<=1;
 	}
 
 
-L4: free(os->book);
+L4:	free(os->book);
 	free(dec_select_word1);
-
+	free(dec_select_word2);
+	
 }
 
 void retrieve_pixel_UV_comp(image_buffer *im,decode_state *os,int p1,unsigned long *d1,short *im3)

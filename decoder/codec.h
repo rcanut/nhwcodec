@@ -127,6 +127,7 @@ typedef struct{
 	unsigned short nhw_res5_bit_len;
 	unsigned short nhw_res6_bit_len;
 	unsigned short nhw_select1;
+	unsigned short nhw_select2;
 	unsigned char *nhw_res1;
 	unsigned char *nhw_res3;
 	unsigned char *nhw_res4;
@@ -143,6 +144,7 @@ typedef struct{
 	unsigned long *nhwresH3;
 	unsigned long *nhwresH4;
 	unsigned char *nhw_select_word1;
+	unsigned char *nhw_select_word2;
 	unsigned short *nhw_char_res1;
 	unsigned short nhw_char_res1_len;
 	unsigned short res_f1;
