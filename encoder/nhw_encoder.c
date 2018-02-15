@@ -82,7 +82,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l1")==0) im.setup->quality_setting=LOW1; 
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
 		else if (strcmp(arg,"-l3")==0) im.setup->quality_setting=LOW3; 
-		else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
+		//else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
 		//else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
 		//else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
 		*argv--;*argv--;*argv--;
@@ -288,6 +288,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	enc->tree1=(unsigned char*)malloc(((96*IM_DIM)+1)*sizeof(char));
 	enc->exw_Y=(unsigned char*)malloc(32*IM_DIM*sizeof(short));
 
+
+	if (im->setup->quality_setting>LOW3)
+	{
 	for (i=0,count=0,res=0,e=0,stage=0;i<((4*IM_SIZE)>>2);i+=(2*IM_DIM))
 	{
 		for (count=i,j=0;j<(((2*IM_DIM)>>2)-3);j++,count++)
@@ -307,6 +310,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	enc->nhw_res4_len=res;
 	enc->nhw_res4=(unsigned char*)malloc(enc->nhw_res4_len*sizeof(char));
+	}
 
 	enc->ch_res=(unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
 
@@ -316,7 +320,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			scan=nhw_process[count];
 
-			if (scan>10000) 
+			if (im->setup->quality_setting>LOW3 && scan>10000) 
 			{
 				if (scan>20000) 
 				{
@@ -324,11 +328,15 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				}
 				else scan-=16000;
 			}
+			/*else if (im->setup->quality_setting<=LOW3 && j>0 && j<((IM_DIM>>1)-1) && abs(nhw_process[count-1]-nhw_process[count+1])<1 && abs(nhw_process[count-1]-scan)<=3)
+		 	{
+				nhw_process[count]=nhw_process[count-1];//nhw_process[count+1]=nhw_process[count-1];
+			}*/
 			else if ((scan&1)==1 && count>i && (nhw_process[count+1]&1)==1 /*&& !(nhw_process[count-1]&1)*/)
 			{
 				if (j<((IM_DIM>>1)-2) && (nhw_process[count+2]&1)==1 /*&& !(nhw_process[count+3]&1)*/) 
 				{
-					if (abs(scan-nhw_process[count+2])>1) nhw_process[count+1]++;
+					if (abs(scan-nhw_process[count+2])>1 && im->setup->quality_setting>LOW3) nhw_process[count+1]++;
 				}
 				/*else if (j<((IM_DIM>>1)-4) && (nhw_process[count+2]&1)==1 && (nhw_process[count+3]&1)==1
 						&& !(nhw_process[count+4]&1)) 
@@ -338,7 +346,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				else if (i<(IM_SIZE-(2*IM_DIM)-2) && (nhw_process[count+(2*IM_DIM)]&1)==1
 							&& (nhw_process[count+(2*IM_DIM+1)]&1)==1 && !(nhw_process[count+(2*IM_DIM+2)]&1))
 				{
-					if (nhw_process[count+(2*IM_DIM)]<10000) nhw_process[count+(2*IM_DIM)]++;
+					if (nhw_process[count+(2*IM_DIM)]<10000 && im->setup->quality_setting>LOW3) 
+					{
+						nhw_process[count+(2*IM_DIM)]++;
+					}
 				}
 			}
 			else if ((scan&1)==1 && i>=(2*IM_DIM) && i<(IM_SIZE-(6*IM_DIM)))
@@ -347,7 +358,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				{
 					if ((nhw_process[count+(4*IM_DIM)]&1)==1 && !(nhw_process[count+(6*IM_DIM)]&1)) 
 					{
-						if (nhw_process[count+(2*IM_DIM)]<10000) nhw_process[count+(2*IM_DIM)]++;
+						if (nhw_process[count+(2*IM_DIM)]<10000 && im->setup->quality_setting>LOW3) 
+						{
+							nhw_process[count+(2*IM_DIM)]++;
+						}
 					}
 				}
 			}
@@ -374,9 +388,12 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 		}
 
-		if (!stage) enc->nhw_res4[res++]=128;
-		else enc->nhw_res4[res-1]+=128;
-		stage=0;
+		if (im->setup->quality_setting>LOW3)
+		{
+			if (!stage) enc->nhw_res4[res++]=128;
+			else enc->nhw_res4[res-1]+=128;
+			stage=0;
+		}
 	}
 
 	enc->exw_Y_end=e;
@@ -517,7 +534,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		}
 	}
 
-	if (im->setup->quality_setting>=NORM) res_setting=3;else res_setting=4;
+	if (im->setup->quality_setting>=NORM) res_setting=3;
+	else if (im->setup->quality_setting>=LOW2) res_setting=4;
+	else res_setting=6;
 
 	for (j=0,count=0,res=0,stage=0,e=0;j<IM_DIM;j++)
 	{
@@ -1764,6 +1783,8 @@ L_W5:			res256[count]=14000;
 
 	if (im->setup->quality_setting>LOW3) res_uv=4;else res_uv=5;
 
+	if (im->setup->quality_setting>=LOW2)
+	{ 
 	for (i=0,count=0,Y=0,e=0;i<(IM_SIZE>>1);i+=IM_DIM)
 	{
 		for (scan=i,j=0;j<(IM_DIM>>1);j++,scan++,count++)
@@ -1813,6 +1834,7 @@ L_W5:			res256[count]=14000;
 				}
 			}
 		}
+	}
 	}
 
 	free(res256);
@@ -1978,6 +2000,8 @@ L_W5:			res256[count]=14000;
 
 	wavelet_synthesis(im,IM_DIM>>1,end_transform-1,0);
 
+	if (im->setup->quality_setting>=LOW2)
+	{ 
 	for (i=0,count=0,Y=0,e=0;i<(IM_SIZE>>1);i+=IM_DIM)
 	{
 		for (scan=i,j=0;j<(IM_DIM>>1);j++,scan++,count++)
@@ -2027,6 +2051,7 @@ L_W5:			res256[count]=14000;
 				}
 			}
 		}
+	}
 	}
 
 	free(res256);
@@ -2173,7 +2198,7 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 
 	if (im->setup->quality_setting<=LOW3)
 	{
-		if (im->setup->quality_setting==LOW3) q_setting=0.7;
+		if (im->setup->quality_setting==LOW3) q_setting=0.87;//0.7;
 		else if (im->setup->quality_setting==LOW4) q_setting=0.6;
 		else if (im->setup->quality_setting==LOW5) q_setting=0.52;
 		else if (im->setup->quality_setting==LOW6) q_setting=0.44;
@@ -2185,9 +2210,7 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 			im4[i]=(unsigned char)(im4[i]*q_setting +0.5f);
 		}
 
-		os->q2=im->setup->quality_setting;im->setup->quality_setting=NORM;
 	}
-	else os->q2=255;
 
 	downsample_YUV420(im,os,rate);
 
@@ -2213,11 +2236,8 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	im->setup->RES_HIGH+=im->setup->wavelet_type;
 
-	if (enc->q2!=255) im->setup->quality_setting=enc->q2;
-
 	fwrite(&im->setup->RES_HIGH,1,1,compressed);
 	fwrite(&im->setup->quality_setting,1,1,compressed);
-	if (enc->q2!=255) im->setup->quality_setting=NORM;
 	fwrite(&enc->size_tree1,2,1,compressed);
 	fwrite(&enc->size_tree2,2,1,compressed);
 	fwrite(&enc->size_data1,4,1,compressed);
@@ -2230,7 +2250,10 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 		fwrite(&enc->nhw_res3_len,2,1,compressed);
 		fwrite(&enc->nhw_res3_bit_len,2,1,compressed);
 	}
-	fwrite(&enc->nhw_res4_len,2,1,compressed);
+	if (im->setup->quality_setting>LOW3)
+	{
+		fwrite(&enc->nhw_res4_len,2,1,compressed);
+	}
 	fwrite(&enc->nhw_res1_bit_len,2,1,compressed);
 
 	if (im->setup->quality_setting>=HIGH1)
@@ -2261,7 +2284,15 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	fwrite(enc->nhw_res1,enc->nhw_res1_len,1,compressed);
 	fwrite(enc->nhw_res1_bit,enc->nhw_res1_bit_len,1,compressed);
 	fwrite(enc->nhw_res1_word,enc->nhw_res1_word_len,1,compressed);
-	fwrite(enc->nhw_res4,enc->nhw_res4_len,1,compressed);
+	if (im->setup->quality_setting>LOW3)
+	{
+		fwrite(enc->nhw_res4,enc->nhw_res4_len,1,compressed);
+	}
+
+	//i=enc->nhw_res1_len+enc->nhw_res1_bit_len+enc->nhw_res1_word_len+
+	//  enc->nhw_res3_len+enc->nhw_res3_bit_len+enc->nhw_res3_word_len;
+
+	//printf("%d\n",i);
 	
 	if (im->setup->quality_setting>=LOW1)
 	{
@@ -2303,7 +2334,10 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	free(enc->encode);
 	free(enc->nhw_res1);
-	free(enc->nhw_res4);
+	if (im->setup->quality_setting>LOW3)
+	{
+		free(enc->nhw_res4);
+	}
 	free(enc->nhw_res1_bit);
 	free(enc->nhw_res1_word);
 	free(enc->nhw_select_word1);

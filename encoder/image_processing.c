@@ -683,6 +683,8 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 	nhw1=(short*)im->im_process;
 	wavelet_order=im->setup->wvlts_order;
 
+	if (im->setup->quality_setting>LOW3)
+	{
 	if (!part)
 	{
 		for (i=0,a=0,e=0;i<(IM_SIZE);i+=(2*IM_DIM))
@@ -711,8 +713,9 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 			}
 		}
 	}
+	}
 
-	for (i=0,e=0,t=0;i<(IM_SIZE);i+=(2*IM_DIM))
+	for (i=0,a=0,e=0,t=0;i<(IM_SIZE);i+=(2*IM_DIM))
 	{
 		for (a=i,j=0;j<(IM_DIM>>1);j++,a++) 
 		{
@@ -729,11 +732,15 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				continue;
 			}
+			/*else if (!part && im->setup->quality_setting<=LOW3 && j>0 && j<((IM_DIM>>1)-1) && abs(nhw1[a-1]-nhw1[a+1])<1 && abs(nhw1[a-1]-nhw1[a])<=3)
+		 	{
+				nhw1[a]=nhw1[a-1];//nhw1[a+1]=nhw1[a-1];
+			}*/
 			else if ((nhw1[a]&1)==1 && a>i && (nhw1[a+1]&1)==1 /*&& !(nhw1[a-1]&1)*/)
 			{
 				if (j<((IM_DIM>>1)-2) && (nhw1[a+2]&1)==1 /*&& !(im->im_process[a+3]&1)*/)
 				{
-					if (abs(nhw1[a]-nhw1[a+2])>1) im->im_process[a+1]++;
+					if (abs(nhw1[a]-nhw1[a+2])>1 && im->setup->quality_setting>LOW3) im->im_process[a+1]++;
 				}
 				/*else if (j<((IM_DIM>>1)-4) && (im->im_process[a+2]&1)==1 && (im->im_process[a+3]&1)==1
 						&& !(im->im_process[a+4]&1))
@@ -743,7 +750,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				else if (i<(IM_SIZE-(2*IM_DIM)-2) && (im->im_process[a+(2*IM_DIM)]&1)==1 
 							&& (im->im_process[a+(2*IM_DIM+1)]&1)==1 && !(im->im_process[a+(2*IM_DIM+2)]&1))
 				{
-					if (im->im_process[a+(2*IM_DIM)]<10000) im->im_process[a+(2*IM_DIM)]++;
+					if (im->im_process[a+(2*IM_DIM)]<10000 && im->setup->quality_setting>LOW3) im->im_process[a+(2*IM_DIM)]++;
 				}
 			}
 			else if ((nhw1[a]&1)==1 && i>=(2*IM_DIM) && i<(IM_SIZE-(6*IM_DIM)))
@@ -752,7 +759,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				{
 					if ((im->im_process[a+(4*IM_DIM)]&1)==1 && !(im->im_process[a+(6*IM_DIM)]&1)) 
 					{
-						if (im->im_process[a+(2*IM_DIM)]<10000) im->im_process[a+(2*IM_DIM)]++;
+						if (im->im_process[a+(2*IM_DIM)]<10000 && im->setup->quality_setting>LOW3) im->im_process[a+(2*IM_DIM)]++;
 					}
 				}
 			}

@@ -63,7 +63,7 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 	im->im_jpeg=(short*)malloc(4*IM_SIZE*sizeof(short));
 	colorsY=(short*)im->im_jpeg;
 
-	if (im->setup->quality_setting>=NORM)
+	if (im->setup->quality_setting>=NORM || im->setup->quality_setting<=LOW3 )
 	{
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 		{

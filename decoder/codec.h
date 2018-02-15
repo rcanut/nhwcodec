@@ -149,7 +149,6 @@ typedef struct{
 	unsigned short nhw_char_res1_len;
 	unsigned short res_f1;
 	unsigned short res_f2;
-	unsigned char q2;
 	unsigned short d_size_tree1;
 	unsigned short d_size_tree2;
 	unsigned char *d_tree1;

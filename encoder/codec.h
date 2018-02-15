@@ -153,7 +153,6 @@ typedef struct{
 	unsigned short exw_Y_end;
 	unsigned short end_ch_res;
 	unsigned short qsetting3_len;
-	unsigned char q2;
 	unsigned long *high_qsetting3;
 	unsigned short highres_mem_len;
 	unsigned short highres_comp_len;

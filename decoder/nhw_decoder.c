@@ -171,10 +171,10 @@ void main(int argc, char **argv)
 	}
 	else
 	{
-		if (im.setup->quality_setting==LOW3) Y_inv=1.4285715; // 1/0.7
-		else if (im.setup->quality_setting==LOW4) Y_inv=1.6666667; // 1/0.6
-		else if (im.setup->quality_setting==LOW5) Y_inv=1.923077; // 1/0.52
-		else if (im.setup->quality_setting==LOW6) Y_inv=2.2727273; // 1/0.44
+		if (im.setup->quality_setting==LOW3) Y_inv=1.149425; // 1/0.87
+		//else if (im.setup->quality_setting==LOW4) Y_inv=1.6666667; // 1/0.6
+		//else if (im.setup->quality_setting==LOW5) Y_inv=1.923077; // 1/0.52
+		//else if (im.setup->quality_setting==LOW6) Y_inv=2.2727273; // 1/0.44
 
 		for (m=0;m<4;m++)
 		{
@@ -776,6 +776,8 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		}
 	}
 
+	if (im->setup->quality_setting>LOW3)
+	{
 	for (i=0,e=0,count=0;i<os->nhw_res4_len;i++)
 	{
 		if (os->nhw_res4[i]==128) count++;
@@ -801,6 +803,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	}
 
 	free(os->nhw_res4);
+	}
 
 	for (i=0,exw1=0;i<os->exw_Y_end;i+=3,exw1+=3)
 	{
@@ -862,17 +865,20 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		free(nhwresH2);
 	}
 
+	if (im->setup->quality_setting>=LOW2) e=5;else e=7;
+
 	for (i=0;i<os->nhw_res1_bit_len;i++) 
 	{
-		im_nhw2[((nhwres1[i]&65280)<<1)+(nhwres1[i]&255)]-=5;
+		im_nhw2[((nhwres1[i]&65280)<<1)+(nhwres1[i]&255)]-=e;
 	}
 	free(nhwres1);
 
 	for (i=0;i<os->nhw_res2_bit_len;i++) 
 	{
-		im_nhw2[((nhwres2[i]&65280)<<1)+(nhwres2[i]&255)]+=5;
+		im_nhw2[((nhwres2[i]&65280)<<1)+(nhwres2[i]&255)]+=e;
 	}
 	free(nhwres2);
+
 
 	if (im->setup->quality_setting>=LOW1)
 	{
@@ -1460,8 +1466,6 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	free(im->im_jpeg);
 
-	if (os->q2!=255) im->setup->quality_setting=os->q2;
-
 	im_nhw=(short*)im->im_process;
 
 	for (i=IM_DIM;i<IM_SIZE-IM_DIM;i+=(IM_DIM))
@@ -1589,13 +1593,6 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		printf("\nNot an .nhw file");exit(-1);
 	}
 
-	if (imd->setup->quality_setting<=LOW3) 
-	{
-		os->q2=imd->setup->quality_setting;
-		imd->setup->quality_setting=NORM;
-	}
-	else os->q2=255;
-
 	imd->setup->colorspace=YUV;
 	imd->setup->wavelet_type=WVLTS_53;
 	imd->setup->wvlts_order=2;
@@ -1607,12 +1604,18 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(&os->tree_end,2,1,compressed_file);
 	fread(&os->exw_Y_end,2,1,compressed_file);
 	fread(&os->nhw_res1_len,2,1,compressed_file);
+
 	if (imd->setup->quality_setting>=LOW1)
 	{
 		fread(&os->nhw_res3_len,2,1,compressed_file);
 		fread(&os->nhw_res3_bit_len,2,1,compressed_file);
 	}
-	fread(&os->nhw_res4_len,2,1,compressed_file);
+			
+	if (imd->setup->quality_setting>LOW3)
+	{
+		fread(&os->nhw_res4_len,2,1,compressed_file);
+	}
+
 	fread(&os->nhw_res1_bit_len,2,1,compressed_file);
 
 	if (imd->setup->quality_setting>=HIGH1)
@@ -1663,7 +1666,11 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		os->nhw_res3_word=(unsigned char*)malloc((os->nhw_res3_bit_len<<1)*sizeof(char));
 	}
 
-	os->nhw_res4=(unsigned char*)malloc(os->nhw_res4_len*sizeof(char));
+	if (imd->setup->quality_setting>LOW3)
+	{
+		os->nhw_res4=(unsigned char*)malloc(os->nhw_res4_len*sizeof(char));
+	}
+
 	os->nhw_select_word1=(unsigned char*)malloc(os->nhw_select1*sizeof(char));
 	os->nhw_select_word2=(unsigned char*)malloc(os->nhw_select2*sizeof(char));
 	os->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
@@ -1680,7 +1687,11 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(os->nhw_res1,os->nhw_res1_len,1,compressed_file);
 	fread(os->nhw_res1_bit,os->nhw_res1_bit_len,1,compressed_file);
 	fread(os->nhw_res1_word,os->nhw_res1_bit_len,1,compressed_file);
-	fread(os->nhw_res4,os->nhw_res4_len,1,compressed_file);
+
+	if (imd->setup->quality_setting>LOW3)
+	{
+		fread(os->nhw_res4,os->nhw_res4_len,1,compressed_file);
+	}
 
 	if (imd->setup->quality_setting>=LOW1)
 	{

@@ -1,6 +1,6 @@
 --- NHW Image Compression Codec --- 
                
-/* Copyright (C) 2007-2017 NHW Project
+/* Copyright (C) 2007-2018 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 
 -----------------------------------------------------------------------------------------
 
-last version : 0.1.3 08122015 nhw
+last version : 0.1.3 02152018 nhw
 
 This codec allows to compress a bitmap color image (with 512x512 size for the moment) using notably a wavelet transform.
 
@@ -41,13 +41,13 @@ This codec allows to compress a bitmap color image (with 512x512 size for the mo
 
 -----------------------------------------------------------------------------------------
 
-encoder option:  nhw_encoder.exe filename.bmp 
+encoder option:  nhw_encoder.exe filename.bmp
+		     nhw_encoder.exe filename.bmp -h3
 		     nhw_encoder.exe filename.bmp -h2
 		     nhw_encoder.exe filename.bmp -h1
 		     nhw_encoder.exe filename.bmp -l1
 		     nhw_encoder.exe filename.bmp -l2
 		     nhw_encoder.exe filename.bmp -l3
-		     nhw_encoder.exe filename.bmp -l4
 
 
 -----------------------------------------------------------------------------------------
