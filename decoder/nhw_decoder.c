@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 08122015 nhw exp $							           *
+*  last update: $ 02182018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -169,12 +169,9 @@ void main(int argc, char **argv)
 			fwrite(iNHW,3*IM_SIZE,1,res_image);
 		}
 	}
-	else
+	else if (im.setup->quality_setting==LOW3) 
 	{
-		if (im.setup->quality_setting==LOW3) Y_inv=1.149425; // 1/0.87
-		//else if (im.setup->quality_setting==LOW4) Y_inv=1.6666667; // 1/0.6
-		//else if (im.setup->quality_setting==LOW5) Y_inv=1.923077; // 1/0.52
-		//else if (im.setup->quality_setting==LOW6) Y_inv=2.2727273; // 1/0.44
+		Y_inv=1.149425; // 1/0.87
 
 		for (m=0;m<4;m++)
 		{
@@ -207,6 +204,38 @@ void main(int argc, char **argv)
 			fwrite(iNHW,3*IM_SIZE,1,res_image);
 		}
 	}
+	else if (im.setup->quality_setting<LOW3) 
+	{
+		if (im.setup->quality_setting==LOW4) Y_inv=1.149425; // 1/0.87
+
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				Y = icolorY[i]*298;
+				U = icolorU[i];
+				V = icolorV[i];
+
+				//Matrix  YCbCr (or YUV) to RGB
+				R =(int)((int)((Y         + 409*V + R_COMP)*Y_inv +128)>>8); 
+				G =(int)((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128) >>8);  
+				B = (int)((int)((Y + 516*U         + B_COMP)*Y_inv +128) >>8);
+
+				//Clip RGB Values
+				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
+				else iNHW[t]=R;
+
+				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+				else iNHW[t+1]=G;
+
+				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
+				else iNHW[t+2]=B;
+			}
+
+			fwrite(iNHW,3*IM_SIZE,1,res_image);
+		}
+	}
+
 
 	fclose(res_image);
 	free(im.im_bufferY);

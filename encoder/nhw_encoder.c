@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.3 						     		     				   *
-*  last update: $ 08122015 nhw exp $							           *
+*  last update: $ 02182018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -82,7 +82,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l1")==0) im.setup->quality_setting=LOW1; 
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
 		else if (strcmp(arg,"-l3")==0) im.setup->quality_setting=LOW3; 
-		//else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
+		else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
 		//else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
 		//else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
 		*argv--;*argv--;*argv--;
@@ -328,9 +328,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				}
 				else scan-=16000;
 			}
-			/*else if (im->setup->quality_setting<=LOW3 && j>0 && j<((IM_DIM>>1)-1) && abs(nhw_process[count-1]-nhw_process[count+1])<1 && abs(nhw_process[count-1]-scan)<=3)
+			/*else if (im->setup->quality_setting<LOW3 && j>0 && j<((IM_DIM>>1)-1) && abs(nhw_process[count-1]-nhw_process[count+1])<1 && abs(nhw_process[count-1]-scan)<=5)
 		 	{
-				nhw_process[count]=nhw_process[count-1];//nhw_process[count+1]=nhw_process[count-1];
+				scan=nhw_process[count-1];//nhw_process[count+1]=nhw_process[count-1];
 			}*/
 			else if ((scan&1)==1 && count>i && (nhw_process[count+1]&1)==1 /*&& !(nhw_process[count-1]&1)*/)
 			{
@@ -2198,10 +2198,10 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 
 	if (im->setup->quality_setting<=LOW3)
 	{
-		if (im->setup->quality_setting==LOW3) q_setting=0.87;//0.7;
-		else if (im->setup->quality_setting==LOW4) q_setting=0.6;
-		else if (im->setup->quality_setting==LOW5) q_setting=0.52;
-		else if (im->setup->quality_setting==LOW6) q_setting=0.44;
+		if (im->setup->quality_setting==LOW3) q_setting=0.87;
+		else if (im->setup->quality_setting==LOW4) q_setting=0.87;
+		//else if (im->setup->quality_setting==LOW5) q_setting=0.52;
+		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
 		im4=(unsigned char*)im->im_buffer4;
 

@@ -63,14 +63,10 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 	im->im_jpeg=(short*)malloc(4*IM_SIZE*sizeof(short));
 	colorsY=(short*)im->im_jpeg;
 
-	if (im->setup->quality_setting>=NORM || im->setup->quality_setting<=LOW3 )
+	if (im->setup->quality_setting>=NORM || im->setup->quality_setting==LOW3)
 	{
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 		{
-		//Convert RGB to YCbCr or YUV
-		/*Y = (( 66*colors[i] + 129*colors[i+1] +  25*colors[i+2] + 128)>>8)+ 16;
-		U = ((-38*colors[i] -  74*colors[i+1] + 112*colors[i+2] + 128)>>8)+128;
-		V = ((112*colors[i] -  94*colors[i+1] -  18*colors[i+2] + 128)>>8)+128;*/
 
 		Y = (int)(0.299*colors[i] + 0.587*colors[i+1] +  0.114*colors[i+2]+0.5f);
 		/*U = (int)(-0.1687*colors[i] -  0.3313*colors[i+1] + 0.5*colors[i+2] + 128.5f);
@@ -103,11 +99,10 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 		else colors[i+2]=V;
 		}
 	}
-	else
+	else if (im->setup->quality_setting==LOW1|| im->setup->quality_setting==LOW2)
 	{
 		if (im->setup->quality_setting==LOW1) Y_quant=0.935;
 		else if (im->setup->quality_setting==LOW2) Y_quant=0.88;
-		else Y_quant=0.805;
 
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 		{
@@ -125,6 +120,31 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 			else V = (int)(color_balance + 128.4f);
 
 			colorsY[j]=Y;
+
+			if ((U>>8)!=0) 
+			{
+				colors[i+1]=( (U<0) ? 0 : 255);
+			}
+			else colors[i+1]=U;
+
+
+			if ((V>>8)!=0) 
+			{
+				colors[i+2]=( (V<0) ? 0 : 255 );
+			}
+			else colors[i+2]=V;
+		}
+	}
+	else if (im->setup->quality_setting<=LOW4)
+	{
+		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
+		{
+			//Convert RGB to YCbCr or YUV
+			colorsY[j] = (( 66*colors[i] + 129*colors[i+1] +  25*colors[i+2] + 128)>>8)+ 16;
+			U = ((-38*colors[i] -  74*colors[i+1] + 112*colors[i+2] + 128)>>8)+128;
+			V = ((112*colors[i] -  94*colors[i+1] -  18*colors[i+2] + 128)>>8)+128;
+
+			//colorsY[j]=Y;
 
 			if ((U>>8)!=0) 
 			{

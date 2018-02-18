@@ -451,6 +451,8 @@ void pre_processing(image_buffer *im)
 				}
 			}*/
 
+			if (im->setup->quality_setting>LOW4) 
+			{
 			if (res>201) {im->im_jpeg[scan-1]-=2;e=4;}
 			else if (res<-201) {im->im_jpeg[scan-1]+=2;e=3;}
 			else if (res>176) {im->im_jpeg[scan-1]--;e=2;}
@@ -474,6 +476,20 @@ void pre_processing(image_buffer *im)
 			else if (count<-176) 
 			{
 				if (e!=3) im->im_jpeg[scan]++;
+			}
+			}
+			else
+			{
+				if (abs(res)>82)
+				{
+					if (res>0) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
+				}
+
+				if (abs(count)>82)
+				{
+					if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
+				}
+
 			}
 
 			if (res<32 && res>10) 
@@ -510,7 +526,7 @@ void pre_processing(image_buffer *im)
 					}
 				}
 			}
-
+			
 			a=0;
 
 			if (count<32 && count>10) 

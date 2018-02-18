@@ -79,9 +79,9 @@
 // COLORSPACE DEFINITION
 #define RGB 0
 #define YUV 1
-#define R_COMP -56992 
-#define G_COMP  34784
-#define B_COMP -70688 
+#define R_COMP -56992-128 
+#define G_COMP  34784-128
+#define B_COMP -70688-128 
 
 // WAVELET TYPE DEFINITION
 #define WVLTS_53 0
