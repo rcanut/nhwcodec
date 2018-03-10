@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 03102018 nhw exp $							           *
+*  last update: $ 02202018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -433,21 +433,35 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	
 	if (im->setup->quality_setting<LOW4)
 	{
+		/*for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
+		{
+			for (scan=i+IM_DIM,j=IM_DIM;j<(2*IM_DIM);j++,scan++)
+			{
+				if (abs(nhw_process[scan])>=8 &&  abs(nhw_process[scan])<9) 
+				{	
+					if (nhw_process[scan]>0) nhw_process[scan]=7;else nhw_process[scan]=-7;	
+				}
+			}
+		}*/
+
+			
 		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])<10) 
+				if (abs(nhw_process[scan])>=8 && abs(nhw_process[scan])<11) 
 				{	
-					nhw_process[scan]=0;		
+					nhw_process[scan]=0;			
 				}
 			}
 
 			for (scan=i+(IM_DIM),j=(IM_DIM);j<(2*IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])<18) 
+				if (abs(nhw_process[scan])>=8 && abs(nhw_process[scan])<19) 
 				{	
-					nhw_process[scan]=0;		
+					if (nhw_process[scan]>=14) nhw_process[scan]=7;
+					else if (nhw_process[scan]<=-14) nhw_process[scan]=-7;	
+					else 	nhw_process[scan]=0;	
 				}
 			}
 		}
@@ -2222,7 +2236,7 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	{
 		if (im->setup->quality_setting==LOW3) q_setting=0.87;
 		else if (im->setup->quality_setting==LOW4) q_setting=0.87;
-		else if (im->setup->quality_setting==LOW5) q_setting=0.84;
+		else if (im->setup->quality_setting==LOW5) q_setting=0.845;
 		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
 		im4=(unsigned char*)im->im_buffer4;
