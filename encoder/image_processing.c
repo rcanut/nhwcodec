@@ -408,7 +408,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,count,e=0,a=0;
+	int i,j,scan,res,count,e=0,a=0,sharpness;
 	short *nhw_process;
 	char lower_quality_setting_on;
 
@@ -417,6 +417,8 @@ void pre_processing(image_buffer *im)
 
 	if (im->setup->quality_setting<LOW2) lower_quality_setting_on=1;
 	else lower_quality_setting_on=0;
+
+	if (im->setup->quality_setting==LOW4) sharpness=82;else sharpness=77;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -480,12 +482,12 @@ void pre_processing(image_buffer *im)
 			}
 			else
 			{
-				if (abs(res)>82)
+				if (abs(res)>sharpness)
 				{
 					if (res>0) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
 				}
 
-				if (abs(count)>82)
+				if (abs(count)>sharpness)
 				{
 					if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
 				}

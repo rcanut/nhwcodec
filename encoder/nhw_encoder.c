@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 02202018 nhw exp $							           *
+*  last update: $ 03102018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -83,7 +83,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
 		else if (strcmp(arg,"-l3")==0) im.setup->quality_setting=LOW3; 
 		else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
-		//else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
+		else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
 		//else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
 		*argv--;*argv--;*argv--;
 
@@ -430,6 +430,28 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	}
 
 	free(im->im_jpeg);
+	
+	if (im->setup->quality_setting<LOW4)
+	{
+		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
+			{
+				if (abs(nhw_process[scan])<10) 
+				{	
+					nhw_process[scan]=0;		
+				}
+			}
+
+			for (scan=i+(IM_DIM),j=(IM_DIM);j<(2*IM_DIM);j++,scan++)
+			{
+				if (abs(nhw_process[scan])<18) 
+				{	
+					nhw_process[scan]=0;		
+				}
+			}
+		}
+	}
 
 	for (i=(2*IM_DIM),count=0,res=0;i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -2200,7 +2222,7 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	{
 		if (im->setup->quality_setting==LOW3) q_setting=0.87;
 		else if (im->setup->quality_setting==LOW4) q_setting=0.87;
-		//else if (im->setup->quality_setting==LOW5) q_setting=0.52;
+		else if (im->setup->quality_setting==LOW5) q_setting=0.84;
 		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
 		im4=(unsigned char*)im->im_buffer4;
