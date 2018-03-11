@@ -135,8 +135,8 @@ void main(int argc, char **argv)
 	}
 	else if (im.setup->quality_setting==LOW1 || im.setup->quality_setting==LOW2)
 	{
-		if (im.setup->quality_setting==LOW1) Y_inv=1.06952; // 1/0.935
-		else if (im.setup->quality_setting==LOW2) Y_inv=1.136364; // 1/0.88
+		if (im.setup->quality_setting==LOW1) Y_inv=1.047120; // 1/0.955
+		else if (im.setup->quality_setting==LOW2) Y_inv=1.111111; // 1/0.9
 
 		for (m=0;m<4;m++)
 		{
@@ -171,7 +171,7 @@ void main(int argc, char **argv)
 	}
 	else if (im.setup->quality_setting==LOW3) 
 	{
-		Y_inv=1.149425; // 1/0.87
+		Y_inv=1.123596; // 1/0.89
 
 		for (m=0;m<4;m++)
 		{
@@ -206,7 +206,7 @@ void main(int argc, char **argv)
 	}
 	else if (im.setup->quality_setting<LOW3) 
 	{
-		if (im.setup->quality_setting==LOW4) Y_inv=1.149425; // 1/0.87
+		if (im.setup->quality_setting==LOW4) Y_inv=1.123596; // 1/0.89
 		else if (im.setup->quality_setting==LOW5) Y_inv=1.183432; // 1/0.845
 
 		for (m=0;m<4;m++)

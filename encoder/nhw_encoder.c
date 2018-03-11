@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 02202018 nhw exp $							           *
+*  last update: $ 03112018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -430,8 +430,22 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	}
 
 	free(im->im_jpeg);
-	
-	if (im->setup->quality_setting<LOW4)
+
+	if (im->setup->quality_setting<NORM && im->setup->quality_setting>LOW5)
+	{
+		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
+		{
+			for (scan=i+(IM_DIM),j=(IM_DIM);j<(2*IM_DIM);j++,scan++)
+			{
+				if (abs(nhw_process[scan])>=8 && abs(nhw_process[scan])<=12) 
+				{	
+					 if (nhw_process[scan]>0) nhw_process[scan]=7;else nhw_process[scan]=-7;	
+				}
+			}
+		}
+
+	}
+	else if (im->setup->quality_setting<=LOW5)
 	{
 		/*for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 		{
@@ -2234,8 +2248,8 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 
 	if (im->setup->quality_setting<=LOW3)
 	{
-		if (im->setup->quality_setting==LOW3) q_setting=0.87;
-		else if (im->setup->quality_setting==LOW4) q_setting=0.87;
+		if (im->setup->quality_setting==LOW3) q_setting=0.89;
+		else if (im->setup->quality_setting==LOW4) q_setting=0.89;
 		else if (im->setup->quality_setting==LOW5) q_setting=0.845;
 		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
