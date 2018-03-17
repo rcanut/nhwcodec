@@ -435,9 +435,17 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	{
 		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
 		{
+			for (scan=i,j=0;j<IM_DIM;j++,scan++)
+			{
+				if (abs(nhw_process[scan])>=ratio && abs(nhw_process[scan])<9) 
+				{	
+					 if (nhw_process[scan]>0) nhw_process[scan]=7;else nhw_process[scan]=-7;	
+				}
+			}
+
 			for (scan=i+(IM_DIM),j=(IM_DIM);j<(2*IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=8 && abs(nhw_process[scan])<=12) 
+				if (abs(nhw_process[scan])>=ratio && abs(nhw_process[scan])<=14) 
 				{	
 					 if (nhw_process[scan]>0) nhw_process[scan]=7;else nhw_process[scan]=-7;	
 				}
@@ -2248,8 +2256,8 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 
 	if (im->setup->quality_setting<=LOW3)
 	{
-		if (im->setup->quality_setting==LOW3) q_setting=0.89;
-		else if (im->setup->quality_setting==LOW4) q_setting=0.89;
+		if (im->setup->quality_setting==LOW3) q_setting=0.91;
+		else if (im->setup->quality_setting==LOW4) q_setting=0.91;
 		else if (im->setup->quality_setting==LOW5) q_setting=0.845;
 		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
