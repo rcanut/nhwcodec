@@ -207,7 +207,7 @@ void main(int argc, char **argv)
 	else if (im.setup->quality_setting<LOW3) 
 	{
 		if (im.setup->quality_setting==LOW4) Y_inv=1.098901; // 1/0.91
-		else if (im.setup->quality_setting==LOW5) Y_inv=1.183432; // 1/0.845
+		else if (im.setup->quality_setting==LOW5) Y_inv=1.149425; // 1/0.87
 
 		for (m=0;m<4;m++)
 		{
@@ -1097,13 +1097,26 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		}
 	}*/
 
-
-	for (i=0,nhw=(IM_SIZE>>2);i<(IM_SIZE>>2);i+=IM_DIM)
+	if (im->setup->quality_setting>LOW5)
 	{
-		for (j=0;j<(IM_DIM>>2);j++) 
+		for (i=0,nhw=(IM_SIZE>>2);i<(IM_SIZE>>2);i+=IM_DIM)
 		{
-			im->im_jpeg[j+i]=os->res_comp[nhw++];
+			for (j=0;j<(IM_DIM>>2);j++) 
+			{
+				im->im_jpeg[j+i]=os->res_comp[nhw++];
+			}
 		}
+	}
+	else
+	{	
+		for (i=0,nhw=(IM_SIZE>>2);i<(IM_SIZE>>2);i+=IM_DIM)
+		{
+			for (j=0;j<(IM_DIM>>2);j++) 
+			{
+				im->im_jpeg[j+i]=os->res_comp[nhw++]+1;
+			}
+		}
+
 	}
 
 	exw1+=2;
@@ -1371,12 +1384,26 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		}
 	}*/
 
-	for (i=0,nhw=(IM_SIZE>>2)+(IM_SIZE>>4);i<(IM_SIZE>>2);i+=IM_DIM)
+	if (im->setup->quality_setting>LOW5)
 	{
-		for (j=0;j<(IM_DIM>>2);j++) 
+		for (i=0,nhw=(IM_SIZE>>2)+(IM_SIZE>>4);i<(IM_SIZE>>2);i+=IM_DIM)
 		{
-			im->im_jpeg[j+i]=os->res_comp[nhw++];
+			for (j=0;j<(IM_DIM>>2);j++) 
+			{
+				im->im_jpeg[j+i]=os->res_comp[nhw++];
+			}
 		}
+	}
+	else
+	{	
+		for (i=0,nhw=(IM_SIZE>>2)+(IM_SIZE>>4);i<(IM_SIZE>>2);i+=IM_DIM)
+		{
+			for (j=0;j<(IM_DIM>>2);j++) 
+			{
+				im->im_jpeg[j+i]=os->res_comp[nhw++]+1;
+			}
+		}
+
 	}
 	
 	free(os->res_comp);
@@ -1703,8 +1730,13 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 
 	os->nhw_select_word1=(unsigned char*)malloc(os->nhw_select1*sizeof(char));
 	os->nhw_select_word2=(unsigned char*)malloc(os->nhw_select2*sizeof(char));
-	os->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
-	os->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
+
+	if (imd->setup->quality_setting>LOW5)
+	{
+		os->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
+		os->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
+	}
+
 	os->highres_comp=(unsigned char*)malloc(os->highres_comp_len*sizeof(char));
 	os->res_ch=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
 	os->packet1=(unsigned long*)malloc(os->d_size_data1*sizeof(long));
@@ -1752,8 +1784,13 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 
 	fread(os->nhw_select_word1,os->nhw_select1,1,compressed_file);
 	fread(os->nhw_select_word2,os->nhw_select2,1,compressed_file);
-	fread(os->res_U_64,(IM_DIM<<1),1,compressed_file);
-	fread(os->res_V_64,(IM_DIM<<1),1,compressed_file);
+
+	if (imd->setup->quality_setting>LOW5)
+	{
+		fread(os->res_U_64,(IM_DIM<<1),1,compressed_file);
+		fread(os->res_V_64,(IM_DIM<<1),1,compressed_file);
+	}
+
 	fread(os->highres_comp,os->highres_comp_len,1,compressed_file);
 	fread(os->res_ch,os->end_ch_res,1,compressed_file);
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
@@ -2079,6 +2116,8 @@ L7:	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 
 	free(os->res_ch);
 
+	if (imd->setup->quality_setting>LOW5)
+	{
 	for (i=0,e=(IM_SIZE>>2);i<(IM_DIM<<1);i++)
 	{
 		ch=(os->res_U_64[i]>>7);os->res_comp[e++]+=(ch<<1);
@@ -2120,6 +2159,7 @@ L7:	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 	}
 
 	free(os->res_V_64);
+	}
 
 
 	// IMAGE MEMORY ALLOCATION FOR DECODING

@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 03112018 nhw exp $							           *
+*  last update: $ 03202018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -1944,23 +1944,26 @@ L_W5:			res256[count]=14000;
 		}
 	}
 
-	enc->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
-	scan_run=(unsigned char*)enc->res_U_64;
-	ch_comp=(unsigned char*)malloc((16*IM_DIM)*sizeof(char));
-
-	for (i=0,e=0;i<(16*IM_DIM);i+=8)
+	if (im->setup->quality_setting>LOW5) 
 	{
-		ch_comp[i]=((enc->tree1[i+16384])>>1)&1;
-		ch_comp[i+1]=((enc->tree1[i+16385])>>1)&1;
-		ch_comp[i+2]=((enc->tree1[i+16386])>>1)&1;
-		ch_comp[i+3]=((enc->tree1[i+16387])>>1)&1;
-		ch_comp[i+4]=((enc->tree1[i+16388])>>1)&1;
-		ch_comp[i+5]=((enc->tree1[i+16389])>>1)&1;
-		ch_comp[i+6]=((enc->tree1[i+16390])>>1)&1;
-		ch_comp[i+7]=((enc->tree1[i+16391])>>1)&1;
+		enc->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
+		scan_run=(unsigned char*)enc->res_U_64;
+		ch_comp=(unsigned char*)malloc((16*IM_DIM)*sizeof(char));
 
-		scan_run[e++]=(ch_comp[i]<<7)|(ch_comp[i+1]<<6)|(ch_comp[i+2]<<5)|(ch_comp[i+3]<<4)|(ch_comp[i+4]<<3)|
+		for (i=0,e=0;i<(16*IM_DIM);i+=8)
+		{
+			ch_comp[i]=((enc->tree1[i+16384])>>1)&1;
+			ch_comp[i+1]=((enc->tree1[i+16385])>>1)&1;
+			ch_comp[i+2]=((enc->tree1[i+16386])>>1)&1;
+			ch_comp[i+3]=((enc->tree1[i+16387])>>1)&1;
+			ch_comp[i+4]=((enc->tree1[i+16388])>>1)&1;
+			ch_comp[i+5]=((enc->tree1[i+16389])>>1)&1;
+			ch_comp[i+6]=((enc->tree1[i+16390])>>1)&1;
+			ch_comp[i+7]=((enc->tree1[i+16391])>>1)&1;
+
+			scan_run[e++]=(ch_comp[i]<<7)|(ch_comp[i+1]<<6)|(ch_comp[i+2]<<5)|(ch_comp[i+3]<<4)|(ch_comp[i+4]<<3)|
 					  (ch_comp[i+5]<<2)|(ch_comp[i+6]<<1)|ch_comp[i+7];
+		}
 	}
 
 	offsetUV(im,enc,ratio);
@@ -2162,25 +2165,28 @@ L_W5:			res256[count]=14000;
 		}
 	}
 
-	enc->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
-	scan_run=(unsigned char*)enc->res_V_64;
-
-	for (i=0,e=0;i<(16*IM_DIM);i+=8)
+	if (im->setup->quality_setting>LOW5) 
 	{
-		ch_comp[i]=((enc->tree1[i+20480])>>1)&1;
-		ch_comp[i+1]=((enc->tree1[i+20481])>>1)&1;
-		ch_comp[i+2]=((enc->tree1[i+20482])>>1)&1;
-		ch_comp[i+3]=((enc->tree1[i+20483])>>1)&1;
-		ch_comp[i+4]=((enc->tree1[i+20484])>>1)&1;
-		ch_comp[i+5]=((enc->tree1[i+20485])>>1)&1;
-		ch_comp[i+6]=((enc->tree1[i+20486])>>1)&1;
-		ch_comp[i+7]=((enc->tree1[i+20487])>>1)&1;
+		enc->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
+		scan_run=(unsigned char*)enc->res_V_64;
 
-		scan_run[e++]=(ch_comp[i]<<7)|(ch_comp[i+1]<<6)|(ch_comp[i+2]<<5)|(ch_comp[i+3]<<4)|(ch_comp[i+4]<<3)|
+		for (i=0,e=0;i<(16*IM_DIM);i+=8)
+		{
+			ch_comp[i]=((enc->tree1[i+20480])>>1)&1;
+			ch_comp[i+1]=((enc->tree1[i+20481])>>1)&1;
+			ch_comp[i+2]=((enc->tree1[i+20482])>>1)&1;
+			ch_comp[i+3]=((enc->tree1[i+20483])>>1)&1;
+			ch_comp[i+4]=((enc->tree1[i+20484])>>1)&1;
+			ch_comp[i+5]=((enc->tree1[i+20485])>>1)&1;
+			ch_comp[i+6]=((enc->tree1[i+20486])>>1)&1;
+			ch_comp[i+7]=((enc->tree1[i+20487])>>1)&1;
+	
+			scan_run[e++]=(ch_comp[i]<<7)|(ch_comp[i+1]<<6)|(ch_comp[i+2]<<5)|(ch_comp[i+3]<<4)|(ch_comp[i+4]<<3)|
 					  (ch_comp[i+5]<<2)|(ch_comp[i+6]<<1)|ch_comp[i+7];
-	}
+		}
 
-	free(ch_comp);
+		free(ch_comp);
+	}
 
 	offsetUV(im,enc,ratio);
 
@@ -2258,7 +2264,7 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	{
 		if (im->setup->quality_setting==LOW3) q_setting=0.91;
 		else if (im->setup->quality_setting==LOW4) q_setting=0.91;
-		else if (im->setup->quality_setting==LOW5) q_setting=0.845;
+		else if (im->setup->quality_setting==LOW5) q_setting=0.87;
 		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
 		im4=(unsigned char*)im->im_buffer4;
@@ -2382,8 +2388,13 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	fwrite(enc->nhw_select_word1,enc->nhw_select1,1,compressed);
 	fwrite(enc->nhw_select_word2,enc->nhw_select2,1,compressed);
-	fwrite(enc->res_U_64,(IM_DIM<<1),1,compressed);
-	fwrite(enc->res_V_64,(IM_DIM<<1),1,compressed);
+
+	if (im->setup->quality_setting>LOW5) 
+	{
+		fwrite(enc->res_U_64,(IM_DIM<<1),1,compressed);
+		fwrite(enc->res_V_64,(IM_DIM<<1),1,compressed);
+	}
+
 	fwrite(enc->highres_word,enc->highres_comp_len,1,compressed);
 	fwrite(enc->ch_res,enc->end_ch_res,1,compressed);
 	fwrite(enc->encode,enc->size_data2*4,1,compressed);
@@ -2431,10 +2442,12 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	free(enc->exw_Y);
 	free(enc->highres_word);
 	free(enc->ch_res);
-	free(enc->res_U_64);
-	free(enc->res_V_64);
 
-
+	if (im->setup->quality_setting>LOW5)  	
+	{
+		free(enc->res_U_64);
+		free(enc->res_V_64);
+	}
 }
 
 

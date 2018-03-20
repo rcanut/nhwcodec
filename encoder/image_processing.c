@@ -1146,24 +1146,37 @@ void offsetUV_recons256(image_buffer *im, int m1, int comp)
 	wavelet_order=im->setup->wvlts_order;
 
 	if (comp)
-	{
-		for (i=0;i<(IM_SIZE>>2);i++)
+	{	
+		if (im->setup->quality_setting>LOW5) 
 		{
-			if ((i&255)<(IM_DIM>>2))
+			for (i=0;i<(IM_SIZE>>2);i++)
 			{
-				if (!(i>>8))
+				if ((i&255)<(IM_DIM>>2))
 				{
-					im->im_jpeg[i]=(im->im_process[i]);
-					im->im_jpeg[i+1]=(im->im_process[i+1]&65534);
-				}
-				else
-				{
-					im->im_jpeg[i]=(im->im_process[i]&65534);
-					im->im_jpeg[i+1]=(im->im_process[i+1]);
-				}
+					if (!(i>>8))
+					{
+						im->im_jpeg[i]=(im->im_process[i]);
+						im->im_jpeg[i+1]=(im->im_process[i+1]&65534);
+					}
+					else
+					{
+						im->im_jpeg[i]=(im->im_process[i]&65534);
+						im->im_jpeg[i+1]=(im->im_process[i+1]);
+					}
 
-				i++;
+					i++;
+				}
 			}
+		}
+		else
+		{
+			for (i=0;i<(IM_SIZE>>2);i++)
+			{
+				if ((i&255)<(IM_DIM>>2))
+				{
+					im->im_jpeg[i]=(im->im_process[i]&65532)+1;
+				}
+			}	
 		}
 	}
 	else
