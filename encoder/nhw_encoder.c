@@ -649,7 +649,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				else if (im->setup->quality_setting==LOW2)
 				{
 					if (res<5 && a==5) res256[count+IM_DIM]=14100;
-					else if (res>=4) res256[count]=14100;
+					else if (res>=5) res256[count]=14100;
 					else if (res==3 && a>=4) res256[count+IM_DIM]=14100;
 					
 					nhw_process[scan+(2*IM_DIM)]=res256[count+IM_DIM];
@@ -689,7 +689,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				else if (im->setup->quality_setting==LOW2)
 				{
 					if (res>-5 && a==-5) res256[count+IM_DIM]=14000;
-					else if (res<=-4) res256[count]=14000;
+					else if (res<=-5) res256[count]=14000;
 					else if (res==-3 && a<=-4) res256[count+IM_DIM]=14000;
 					
 					nhw_process[scan+(2*IM_DIM)]=res256[count+IM_DIM];

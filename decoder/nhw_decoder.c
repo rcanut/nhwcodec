@@ -136,7 +136,7 @@ void main(int argc, char **argv)
 	else if (im.setup->quality_setting==LOW1 || im.setup->quality_setting==LOW2)
 	{
 		if (im.setup->quality_setting==LOW1) Y_inv=1.025641; // 1/0.975
-		else if (im.setup->quality_setting==LOW2) Y_inv=1.086957; // 1/0.92
+		else if (im.setup->quality_setting==LOW2) Y_inv=1.075269; // 1/0.93
 
 		for (m=0;m<4;m++)
 		{
