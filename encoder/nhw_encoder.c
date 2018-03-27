@@ -646,7 +646,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				{
 					res256[count]=12100;nhw_process[scan+(2*IM_DIM)]=res256[count+IM_DIM];
 				}
-				else
+				else if (im->setup->quality_setting==LOW2)
 				{
 					if (res<5 && a==5) res256[count+IM_DIM]=14100;
 					else if (res>=4) res256[count]=14100;
@@ -686,7 +686,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				{
 					res256[count]=12200;nhw_process[scan+(2*IM_DIM)]=res256[count+IM_DIM];
 				}
-				else
+				else if (im->setup->quality_setting==LOW2)
 				{
 					if (res>-5 && a==-5) res256[count+IM_DIM]=14000;
 					else if (res<=-4) res256[count]=14000;
@@ -2262,9 +2262,9 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 
 	if (im->setup->quality_setting<=LOW3)
 	{
-		if (im->setup->quality_setting==LOW3) q_setting=0.91;
-		else if (im->setup->quality_setting==LOW4) q_setting=0.91;
-		else if (im->setup->quality_setting==LOW5) q_setting=0.87;
+		if (im->setup->quality_setting==LOW3) q_setting=0.94;
+		else if (im->setup->quality_setting==LOW4) q_setting=0.94;
+		else if (im->setup->quality_setting==LOW5) q_setting=0.9;
 		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
 
 		im4=(unsigned char*)im->im_buffer4;
