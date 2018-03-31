@@ -207,7 +207,7 @@ void main(int argc, char **argv)
 	else if (im.setup->quality_setting<LOW3) 
 	{
 		if (im.setup->quality_setting==LOW4) Y_inv=1.063830; // 1/0.94
-		else if (im.setup->quality_setting==LOW5) Y_inv=1.111111; // 1/0.9
+		else if (im.setup->quality_setting==LOW5) Y_inv=1.1111; // 1/0.9
 
 		for (m=0;m<4;m++)
 		{
@@ -218,9 +218,6 @@ void main(int argc, char **argv)
 				V = icolorV[i];
 
 				//Matrix  YCbCr (or YUV) to RGB
-				R =(int)((int)((Y         + 409*V + R_COMP)*Y_inv +128)>>8); 
-				G =(int)((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128) >>8);  
-				B = (int)((int)((Y + 516*U         + B_COMP)*Y_inv +128) >>8);
 
 				//Clip RGB Values
 				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );

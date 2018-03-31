@@ -2260,22 +2260,6 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	fread(im->im_buffer4,4*3*IM_SIZE,1,im256); 
 	fclose(im256);
 
-	if (im->setup->quality_setting<=LOW3)
-	{
-		if (im->setup->quality_setting==LOW3) q_setting=0.94;
-		else if (im->setup->quality_setting==LOW4) q_setting=0.94;
-		else if (im->setup->quality_setting==LOW5) q_setting=0.9;
-		//else if (im->setup->quality_setting==LOW6) q_setting=0.44;
-
-		im4=(unsigned char*)im->im_buffer4;
-
-		for (i=0;i<4*3*IM_SIZE;i++)
-		{
-			im4[i]=(unsigned char)(im4[i]*q_setting +0.5f);
-		}
-
-	}
-
 	downsample_YUV420(im,os,rate);
 
 	return(0);
