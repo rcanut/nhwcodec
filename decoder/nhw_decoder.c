@@ -218,6 +218,9 @@ void main(int argc, char **argv)
 				V = icolorV[i];
 
 				//Matrix  YCbCr (or YUV) to RGB
+				R =(((int)((Y         + 409*V + R_COMP)*Y_inv +128.5f))>>8); 
+				G =(((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128.5f)) >>8);  
+				B = (((int)((Y + 516*U         + B_COMP)*Y_inv +128.5f)) >>8);
 
 				//Clip RGB Values
 				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
