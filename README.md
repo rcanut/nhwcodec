@@ -17,7 +17,8 @@ For Windows: gcc *.c -O3 -o nhw_en/decoder.exe
 
 For Linux:   gcc *.c -O3 -lm -o nhw_en/decoder.exe
 
-To encode: nhw_encoder.exe imagename.bmp
+
+To encode an image (512x512 bitmap color image for now): nhw_encoder.exe imagename.bmp
 
 encoder options: quality settings: -h1..3 or -l1..5
 
