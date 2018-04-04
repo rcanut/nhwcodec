@@ -16,3 +16,11 @@ How to compile?
 For Windows: gcc *.c -O3 -o nhw_en/decoder.exe
 
 For Linux:   gcc *.c -O3 -lm -o nhw_en/decoder.exe
+
+To encode: nhw_encoder.exe imagename.bmp
+
+encoder options: quality settings: -h1..3 or -l1..5
+
+example: nhw_encoder.exe imagename.bmp -l2
+                 
+To decode: nhw_decoder.exe imagename.nhw
