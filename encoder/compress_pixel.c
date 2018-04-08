@@ -528,12 +528,20 @@ L15:	e=0;
 				}
 				else 
 				{
-					ch_comp[j++]=128;
-					ch_comp[j++]=128+(highres[i]>>1);
-					ch_comp[j++]=128+(highres[i+1]>>1);
-					enc->highres_word[mem++]=enc->ch_res[i];
-					enc->highres_mem[enc->highres_mem_len++]=i;
-					i++;
+					if (im->setup->quality_setting>LOW5)
+					{
+						ch_comp[j++]=128;
+						ch_comp[j++]=128+(highres[i]>>1);
+						ch_comp[j++]=128+(highres[i+1]>>1);
+						enc->highres_word[mem++]=enc->ch_res[i];
+						enc->highres_mem[enc->highres_mem_len++]=i;
+						i++;
+					}
+					else 
+					{
+						ch_comp[j++]=128;
+						ch_comp[j++]=128+(highres[i]>>1);
+					}
 				}
 			}
 			else 
@@ -559,12 +567,20 @@ L15:	e=0;
 			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
 COMP3:		if (scan==64 || count==32 || e==64) 
 			{
-				ch_comp[j++]=128;
-				ch_comp[j++]=128+(highres[i]>>1);
-				ch_comp[j++]=128+(highres[i+1]>>1);
-				enc->highres_word[mem++]=enc->ch_res[i];
-				enc->highres_mem[enc->highres_mem_len++]=i;
-				i++;
+				if (im->setup->quality_setting>LOW5)
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+					ch_comp[j++]=128+(highres[i+1]>>1);
+					enc->highres_word[mem++]=enc->ch_res[i];
+					enc->highres_mem[enc->highres_mem_len++]=i;
+					i++;
+				}
+				else 
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
 			}
 			else 
 			{
@@ -578,12 +594,20 @@ COMP3:		if (scan==64 || count==32 || e==64)
 		}
 		else
 		{
-			ch_comp[j++]=128;
-			ch_comp[j++]=128+(highres[i]>>1);
-			ch_comp[j++]=128+(highres[i+1]>>1);
-			enc->highres_word[mem++]=enc->ch_res[i];
-			enc->highres_mem[enc->highres_mem_len++]=i;
-			i++;
+			if (im->setup->quality_setting>LOW5)
+			{
+				ch_comp[j++]=128;
+				ch_comp[j++]=128+(highres[i]>>1);
+				ch_comp[j++]=128+(highres[i+1]>>1);
+				enc->highres_word[mem++]=enc->ch_res[i];
+				enc->highres_mem[enc->highres_mem_len++]=i;
+				i++;
+			}
+			else 
+			{
+				ch_comp[j++]=128;
+				ch_comp[j++]=128+(highres[i]>>1);
+			}
 		}
 	}
 
@@ -631,12 +655,20 @@ END_RES4:
 				}
 				else
 				{
-					ch_comp[j++]=128;
-					ch_comp[j++]=128+(highres[i]>>1);
-					ch_comp[j++]=128+(highres[i+1]>>1);
-					enc->highres_word[mem++]=enc->ch_res[i];
-					enc->highres_mem[enc->highres_mem_len++]=i;
-					i++;
+					if (im->setup->quality_setting>LOW5)
+					{
+						ch_comp[j++]=128;
+						ch_comp[j++]=128+(highres[i]>>1);
+						ch_comp[j++]=128+(highres[i+1]>>1);
+						enc->highres_word[mem++]=enc->ch_res[i];
+						enc->highres_mem[enc->highres_mem_len++]=i;
+						i++;
+					}
+					else 
+					{
+						ch_comp[j++]=128;
+						ch_comp[j++]=128+(highres[i]>>1);
+					}
 				}
 			}
 			else 
@@ -652,12 +684,20 @@ END_RES4:
 			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
 COMP4:		if (scan==64 || count==32 || e==64) 
 			{
-				ch_comp[j++]=128;
-				ch_comp[j++]=128+(highres[i]>>1);
-				ch_comp[j++]=128+(highres[i+1]>>1);
-				enc->highres_word[mem++]=enc->ch_res[i];
-				enc->highres_mem[enc->highres_mem_len++]=i;
-				i++;
+				if (im->setup->quality_setting>LOW5)
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+					ch_comp[j++]=128+(highres[i+1]>>1);
+					enc->highres_word[mem++]=enc->ch_res[i];
+					enc->highres_mem[enc->highres_mem_len++]=i;
+					i++;
+				}
+				else 
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
 			}
 			else 
 			{
@@ -671,12 +711,20 @@ COMP4:		if (scan==64 || count==32 || e==64)
 		}
 		else
 		{
-			ch_comp[j++]=128;
-			ch_comp[j++]=128+(highres[i]>>1);
-			ch_comp[j++]=128+(highres[i+1]>>1);
-			enc->highres_word[mem++]=enc->ch_res[i];
-			enc->highres_mem[enc->highres_mem_len++]=i;
-			i++;
+			if (im->setup->quality_setting>LOW5)
+			{
+				ch_comp[j++]=128;
+				ch_comp[j++]=128+(highres[i]>>1);
+				ch_comp[j++]=128+(highres[i+1]>>1);
+				enc->highres_word[mem++]=enc->ch_res[i];
+				enc->highres_mem[enc->highres_mem_len++]=i;
+				i++;
+			}
+			else 
+			{
+				ch_comp[j++]=128;
+				ch_comp[j++]=128+(highres[i]>>1);
+			}
 		}
 	}
 
@@ -705,12 +753,20 @@ END_RES5:
 			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
 		if (scan==64 || count==32 || e==64) 
 			{
-				ch_comp[j++]=128;
-				ch_comp[j++]=128+(highres[i]>>1);
-				ch_comp[j++]=128+(highres[i+1]>>1);
-				enc->highres_word[mem++]=enc->ch_res[i];
-				enc->highres_mem[enc->highres_mem_len++]=i;
-				i++;
+				if (im->setup->quality_setting>LOW5)
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+					ch_comp[j++]=128+(highres[i+1]>>1);
+					enc->highres_word[mem++]=enc->ch_res[i];
+					enc->highres_mem[enc->highres_mem_len++]=i;
+					i++;
+				}
+				else 
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
 			}
 			else 
 			{
@@ -724,12 +780,20 @@ END_RES5:
 		}
 		else
 		{
-			ch_comp[j++]=128;
-			ch_comp[j++]=128+(highres[i]>>1);
-			ch_comp[j++]=128+(highres[i+1]>>1);
-			enc->highres_word[mem++]=enc->ch_res[i];
-			enc->highres_mem[enc->highres_mem_len++]=i;
-			i++;
+			if (im->setup->quality_setting>LOW5)
+			{
+				ch_comp[j++]=128;
+				ch_comp[j++]=128+(highres[i]>>1);
+				ch_comp[j++]=128+(highres[i+1]>>1);
+				enc->highres_word[mem++]=enc->ch_res[i];
+				enc->highres_mem[enc->highres_mem_len++]=i;
+				i++;
+			}
+			else 
+			{
+				ch_comp[j++]=128;
+				ch_comp[j++]=128+(highres[i]>>1);
+			}
 		}
 	}
 
@@ -748,12 +812,20 @@ L3:
 		}
 		else if (comp_tmp[i]==128)
 		{
-			i++;
-			ch_comp[e++]=comp_tmp[i+1];
-			//if (comp_tmp[i+1]<128) ch_comp[e]+=128;
-			//e++;
+			if (im->setup->quality_setting>LOW5)
+			{
+				i++;
+				ch_comp[e++]=comp_tmp[i+1];
+				//if (comp_tmp[i+1]<128) ch_comp[e]+=128;
+				//e++;
 
-			i++;
+				i++;
+			}
+			else
+			{
+				i++;
+				ch_comp[e++]=comp_tmp[i];
+			}
 		}
 		else ch_comp[e++]=comp_tmp[i];
 	}

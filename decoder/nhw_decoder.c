@@ -207,7 +207,7 @@ void main(int argc, char **argv)
 	else if (im.setup->quality_setting<LOW3) 
 	{
 		if (im.setup->quality_setting==LOW4) Y_inv=1.063830; // 1/0.94
-		else if (im.setup->quality_setting==LOW5) Y_inv=1.1111; // 1/0.9
+		else if (im.setup->quality_setting==LOW5) Y_inv=1.103746; // 1/0.906
 
 		for (m=0;m<4;m++)
 		{
@@ -1705,7 +1705,12 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 
 	fread(&os->nhw_select1,2,1,compressed_file);
 	fread(&os->nhw_select2,2,1,compressed_file);
-	fread(&os->highres_comp_len,2,1,compressed_file);
+	
+	if (imd->setup->quality_setting>LOW5)
+	{
+		fread(&os->highres_comp_len,2,1,compressed_file);
+	}
+	
 	fread(&os->end_ch_res,2,1,compressed_file);
 
 	os->res_comp=(unsigned char*)malloc((96*IM_DIM+1)*sizeof(char));
@@ -1735,9 +1740,10 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	{
 		os->res_U_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
 		os->res_V_64=(unsigned char*)malloc((IM_DIM<<1)*sizeof(char));
+		os->highres_comp=(unsigned char*)malloc(os->highres_comp_len*sizeof(char));
 	}
 
-	os->highres_comp=(unsigned char*)malloc(os->highres_comp_len*sizeof(char));
+	
 	os->res_ch=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
 	os->packet1=(unsigned long*)malloc(os->d_size_data1*sizeof(long));
 	os->packet2=(unsigned long*)malloc((os->d_size_data2-os->d_size_data1)*sizeof(long));
@@ -1789,9 +1795,9 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	{
 		fread(os->res_U_64,(IM_DIM<<1),1,compressed_file);
 		fread(os->res_V_64,(IM_DIM<<1),1,compressed_file);
+		fread(os->highres_comp,os->highres_comp_len,1,compressed_file);
 	}
 
-	fread(os->highres_comp,os->highres_comp_len,1,compressed_file);
 	fread(os->res_ch,os->end_ch_res,1,compressed_file);
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
@@ -1807,7 +1813,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	{
 		if (os->res_ch[i]>=128)
 		{
-			os->res_comp[j++]=os->highres_comp[a++];
+			if (imd->setup->quality_setting>LOW5) os->res_comp[j++]=os->highres_comp[a++];
 			os->res_comp[j++]=((os->res_ch[i]-128)<<1);
 		}
 		else
@@ -1916,7 +1922,7 @@ L6: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
-			os->res_comp[j++]=os->highres_comp[a++];
+			if (imd->setup->quality_setting>LOW5) os->res_comp[j++]=os->highres_comp[a++];
 			os->res_comp[j++]=((os->res_ch[i]-128)<<1);
 		}
 		else
@@ -1974,7 +1980,7 @@ L8: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
-			os->res_comp[j++]=os->highres_comp[a++];
+			if (imd->setup->quality_setting>LOW5) os->res_comp[j++]=os->highres_comp[a++];
 			os->res_comp[j++]=((os->res_ch[i]-128)<<1);
 		}
 		else
@@ -2011,7 +2017,7 @@ L8: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
 
 L7:	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 
-	free(os->highres_comp);
+	if (imd->setup->quality_setting>LOW5) free(os->highres_comp);
 
 	//for (i=0;i<1200;i+=4) printf("%d %d %d %d\n",os->res_comp[i],os->res_comp[i+1],os->res_comp[i+2],os->res_comp[i+3]);
 

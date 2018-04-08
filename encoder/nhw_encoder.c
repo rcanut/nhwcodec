@@ -2324,7 +2324,12 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	fwrite(&enc->nhw_select1,2,1,compressed);
 	fwrite(&enc->nhw_select2,2,1,compressed);
-	fwrite(&enc->highres_comp_len,2,1,compressed);
+	
+	if (im->setup->quality_setting>LOW5)
+	{
+		fwrite(&enc->highres_comp_len,2,1,compressed);
+	}
+	
 	fwrite(&enc->end_ch_res,2,1,compressed);
 	fwrite(enc->tree1,enc->size_tree1,1,compressed);
 	fwrite(enc->tree2,enc->size_tree2,1,compressed);
@@ -2332,6 +2337,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	fwrite(enc->nhw_res1,enc->nhw_res1_len,1,compressed);
 	fwrite(enc->nhw_res1_bit,enc->nhw_res1_bit_len,1,compressed);
 	fwrite(enc->nhw_res1_word,enc->nhw_res1_word_len,1,compressed);
+	
 	if (im->setup->quality_setting>LOW3)
 	{
 		fwrite(enc->nhw_res4,enc->nhw_res4_len,1,compressed);
@@ -2377,9 +2383,9 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	{
 		fwrite(enc->res_U_64,(IM_DIM<<1),1,compressed);
 		fwrite(enc->res_V_64,(IM_DIM<<1),1,compressed);
+		fwrite(enc->highres_word,enc->highres_comp_len,1,compressed);
 	}
-
-	fwrite(enc->highres_word,enc->highres_comp_len,1,compressed);
+	
 	fwrite(enc->ch_res,enc->end_ch_res,1,compressed);
 	fwrite(enc->encode,enc->size_data2*4,1,compressed);
 
@@ -2424,11 +2430,11 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	}
 
 	free(enc->exw_Y);
-	free(enc->highres_word);
 	free(enc->ch_res);
 
 	if (im->setup->quality_setting>LOW5)  	
 	{
+		free(enc->highres_word);
 		free(enc->res_U_64);
 		free(enc->res_V_64);
 	}

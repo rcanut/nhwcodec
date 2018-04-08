@@ -814,18 +814,22 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 		}
 	}
 
-	if (!part)
+	
+	if (im->setup->quality_setting>LOW5)
 	{
-		for (i=0;i<enc->highres_mem_len;i++)
+		if (!part)
 		{
-			j=(enc->highres_mem[i]>>7);
-			a=enc->highres_mem[i]&127;
+			for (i=0;i<enc->highres_mem_len;i++)
+			{
+				j=(enc->highres_mem[i]>>7);
+				a=enc->highres_mem[i]&127;
 
-			im->im_jpeg[(j<<9)+a]=highres_tmp[enc->highres_mem[i]];
+				im->im_jpeg[(j<<9)+a]=highres_tmp[enc->highres_mem[i]];
+			}
+
+			free(highres_tmp);
+			free(enc->highres_mem);
 		}
-
-		free(highres_tmp);
-		free(enc->highres_mem);
 	}
 
 	/*if (part)
