@@ -112,15 +112,15 @@ typedef struct{
 }image_buffer;
 
 typedef struct{
-	unsigned long *packet1;
-	unsigned long *packet2;
+	unsigned int *packet1;
+	unsigned int *packet2;
 	int d_size_data1;
 	int d_size_data2;
 	unsigned short nhw_res1_len;
 	unsigned short nhw_res3_len;
 	unsigned short nhw_res4_len;
 	unsigned short nhw_res5_len;
-	unsigned long nhw_res6_len;
+	unsigned int nhw_res6_len;
 	unsigned short nhw_res1_bit_len;
 	unsigned short nhw_res2_bit_len;
 	unsigned short nhw_res3_bit_len;
@@ -141,8 +141,8 @@ typedef struct{
 	unsigned char *nhw_res5_word;
 	unsigned char *nhw_res6_bit;
 	unsigned char *nhw_res6_word;
-	unsigned long *nhwresH3;
-	unsigned long *nhwresH4;
+	unsigned int *nhwresH3;
+	unsigned int *nhwresH4;
 	unsigned char *nhw_select_word1;
 	unsigned char *nhw_select_word2;
 	unsigned short *nhw_char_res1;
@@ -156,12 +156,12 @@ typedef struct{
 	unsigned short exw_Y_end;
 	unsigned short end_ch_res;
 	unsigned short qsetting3_len;
-	unsigned long *high_qsetting3;
+	unsigned int *high_qsetting3;
 	unsigned short highres_comp_len;
 	unsigned char *highres_comp;
 	unsigned short tree_end;
 	unsigned short *book;
-	unsigned long *resolution;
+	unsigned int *resolution;
 	unsigned char *exw_Y;
 	unsigned char *res_U_64;
 	unsigned char *res_V_64;
@@ -189,8 +189,8 @@ extern void upfilter53IV(short *_X,int M,short *_RES);
 extern void upfilter53V(short *_X,int M,short *_RES);
 extern void upfilter97(short *x,int M,int E,short *res);
 
-extern void retrieve_pixel_Y_comp(image_buffer *imd,decode_state *os,int p1,unsigned long *d1,short *im3);
-extern void retrieve_pixel_UV_comp(image_buffer *imd,decode_state *os,int p1,unsigned long *d1,short *im3);
+extern void retrieve_pixel_Y_comp(image_buffer *imd,decode_state *os,int p1,unsigned int *d1,short *im3);
+extern void retrieve_pixel_UV_comp(image_buffer *imd,decode_state *os,int p1,unsigned int *d1,short *im3);
 
 #endif
 

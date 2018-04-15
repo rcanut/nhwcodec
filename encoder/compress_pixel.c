@@ -53,7 +53,7 @@
 int wavlts2packet(image_buffer *im,encode_state *enc)
 {
 	int i,j,k,e,a,b,c,select,tag,thresh,pos,pack,match,part,p1,p2;
-	unsigned long weight[354],weight2[354],l1,l2,huffman_word;
+	unsigned int weight[354],weight2[354],l1,l2,huffman_word;
 	unsigned short rle_tree[580];
 	unsigned char codebook[580],zone_entrance,color,pixel,*nhw_s1,*nhw_s2;
 	unsigned char *nhw_comp;
@@ -61,7 +61,7 @@ int wavlts2packet(image_buffer *im,encode_state *enc)
 
 	nhw_comp=(unsigned char*)im->im_nhw;
 
-	enc->encode=(unsigned long*)calloc(80000,sizeof(long));
+	enc->encode=(unsigned int*)calloc(80000,sizeof(int));
 	enc->tree1=(unsigned char*)calloc(291*2,sizeof(char));
 	enc->tree2=(unsigned char*)calloc(291*2,sizeof(char));
 

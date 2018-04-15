@@ -46,7 +46,7 @@
 #include "codec.h"
 #include "tables.h"
 
-void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned long *d1,short *im3)
+void retrieve_pixel_Y_comp(image_buffer *im,decode_state *os,int p1,unsigned int *d1,short *im3)
 {
 	int i,j,tr,size,path,temp1,e,word,zone,INV_QUANT1,INV_QUANT2,zone_number,mem,mem2,nhw_ac1,run_over,t,t2;
 	unsigned short *ntree,*nhw_book,dec;
@@ -299,7 +299,7 @@ SKIP_ZONE: 			word=(unsigned char)nhw_book[dec];
 
 					if (mem2==1)
 					{
-						if (!im3[e-2] && !im3[e-3] && !im3[e-4] && !im3[e-5])
+						if (e>=5 && !im3[e-2] && !im3[e-3] && !im3[e-4] && !im3[e-5])
 						{
 							if (!dec_select_word2[t2++]) im3[e++]=-11;else im3[e++]=11;
 						}
@@ -312,14 +312,14 @@ SKIP_ZONE: 			word=(unsigned char)nhw_book[dec];
 					}
 					else if (mem==2 && !nhw_ac1) 
 					{
-						if (!im3[e-1] && !im3[e-2] && !im3[e-3] && !im3[e-4] && ((e+nhw_rle[dec]-257)>=run_over))
+						if (e>=4 && !im3[e-1] && !im3[e-2] && !im3[e-3] && !im3[e-4] && ((e+nhw_rle[dec]-257)>=run_over))
 						{
 							if (!dec_select_word1[t++]) im3[e++]=11;
 							else im3[e++]=-11;
 							
 							mem=1;
 						}
-						else if (nhw_rle[dec]>=4 && !im3[e-1] && !nhw_ac1 && ((e+nhw_rle[dec]-257)>=run_over))
+						else if (nhw_rle[dec]>=4 && e>0 && !im3[e-1] && !nhw_ac1 && ((e+nhw_rle[dec]-257)>=run_over))
 						{
 							if (!dec_select_word1[t++]) im3[e++]=11;
 							else im3[e++]=-11;
@@ -327,7 +327,7 @@ SKIP_ZONE: 			word=(unsigned char)nhw_book[dec];
 							mem=1;
 						}
 					}
-					else if (nhw_rle[dec]>=4 && !im3[e-1] && !nhw_ac1 && ((e+nhw_rle[dec]-257)>=run_over))
+					else if (nhw_rle[dec]>=4 && e>0 && !im3[e-1] && !nhw_ac1 && ((e+nhw_rle[dec]-257)>=run_over) )
 					{
 						if (!dec_select_word1[t++]) im3[e++]=11;
 						else im3[e++]=-11;
@@ -443,7 +443,7 @@ L4:	free(os->book);
 	
 }
 
-void retrieve_pixel_UV_comp(image_buffer *im,decode_state *os,int p1,unsigned long *d1,short *im3)
+void retrieve_pixel_UV_comp(image_buffer *im,decode_state *os,int p1,unsigned int *d1,short *im3)
 {
 	int i,j,tr,size,path,temp1,e,word,INV_QUANT1,INV_QUANT2;
 	unsigned short *ntree,dec;

@@ -109,14 +109,14 @@ typedef struct{
 }image_buffer;
 
 typedef struct{
-	unsigned long *encode;
+	unsigned int *encode;
 	unsigned char *tree1;
 	unsigned char *tree2;
 	unsigned short nhw_res1_len;
 	unsigned short nhw_res3_len;
 	unsigned short nhw_res4_len;
 	unsigned short nhw_res5_len;
-	unsigned long nhw_res6_len;
+	unsigned int nhw_res6_len;
 	unsigned short nhw_res1_word_len;
 	unsigned short nhw_res3_word_len;
 	unsigned short nhw_res5_word_len;
@@ -153,7 +153,7 @@ typedef struct{
 	unsigned short exw_Y_end;
 	unsigned short end_ch_res;
 	unsigned short qsetting3_len;
-	unsigned long *high_qsetting3;
+	unsigned int *high_qsetting3;
 	unsigned short highres_mem_len;
 	unsigned short highres_comp_len;
 	unsigned short *highres_mem;
@@ -163,7 +163,7 @@ typedef struct{
 	unsigned char *res_V_64;
 	unsigned char *exw_Y;
 	unsigned char *ch_res;
-	unsigned long *high_res;
+	unsigned int *high_res;
 }encode_state;
 
 

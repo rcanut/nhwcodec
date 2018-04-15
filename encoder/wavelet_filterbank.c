@@ -548,7 +548,7 @@ void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc)
 
 	if (im->setup->quality_setting>HIGH2)
 	{
-		enc->high_qsetting3=(unsigned long*)malloc(e*sizeof(long));
+		enc->high_qsetting3=(unsigned int*)malloc(e*sizeof(int));
 
 		for (i=0,e=0;i<(2*IM_SIZE);i++) 
 		{

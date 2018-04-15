@@ -55,7 +55,7 @@ static unsigned char extra_words1[19]={10,12,14,18,20,22,26,28,30,34,36,38,42,44
 static unsigned char extra_words2[19]={60,62,66,68,70,74,76,78,82,84,86,90,92,94,98,100,102,106,108};
 
 
-static unsigned long huffman_tree[DEPTH]={
+static unsigned int huffman_tree[DEPTH]={
 	0x0000,0x0002,0x0004,0x000a,
 	0x000b,0x0006,0x0007,0x0018,
 	0x0019,0x001a,0x0036,0x0037,

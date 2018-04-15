@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 02202018 nhw exp $							           *
+*  last update: $ 04152018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -252,7 +252,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	char *res256;
 	unsigned char *nhw_scale,*nhw_chr;
 	unsigned short *nhwresH1,*nhwresH2,*nhwresH1I;
-	unsigned long *nhwresH3I;
+	unsigned int *nhwresH3I;
 	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres4I,*nhwres5,*nhwres6;
 
 	wavelet_order=parse_file(im,os,argv);
@@ -473,7 +473,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	if (im->setup->quality_setting>HIGH1)
 	{
 
-	nhwresH3I=(unsigned long*)calloc((os->nhw_res6_bit_len<<3),sizeof(long));stage=0;
+	nhwresH3I=(unsigned int*)calloc((os->nhw_res6_bit_len<<3),sizeof(int));stage=0;
 
 	if (os->nhw_res6[0]==127)
 	{
@@ -540,8 +540,8 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		if (!(os->nhw_res6_word[i]&1)) os->d_size_tree1++;else os->end_ch_res++;
 	}
 
-	os->nhwresH3=(unsigned long*)malloc(os->end_ch_res*sizeof(long));
-	os->nhwresH4=(unsigned long*)malloc(os->d_size_tree1*sizeof(long));
+	os->nhwresH3=(unsigned int*)malloc(os->end_ch_res*sizeof(int));
+	os->nhwresH4=(unsigned int*)malloc(os->d_size_tree1*sizeof(int));
 
 	for (i=0,count=0,scan=0,res=0;i<os->nhw_res6_bit_len-1;i++)
 	{
@@ -1699,7 +1699,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		if (imd->setup->quality_setting>HIGH2)
 		{
 			fread(&os->qsetting3_len,2,1,compressed_file);
-			os->high_qsetting3=(unsigned long*)malloc(os->qsetting3_len*sizeof(long));
+			os->high_qsetting3=(unsigned int*)malloc(os->qsetting3_len*sizeof(int));
 		}
 	}
 
@@ -1745,8 +1745,8 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 
 	
 	os->res_ch=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
-	os->packet1=(unsigned long*)malloc(os->d_size_data1*sizeof(long));
-	os->packet2=(unsigned long*)malloc((os->d_size_data2-os->d_size_data1)*sizeof(long));
+	os->packet1=(unsigned int*)malloc(os->d_size_data1*sizeof(int));
+	os->packet2=(unsigned int*)malloc((os->d_size_data2-os->d_size_data1)*sizeof(int));
 
 	// COMPRESSED FILE DATA
 	fread(os->d_tree1,os->d_size_tree1,1,compressed_file);
@@ -2166,7 +2166,6 @@ L7:	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 
 	free(os->res_V_64);
 	}
-
 
 	// IMAGE MEMORY ALLOCATION FOR DECODING
 	imd->im_process=(short*)calloc(4*IM_SIZE,sizeof(short));

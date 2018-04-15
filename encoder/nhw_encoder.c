@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 03202018 nhw exp $							           *
+*  last update: $ 04152018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -2338,6 +2338,10 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 	fwrite(enc->nhw_res1_bit,enc->nhw_res1_bit_len,1,compressed);
 	fwrite(enc->nhw_res1_word,enc->nhw_res1_word_len,1,compressed);
 	
+	/*printf("%d %d %d %d\n%d %d %d %d\n%d %d %d %d\n %d %d %d %d\n",enc->size_tree1,enc->size_tree2,enc->size_data1,enc->size_data2,enc->tree_end,enc->exw_Y_end,
+	enc->nhw_res1_len,enc->nhw_res3_len,enc->nhw_res3_bit_len,enc->nhw_res4_len,enc->nhw_res1_bit_len,enc->nhw_select1,enc->nhw_select2,enc->highres_comp_len,
+	enc->end_ch_res);*/
+	
 	if (im->setup->quality_setting>LOW3)
 	{
 		fwrite(enc->nhw_res4,enc->nhw_res4_len,1,compressed);
@@ -2345,8 +2349,6 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	//i=enc->nhw_res1_len+enc->nhw_res1_bit_len+enc->nhw_res1_word_len+
 	//  enc->nhw_res3_len+enc->nhw_res3_bit_len+enc->nhw_res3_word_len;
-
-	//printf("%d\n",i);
 	
 	if (im->setup->quality_setting>=LOW1)
 	{
