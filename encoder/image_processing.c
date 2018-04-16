@@ -604,7 +604,7 @@ void block_variance_avg(image_buffer *im)
 				count=(nhw_process[scan+7+e]-avg);variance+=count*count;
 			}
 
-			if (variance<1500)
+			if (variance<2000)
 			{
 				block_var[a++]=1;
 
