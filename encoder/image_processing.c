@@ -415,10 +415,12 @@ void pre_processing(image_buffer *im)
 	nhw_process=(short*)im->im_process;
 	memcpy(im->im_process,im->im_jpeg,4*IM_SIZE*sizeof(short));
 
-	if (im->setup->quality_setting<LOW2) lower_quality_setting_on=1;
+	if (im->setup->quality_setting<=LOW6) lower_quality_setting_on=1;
 	else lower_quality_setting_on=0;
 
-	if (im->setup->quality_setting==LOW4) sharpness=82;else sharpness=77;
+	if (im->setup->quality_setting==LOW4) sharpness=82;
+	else if (im->setup->quality_setting==LOW5) sharpness=77;
+	else sharpness=72;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -437,13 +439,29 @@ void pre_processing(image_buffer *im)
 						nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 						nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 						nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
+						
 
 
-			/*if (lower_quality_setting_on)
+			if (lower_quality_setting_on)
 			{
-				if (abs(count)>4 && abs(count)<65 && abs(res)<30)
+				if (abs(res)>4 && abs(res)<36)
 				{
-					if (abs(nhw_process[scan-(2*IM_DIM)]-nhw_process[scan-1])<9 && abs(nhw_process[scan-1]-nhw_process[scan+(2*IM_DIM)])<9 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+1])<9 && abs(nhw_process[scan+1]-nhw_process[scan-(2*IM_DIM)])<9)
+					scan--;
+					
+					if (abs(nhw_process[scan-(2*IM_DIM)]-nhw_process[scan-1])<4 && abs(nhw_process[scan-1]-nhw_process[scan+(2*IM_DIM)])<4 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+1])<4 && abs(nhw_process[scan+1]-nhw_process[scan-(2*IM_DIM)])<4)
+					{
+						im->im_jpeg[scan]=( (nhw_process[scan]<<2) +
+											 nhw_process[scan-1]+nhw_process[scan+1]+
+											 nhw_process[scan-(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)]+4 )>>3;
+
+					}
+					
+					scan++;
+				}
+				
+				if (abs(count)>4 && abs(count)<36)
+				{
+					if (abs(nhw_process[scan-(2*IM_DIM)]-nhw_process[scan-1])<4 && abs(nhw_process[scan-1]-nhw_process[scan+(2*IM_DIM)])<4 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+1])<4 && abs(nhw_process[scan+1]-nhw_process[scan-(2*IM_DIM)])<4)
 					{
 						im->im_jpeg[scan]=( (nhw_process[scan]<<2) +
 											 nhw_process[scan-1]+nhw_process[scan+1]+
@@ -451,7 +469,8 @@ void pre_processing(image_buffer *im)
 
 					}
 				}
-			}*/
+			}
+		
 
 			if (im->setup->quality_setting>LOW4) 
 			{
@@ -494,65 +513,68 @@ void pre_processing(image_buffer *im)
 
 			}
 
-			if (res<32 && res>10) 
+			if (im->setup->quality_setting>LOW6) 
 			{
-				if (abs(count)>=23) 
+				if (res<32 && res>10) 
 				{
-					if (res<16)
+					if (abs(count)>=23) 
 					{
-						if (count>0 && count<32 && res>11) im->im_jpeg[scan]++;
-						im->im_jpeg[scan-1]++;
-						a=0;continue;
-					}
-					else 
-					{
-						if (!a) im->im_jpeg[scan-1]+=2;else im->im_jpeg[scan-1]++;
-						a=0;continue;
+						if (res<16)
+						{
+							if (count>0 && count<32 && res>11) im->im_jpeg[scan]++;
+							im->im_jpeg[scan-1]++;
+							a=0;continue;
+						}
+						else 
+						{
+							if (!a) im->im_jpeg[scan-1]+=2;else im->im_jpeg[scan-1]++;
+							a=0;continue;
+						}
 					}
 				}
-			}
-			else if (res>-32 && res<-10) 
-			{
-				if (abs(count)>=23) 
+				else if (res>-32 && res<-10) 
 				{
-					if (res>-16)
+					if (abs(count)>=23) 
 					{
-						if (count<0 && count>-32 && res<-11) im->im_jpeg[scan]--;
-						im->im_jpeg[scan-1]--;
-						a=0;continue;
-					}
-					else 
-					{
-						if (!a) im->im_jpeg[scan-1]-=2;else im->im_jpeg[scan-1]--; 
-						a=0;continue;
+						if (res>-16)
+						{
+							if (count<0 && count>-32 && res<-11) im->im_jpeg[scan]--;
+							im->im_jpeg[scan-1]--;
+							a=0;continue;
+						}
+						else 
+						{
+							if (!a) im->im_jpeg[scan-1]-=2;else im->im_jpeg[scan-1]--; 
+							a=0;continue;
+						}
 					}
 				}
-			}
 			
-			a=0;
+				a=0;
 
-			if (count<32 && count>10) 
-			{
-				if (abs(res)>=23)
+				if (count<32 && count>10) 
 				{
-					if (count<16)
+					if (abs(res)>=23)
 					{
-						if (res>0 && res<32 && count>11) im->im_jpeg[scan-1]++;
-						im->im_jpeg[scan]++;
+						if (count<16)
+						{
+							if (res>0 && res<32 && count>11) im->im_jpeg[scan-1]++;
+							im->im_jpeg[scan]++;
+						}
+						else {im->im_jpeg[scan]+=2;a=1;}
 					}
-					else {im->im_jpeg[scan]+=2;a=1;}
-				}
-			}
-			else if (count>-32 && count<-10) 
-			{
-				if (abs(res)>=23)
+				}	
+				else if (count>-32 && count<-10) 
 				{
-					if (count>-16)
+					if (abs(res)>=23)
 					{
-						if (res<0 && res>-32 && count<-11) im->im_jpeg[scan-1]--;
-						im->im_jpeg[scan]--;
+						if (count>-16)
+						{
+							if (res<0 && res>-32 && count<-11) im->im_jpeg[scan-1]--;
+							im->im_jpeg[scan]--;
+						}
+						else {im->im_jpeg[scan]-=2;a=1;}
 					}
-					else {im->im_jpeg[scan]-=2;a=1;}
 				}
 			}
 		}
