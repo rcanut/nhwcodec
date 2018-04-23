@@ -581,6 +581,30 @@ void pre_processing(image_buffer *im)
 	}
 }
 
+void pre_processing_UV(image_buffer *im)
+{
+	int i,j,scan,res;
+	short *nhw_process;
+
+	nhw_process=(short*)im->im_process;
+	memcpy(im->im_process,im->im_jpeg,IM_SIZE*sizeof(short));
+
+	for (i=(IM_DIM);i<((IM_SIZE)-(IM_DIM));i+=(IM_DIM))
+	{
+		for (scan=i+1,j=1;j<((IM_DIM)-1);j++,scan++)
+		{   
+			res	   =   (nhw_process[scan]<<3) -
+						nhw_process[scan-1]-nhw_process[scan+1]-
+						nhw_process[scan-(IM_DIM)]-nhw_process[scan+(IM_DIM)]-
+						nhw_process[scan-(IM_DIM+1)]-nhw_process[scan+(IM_DIM-1)]-
+						nhw_process[scan-(IM_DIM-1)]-nhw_process[scan+(IM_DIM+1)];
+						
+			if (res>5) im->im_jpeg[scan]--;
+			else if (res<-5) im->im_jpeg[scan]++;
+		}
+	}
+}
+
 void block_variance_avg(image_buffer *im)
 {
 	int i,j,e,a,t1,scan,count,avg,variance;

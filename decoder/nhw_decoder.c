@@ -208,7 +208,7 @@ void main(int argc, char **argv)
 	{
 		if (im.setup->quality_setting==LOW4) Y_inv=1.047136; // 1/0.94
 		else if (im.setup->quality_setting==LOW5) Y_inv=1.085789; // 1/0.906
-		else if (im.setup->quality_setting==LOW6) Y_inv=1.19044; // 1/0.8
+		else if (im.setup->quality_setting==LOW6) Y_inv=1.176505; // 1/0.8
 
 		for (m=0;m<4;m++)
 		{
@@ -1236,6 +1236,9 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	free(im->im_jpeg);
 
 	im_nhw=(short*)im->im_process;
+	
+	if (im->setup->quality_setting<=LOW6) count=35;
+	else count=60;
 
 	for (i=IM_DIM;i<IM_SIZE-IM_DIM;i+=(IM_DIM))
 	{
@@ -1247,17 +1250,17 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 						im_nhw[scan-(IM_DIM+1)]-im_nhw[scan+(IM_DIM-1)]-
 						im_nhw[scan-(IM_DIM-1)]-im_nhw[scan+(IM_DIM+1)];
 
-			if (abs(res)>60)
+			if (abs(res)>count)
 			{
 				if (res>0)
 				{
 					if (res>160) im_nhw[scan]+=3;
-					else if (res>60) im_nhw[scan]+=2;
+					else if (res>count) im_nhw[scan]+=2;
 				}
 				else 
 				{
 					if (res<-160) im_nhw[scan]-=3;
-					else if (res<-60) im_nhw[scan]-=2;
+					else if (res<-count) im_nhw[scan]-=2;
 				}
 			}
 		}
@@ -1525,6 +1528,9 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	free(im->im_jpeg);
 
 	im_nhw=(short*)im->im_process;
+	
+	if (im->setup->quality_setting<=LOW6) count=35;
+	else count=60;
 
 	for (i=IM_DIM;i<IM_SIZE-IM_DIM;i+=(IM_DIM))
 	{
@@ -1536,17 +1542,17 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 						im_nhw[scan-(IM_DIM+1)]-im_nhw[scan+(IM_DIM-1)]-
 						im_nhw[scan-(IM_DIM-1)]-im_nhw[scan+(IM_DIM+1)];
 
-			if (abs(res)>60)
+			if (abs(res)>count)
 			{
 				if (res>0)
 				{
 					if (res>160) im_nhw[scan]+=3;
-					else if (res>60) im_nhw[scan]+=2;
+					else if (res>count) im_nhw[scan]+=2;
 				}
 				else 
 				{
 					if (res<-160) im_nhw[scan]-=3;
-					else if (res<-60) im_nhw[scan]-=2;
+					else if (res<-count) im_nhw[scan]-=2;
 				}
 			}
 		}

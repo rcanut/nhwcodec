@@ -190,6 +190,7 @@ extern void upfilter53IV(short *_X,int M,short *_RES);
 extern void upfilter97(short *_X,int M,int E,short *_RES);
 
 extern void pre_processing(image_buffer *im);
+extern void pre_processing_UV(image_buffer *im);
 extern void block_variance_avg(image_buffer *im);
 extern void offsetY(image_buffer *im,encode_state *enc,int m1);
 extern void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part);

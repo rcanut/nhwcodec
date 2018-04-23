@@ -1786,6 +1786,8 @@ L_W5:			res256[count]=14000;
 
 	im->im_process=(short*)malloc(IM_SIZE*sizeof(short));
 	nhw_process=(short*)im->im_process;
+	
+	if (im->setup->quality_setting<=LOW6) pre_processing_UV(im);
 
 	end_transform=0;im->setup->RES_HIGH=0;
 	//for (stage=0;stage<wavelet_order;stage++) wavelet_analysis(im,IM_DIM>>stage,end_transform++,0); 
@@ -2058,6 +2060,8 @@ L_W5:			res256[count]=14000;
 
 	end_transform=0;im->setup->RES_HIGH=0;
 	//for (stage=0;stage<wavelet_order;stage++) wavelet_analysis(im,IM_DIM>>stage,end_transform++,0);
+	
+	if (im->setup->quality_setting<=LOW6) pre_processing_UV(im);
 
 	wavelet_analysis(im,IM_DIM,end_transform++,0);
 
