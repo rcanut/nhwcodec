@@ -235,7 +235,9 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 		}
 		}
 	}
-
+	
+	if (im->setup->quality_setting>LOW4)
+	{
 	for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 	{
 		for (a=i+1,j=1;j<(IM_DIM-1);j++,a++)
@@ -304,6 +306,7 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 				}
 			}
 		}
+	}
 	}
 
 	for (i=0;i<(4*IM_SIZE);i++)
@@ -650,7 +653,7 @@ void block_variance_avg(image_buffer *im)
 				count=(nhw_process[scan+7+e]-avg);variance+=count*count;
 			}
 
-			if (variance<2000)
+			if (variance<1500)
 			{
 				block_var[a++]=1;
 
@@ -878,26 +881,28 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 		}
 	}
 
-	/*if (part)
+	
+	/*if (!part)
 	{
-		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
+		if (im->setup->quality_setting<LOW5)
 		{
-			for (a=i+1,j=1;j<(2*IM_DIM-1);j++,a++) 
+			for (i=IM_SIZE;i<(2*IM_SIZE);i+=(2*IM_DIM))
 			{
-				if (im->im_process[a]==m1)
+				for (a=i,j=0;j<(IM_DIM);j++,a++)
 				{
-					if (abs(im->im_process[a-1])>=4 || abs(im->im_process[a+1])>=4) im->im_process[a]=8;
-					else im->im_process[a]=0;
-				}
-				else if (im->im_process[a]==-m1)
-				{
-					if (abs(im->im_process[a-1])>=4 || abs(im->im_process[a+1])>=4) im->im_process[a]=-8;
-					else im->im_process[a]=0;
+					if (abs(im->im_process[a])>=8 &&  abs(im->im_process[a])<9) 
+					{	
+						im->im_process[a]=0;
+						//if (nhw_process[scan]>0) nhw_process[scan]=7;else nhw_process[scan]=-7;
+					}
 				}
 			}
 		}
 	}*/
 
+	
+	if (im->setup->quality_setting>LOW4)
+	{
 	for (i=0;i<(IM_SIZE);i+=(2*IM_DIM))
 	{
 		for (a=i+(IM_DIM>>1)+1,j=(IM_DIM>>1)+1;j<(IM_DIM-1);j++,a++)
@@ -1043,6 +1048,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				}
 			}
 		}
+	}
 	}
 
 	for (i=0;i<(IM_SIZE);i+=(2*IM_DIM))

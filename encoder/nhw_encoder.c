@@ -107,7 +107,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	im->im_process=(short*)malloc(4*IM_SIZE*sizeof(short));
 
-	//if (im->setup->quality_setting<=LOW5) block_variance_avg(im);
+	//if (im->setup->quality_setting<=LOW6) block_variance_avg(im);
 
 	nhw_process=(short*)im->im_process;
 
@@ -277,7 +277,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	resIII=(short*)malloc(IM_SIZE*sizeof(short));
 	
-	if (im->setup->quality_setting<LOW5)
+	/*if (im->setup->quality_setting<LOW5)
 	{
 		for (i=IM_SIZE;i<(2*IM_SIZE);i+=(2*IM_DIM))
 		{
@@ -290,7 +290,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				}
 			}
 		}
-	}
+	}*/
 
 	for (i=0,count=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 	{
@@ -469,11 +469,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	}
 	else if (im->setup->quality_setting<=LOW5)
 	{ 
-
 		if (im->setup->quality_setting==LOW5) wvlt_thrx=19;
 		else wvlt_thrx=20;
 		
-		if (im->setup->quality_setting<=LOW6)
+		/*if (im->setup->quality_setting<=LOW6)
 		{
 			for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 			{
@@ -485,7 +484,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 					}
 				}
 			}
-		}
+		}*/
 
 		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
 		{
@@ -508,7 +507,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			}
 		}
 	}
-
+	
+	if (im->setup->quality_setting>LOW4)
+	{ 
 	for (i=(2*IM_DIM),count=0,res=0;i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+(IM_DIM+1),j=(IM_DIM+1);j<((2*IM_DIM)-1);j++,scan++)
@@ -610,6 +611,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				if (((-nhw_process[scan-1])&65534)==6 || ((-nhw_process[scan+1])&65534)==6) nhw_process[scan]=-9;
 			}
 		}
+	}
 	}
 
 	if (im->setup->quality_setting>=NORM) res_setting=3;
