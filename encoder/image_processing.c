@@ -423,7 +423,8 @@ void pre_processing(image_buffer *im)
 
 	if (im->setup->quality_setting==LOW4) sharpness=82;
 	else if (im->setup->quality_setting==LOW5) sharpness=77;
-	else sharpness=72;
+	else if (im->setup->quality_setting==LOW6) sharpness=72;
+	else if (im->setup->quality_setting==LOW7) sharpness=67;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -469,7 +470,7 @@ void pre_processing(image_buffer *im)
 						im->im_jpeg[scan]=( (nhw_process[scan]<<2) +
 											 nhw_process[scan-1]+nhw_process[scan+1]+
 											 nhw_process[scan-(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)]+4 )>>3;
-
+	
 					}
 				}
 			}
@@ -601,9 +602,23 @@ void pre_processing_UV(image_buffer *im)
 						nhw_process[scan-(IM_DIM)]-nhw_process[scan+(IM_DIM)]-
 						nhw_process[scan-(IM_DIM+1)]-nhw_process[scan+(IM_DIM-1)]-
 						nhw_process[scan-(IM_DIM-1)]-nhw_process[scan+(IM_DIM+1)];
-						
-			if (res>5) im->im_jpeg[scan]--;
-			else if (res<-5) im->im_jpeg[scan]++;
+				
+			if (im->setup->quality_setting<LOW6) 
+			{
+				if (abs(res)>=14)
+				{
+					if (res>0) im->im_jpeg[scan]-=2;else im->im_jpeg[scan]+=2;
+				}
+				else if (abs(res)>5)
+				{
+					if (res>0) im->im_jpeg[scan]--;else im->im_jpeg[scan]++;
+				}
+			}
+			else
+			{
+				if (res>5) im->im_jpeg[scan]--;
+				else if (res<-5) im->im_jpeg[scan]++;
+			}
 		}
 	}
 }
@@ -882,9 +897,9 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 	}
 
 	
-	/*if (!part)
+	if (!part)
 	{
-		if (im->setup->quality_setting<LOW5)
+		if (im->setup->quality_setting<LOW6)
 		{
 			for (i=IM_SIZE;i<(2*IM_SIZE);i+=(2*IM_DIM))
 			{
@@ -898,7 +913,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				}
 			}
 		}
-	}*/
+	}
 
 	
 	if (im->setup->quality_setting>LOW4)
