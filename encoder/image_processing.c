@@ -897,7 +897,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 	}
 
 	
-	if (!part)
+	/*if (!part)
 	{
 		if (im->setup->quality_setting<LOW6)
 		{
@@ -913,7 +913,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				}
 			}
 		}
-	}
+	}*/
 
 	
 	if (im->setup->quality_setting>LOW4)
