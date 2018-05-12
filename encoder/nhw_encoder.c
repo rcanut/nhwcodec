@@ -479,7 +479,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
-			{
+			{		
 				if (abs(nhw_process[scan])>=ratio && abs(nhw_process[scan])<wvlt_thrx1) 
 				{	
 					nhw_process[scan]=0;			
@@ -505,6 +505,18 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i+IM_DIM,j=IM_DIM;j<(2*IM_DIM);j++,scan++)
 			{
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<14) 
+				{	
+					if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
+					{
+						nhw_process[scan]=0;nhw_process[scan-1]=0;
+					}
+					else if (abs(nhw_process[scan]+nhw_process[scan+1])<3 && abs(nhw_process[scan-1])<3) 
+					{
+						nhw_process[scan]=0;nhw_process[scan+1]=0;
+					}
+				}
+				
 				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<10) 
 				{	
 					if (abs(nhw_process[scan-1])<ratio && abs(nhw_process[scan+1])<ratio) 
@@ -519,6 +531,18 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 			{
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx1+2)) 
+				{	
+					if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
+					{
+						nhw_process[scan]=0;nhw_process[scan-1]=0;
+					}
+					else if (abs(nhw_process[scan]+nhw_process[scan+1])<3 && abs(nhw_process[scan-1])<3) 
+					{
+						nhw_process[scan]=0;nhw_process[scan+1]=0;
+					}
+				}
+				
 				if (abs(nhw_process[scan])>=ratio && abs(nhw_process[scan])<wvlt_thrx1) 
 				{	
 					if (abs(nhw_process[scan-1])<(ratio) && abs(nhw_process[scan+1])<(ratio)) 
@@ -534,6 +558,18 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 			for (scan=i+(IM_DIM),j=(IM_DIM);j<((2*IM_DIM)-1);j++,scan++)
 			{
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx2+2)) 
+				{	
+					if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
+					{
+						nhw_process[scan]=0;nhw_process[scan-1]=0;
+					}
+					else if (abs(nhw_process[scan]+nhw_process[scan+1])<3 && abs(nhw_process[scan-1])<3) 
+					{
+						nhw_process[scan]=0;nhw_process[scan+1]=0;
+					}
+				}
+				
 				if (abs(nhw_process[scan])>=ratio && abs(nhw_process[scan])<wvlt_thrx2) 
 				{	
 					if (abs(nhw_process[scan-1])<ratio && abs(nhw_process[scan+1])<ratio) 
