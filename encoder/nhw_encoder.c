@@ -697,7 +697,8 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	if (im->setup->quality_setting>=NORM) res_setting=3;
 	else if (im->setup->quality_setting>=LOW2) res_setting=4;
-	else res_setting=6;
+	else if (im->setup->quality_setting>=LOW6) res_setting=6;
+	else res_setting=8;
 
 	for (j=0,count=0,res=0,stage=0,e=0;j<IM_DIM;j++)
 	{
