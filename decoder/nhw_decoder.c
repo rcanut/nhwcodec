@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 04152018 nhw exp $							           *
+*  last update: $ 05302018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -896,7 +896,9 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		free(nhwresH2);
 	}
 
-	if (im->setup->quality_setting>=LOW2) e=5;else e=7;
+	if (im->setup->quality_setting>=LOW2) e=5;
+	else if (im->setup->quality_setting>=LOW5) e=7;
+	else e=9;
 
 	for (i=0;i<os->nhw_res1_bit_len;i++) 
 	{

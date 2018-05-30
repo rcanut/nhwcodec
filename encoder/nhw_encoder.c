@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 04152018 nhw exp $							           *
+*  last update: $ 05302018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -499,15 +499,16 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	}
 	else if (im->setup->quality_setting<LOW6)
 	{ 
-		if (im->setup->quality_setting==LOW7) {wvlt_thrx1=16;wvlt_thrx2=28;}
+		if (im->setup->quality_setting==LOW7) {wvlt_thrx1=15;wvlt_thrx2=27;}
 		
 		for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 		{
 			for (scan=i+IM_DIM,j=IM_DIM;j<(2*IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<14) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<11) 
 				{	
-					if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
+					if (abs(nhw_process[((i+(j-IM_DIM))>>1)+(IM_DIM>>1)])<4) nhw_process[scan]=0;
+					else if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
 					{
 						nhw_process[scan]=0;nhw_process[scan-1]=0;
 					}
@@ -531,9 +532,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx1+2)) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx1+1)) 
 				{	
-					if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
+					if (abs(nhw_process[(((i-(2*IM_SIZE))+j)>>1)+IM_SIZE])<4) nhw_process[scan]=0;
+					else if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
 					{
 						nhw_process[scan]=0;nhw_process[scan-1]=0;
 					}
@@ -558,9 +560,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 			for (scan=i+(IM_DIM),j=(IM_DIM);j<((2*IM_DIM)-1);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx2+2)) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx2+1)) 
 				{	
-					if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
+					if (abs(nhw_process[(((i-(2*IM_SIZE))+(j-IM_DIM))>>1)+(IM_SIZE+(IM_DIM>>1))])<4) nhw_process[scan]=0;
+					else if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
 					{
 						nhw_process[scan]=0;nhw_process[scan-1]=0;
 					}
