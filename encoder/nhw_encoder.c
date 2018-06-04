@@ -505,9 +505,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i+IM_DIM,j=IM_DIM;j<(2*IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<11) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<12) 
 				{	
-					if (abs(nhw_process[((i+(j-IM_DIM))>>1)+(IM_DIM>>1)])<4) nhw_process[scan]=0;
+					if (abs(resIII[(((i>>1)+(j-IM_DIM))>>1)+(IM_DIM>>1)])<6) nhw_process[scan]=0;
 					else if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
 					{
 						nhw_process[scan]=0;nhw_process[scan-1]=0;
@@ -532,9 +532,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx1+1)) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx1+2)) 
 				{	
-					if (abs(nhw_process[(((i-(2*IM_SIZE))+j)>>1)+IM_SIZE])<4) nhw_process[scan]=0;
+					if (abs(resIII[((((i-(2*IM_SIZE))>>1)+j)>>1)+(IM_SIZE>>1)])<6) nhw_process[scan]=0;
 					else if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
 					{
 						nhw_process[scan]=0;nhw_process[scan-1]=0;
@@ -562,7 +562,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			{
 				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<(wvlt_thrx2+1)) 
 				{	
-					if (abs(nhw_process[(((i-(2*IM_SIZE))+(j-IM_DIM))>>1)+(IM_SIZE+(IM_DIM>>1))])<4) nhw_process[scan]=0;
+					if (abs(resIII[((((i-(2*IM_SIZE))>>1)+(j-IM_DIM))>>1)+((IM_SIZE>>1)+(IM_DIM>>1))])<7) nhw_process[scan]=0;
 					else if (abs(nhw_process[scan]+nhw_process[scan-1])<3 && abs(nhw_process[scan+1])<3) 
 					{
 						nhw_process[scan]=0;nhw_process[scan-1]=0;
