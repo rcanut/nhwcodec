@@ -471,7 +471,7 @@ L15:	e=0;
 	ch_comp[0]=highres[0];
 
 	if (Y>299) {im->setup->RES_LOW=2;goto L4;}
-	else if (a>199) {im->setup->RES_LOW=1;goto L2;} 
+	else if (a>179) {im->setup->RES_LOW=1;goto L2;} 
 	else im->setup->RES_LOW=0;
 
 	for (i=1,j=1,a=0,res=0,mem=0;i<(IM_SIZE>>2);i++)
@@ -837,6 +837,8 @@ L3:
 	enc->highres_comp_len=mem;
 
 	enc->Y_res_comp=e;
+	
+	//printf("%d\n",enc->Y_res_comp);
 
 }
 
