@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 08172018 nhw exp $							           *
+*  last update: $ 08212018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -332,23 +332,26 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	
 	if (im->setup->quality_setting<LOW7)
 	{
-		for (i=0,scan=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
+		for (i=0,scan=0;i<(IM_SIZE);i+=(2*IM_DIM))
 		{
-			for (scan=i,j=0;j<IM_DIM-4;j++,scan++)
+			for (scan=i,j=0;j<(IM_DIM>>1)-4;j++,scan++)
 			{
 				if (abs(nhw_process[scan+4]-nhw_process[scan])<9 && abs(nhw_process[scan+4]-nhw_process[scan+3])<8 && abs(nhw_process[scan+1]-nhw_process[scan])<8)
 				{
 					if (abs(nhw_process[scan+3]-nhw_process[scan+1])<9)
 					{
-						if (abs(nhw_process[scan+3]-nhw_process[scan+2])<14) {nhw_process[scan+2]=(nhw_process[scan+3]+nhw_process[scan+1])>>1;/*j+=4;scan+=4;*/}
+						if (abs(nhw_process[scan+3]-nhw_process[scan+2])<14) 
+						{
+							nhw_process[scan+2]=(nhw_process[scan+3]+nhw_process[scan+1])>>1;
+						}
 					}
 				}
 			}
 		}
 		
-		for (i=0,scan=0;i<(2*IM_SIZE)-(4*IM_DIM);i+=(2*IM_DIM))
+		for (i=0,scan=0;i<(IM_SIZE)-(4*IM_DIM);i+=(2*IM_DIM))
 		{
-			for (scan=i,j=0;j<(IM_DIM-2);j++,scan++)
+			for (scan=i,j=0;j<(IM_DIM>>1)-2;j++,scan++)
 			{
 				if (abs(nhw_process[scan+2]-nhw_process[scan+1])<6 && abs(nhw_process[scan+1]-nhw_process[scan])<6)
 				{
