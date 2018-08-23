@@ -210,7 +210,7 @@ void main(int argc, char **argv)
 		else if (im.setup->quality_setting==LOW5) Y_inv=1.048174; // 1/0.906
 		else if (im.setup->quality_setting==LOW6) Y_inv=1.138331; // 1/0.8
 		else if (im.setup->quality_setting==LOW7) Y_inv=1.186945; 
-		else if (im.setup->quality_setting==LOW8) Y_inv=1.204795;
+		else if (im.setup->quality_setting==LOW8) Y_inv=1.196873;
 
 		for (m=0;m<4;m++)
 		{

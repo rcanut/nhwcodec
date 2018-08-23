@@ -343,6 +343,22 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 						if (abs(nhw_process[scan+3]-nhw_process[scan+2])<14) 
 						{
 							nhw_process[scan+2]=(nhw_process[scan+3]+nhw_process[scan+1])>>1;
+							
+							if (abs(nhw_process[((scan+2)<<1)+IM_DIM])<14) nhw_process[((scan+2)<<1)+IM_DIM]=0;
+							if (abs(nhw_process[((scan+2)<<1)+IM_DIM+1])<14) nhw_process[((scan+2)<<1)+IM_DIM+1]=0;
+							if (abs(nhw_process[((scan+2)<<1)+(3*IM_DIM)])<14) nhw_process[((scan+2)<<1)+(3*IM_DIM)]=0;
+							if (abs(nhw_process[((scan+2)<<1)+(3*IM_DIM)+1])<14) nhw_process[((scan+2)<<1)+(3*IM_DIM)+1]=0;
+							
+							if (abs(nhw_process[((scan+2)<<1)+(2*IM_SIZE)])<20) nhw_process[((scan+2)<<1)+(2*IM_SIZE)]=0;
+							if (abs(nhw_process[((scan+2)<<1)+(2*IM_SIZE)+1])<20) nhw_process[((scan+2)<<1)+(2*IM_SIZE)+1]=0;
+							if (abs(nhw_process[((scan+2)<<1)+(2*IM_SIZE)+(2*IM_DIM)])<20) nhw_process[((scan+2)<<1)+(2*IM_SIZE)+(2*IM_DIM)]=0;
+							if (abs(nhw_process[((scan+2)<<1)+(2*IM_SIZE)+(2*IM_DIM)+1])<20) nhw_process[((scan+2)<<1)+(2*IM_SIZE)+(2*IM_DIM)+1]=0;
+							
+							e=(2*IM_SIZE)+IM_DIM;
+							if (abs(nhw_process[((scan+2)<<1)+e])<32) nhw_process[((scan+2)<<1)+e]=0;
+							if (abs(nhw_process[((scan+2)<<1)+e+1])<32) nhw_process[((scan+2)<<1)+e+1]=0;
+							if (abs(nhw_process[((scan+2)<<1)+e+(2*IM_DIM)])<32) nhw_process[((scan+2)<<1)+e+(2*IM_DIM)]=0;
+							if (abs(nhw_process[((scan+2)<<1)+e+(2*IM_DIM)+1])<32) nhw_process[((scan+2)<<1)+e+(2*IM_DIM)+1]=0;
 						}
 					}
 				}
@@ -360,6 +376,24 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 						if (abs(nhw_process[scan+(4*IM_DIM)+1]-nhw_process[scan+(2*IM_DIM)])<6 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)+1])<11) 
 						{
 							nhw_process[scan+(2*IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(4*IM_DIM)+1]+nhw_process[scan+(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)+2]+1)>>2;
+							
+							count=scan+(2*IM_DIM)+1;
+							
+							if (abs(nhw_process[(count<<1)+IM_DIM])<14) nhw_process[(count<<1)+IM_DIM]=0;
+							if (abs(nhw_process[(count<<1)+IM_DIM+1])<14) nhw_process[(count<<1)+IM_DIM+1]=0;
+							if (abs(nhw_process[(count<<1)+(3*IM_DIM)])<14) nhw_process[(count<<1)+(3*IM_DIM)]=0;
+							if (abs(nhw_process[(count<<1)+(3*IM_DIM)+1])<14) nhw_process[(count<<1)+(3*IM_DIM)+1]=0;
+							
+							if (abs(nhw_process[(count<<1)+(2*IM_SIZE)])<20) nhw_process[(count<<1)+(2*IM_SIZE)]=0;
+							if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+1])<20) nhw_process[(count<<1)+(2*IM_SIZE)+1]=0;
+							if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)])<20) nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)]=0;
+							if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)+1])<20) nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)+1]=0;
+							
+							e=(2*IM_SIZE)+IM_DIM;
+							if (abs(nhw_process[(count<<1)+e])<32) nhw_process[(count<<1)+e]=0;
+							if (abs(nhw_process[(count<<1)+e+1])<32) nhw_process[(count<<1)+e+1]=0;
+							if (abs(nhw_process[(count<<1)+e+(2*IM_DIM)])<32) nhw_process[(count<<1)+e+(2*IM_DIM)]=0;
+							if (abs(nhw_process[(count<<1)+e+(2*IM_DIM)+1])<32) nhw_process[(count<<1)+e+(2*IM_DIM)+1]=0;
 						}
 					}
 				}
@@ -541,7 +575,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		if (im->setup->quality_setting==LOW7) {wvlt_thrx1=15;wvlt_thrx2=27;wvlt_thrx3=10;wvlt_thrx4=6;wvlt_thrx5=3;}
 		else if (im->setup->quality_setting<=LOW8)
 		{
-			wvlt_thrx1=16;wvlt_thrx2=28;wvlt_thrx3=11;wvlt_thrx4=7;wvlt_thrx5=4;
+			wvlt_thrx1=16;wvlt_thrx2=28;wvlt_thrx3=11;wvlt_thrx4=8;wvlt_thrx5=5;
 			
 			for (i=(2*IM_SIZE),count=0;i<(4*IM_SIZE);i++)
 			{
@@ -549,9 +583,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			}
 			
 			//if (count>15000) {wvlt_thrx1=20;wvlt_thrx2=32;wvlt_thrx3=13;wvlt_thrx4=8;wvlt_thrx5=5;}
-			if (count>12500) {wvlt_thrx1=19;wvlt_thrx2=31;wvlt_thrx3=13;wvlt_thrx4=8;wvlt_thrx5=5;}
-			else if (count>10000) {wvlt_thrx1=18;wvlt_thrx2=30;wvlt_thrx3=12;wvlt_thrx4=7;wvlt_thrx5=5;}
-			else if (count>=7000) {wvlt_thrx1=17;wvlt_thrx2=29;wvlt_thrx3=11;wvlt_thrx4=7;wvlt_thrx5=4;}
+			if (count>12500) {wvlt_thrx1=19;wvlt_thrx2=31;wvlt_thrx3=13;wvlt_thrx4=9;wvlt_thrx5=6;}
+			else if (count>10000) {wvlt_thrx1=18;wvlt_thrx2=30;wvlt_thrx3=12;wvlt_thrx4=8;wvlt_thrx5=6;}
+			else if (count>=7000) {wvlt_thrx1=17;wvlt_thrx2=29;wvlt_thrx3=11;wvlt_thrx4=8;wvlt_thrx5=5;}
 			
 			
 			//printf("%d\n",count);
