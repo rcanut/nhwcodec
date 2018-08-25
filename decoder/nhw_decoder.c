@@ -287,6 +287,8 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		j-=((4*IM_SIZE)-4);
 	}
 
+	if (im->setup->quality_setting>LOW8)
+	{
 	nhwres1I=(unsigned short*)calloc((os->nhw_res1_bit_len<<3),sizeof(short));stage=0;
 
 	if (os->nhw_res1[0]==127)
@@ -374,6 +376,8 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 	os->nhw_res1_bit_len=os->end_ch_res;
 	os->nhw_res2_bit_len=os->d_size_tree1;
+	
+	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -896,22 +900,25 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 		}
 		free(nhwresH2);
 	}
-
-	if (im->setup->quality_setting>=LOW2) e=5;
-	else if (im->setup->quality_setting>=LOW5) e=7;
-	else e=9;
-
-	for (i=0;i<os->nhw_res1_bit_len;i++) 
+	
+	if (im->setup->quality_setting>LOW8)
 	{
-		im_nhw2[((nhwres1[i]&65280)<<1)+(nhwres1[i]&255)]-=e;
-	}
-	free(nhwres1);
+		if (im->setup->quality_setting>=LOW2) e=5;
+		else if (im->setup->quality_setting>=LOW5) e=7;
+		else e=9;
 
-	for (i=0;i<os->nhw_res2_bit_len;i++) 
-	{
-		im_nhw2[((nhwres2[i]&65280)<<1)+(nhwres2[i]&255)]+=e;
+		for (i=0;i<os->nhw_res1_bit_len;i++) 
+		{
+			im_nhw2[((nhwres1[i]&65280)<<1)+(nhwres1[i]&255)]-=e;
+		}
+		free(nhwres1);
+
+		for (i=0;i<os->nhw_res2_bit_len;i++) 
+		{
+			im_nhw2[((nhwres2[i]&65280)<<1)+(nhwres2[i]&255)]+=e;
+		}
+		free(nhwres2);
 	}
-	free(nhwres2);
 
 
 	if (im->setup->quality_setting>=LOW1)
@@ -1670,7 +1677,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(&os->d_size_data2,4,1,compressed_file);
 	fread(&os->tree_end,2,1,compressed_file);
 	fread(&os->exw_Y_end,2,1,compressed_file);
-	fread(&os->nhw_res1_len,2,1,compressed_file);
+	if (imd->setup->quality_setting>LOW8) fread(&os->nhw_res1_len,2,1,compressed_file);
 
 	if (imd->setup->quality_setting>=LOW1)
 	{
@@ -1683,7 +1690,7 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 		fread(&os->nhw_res4_len,2,1,compressed_file);
 	}
 
-	fread(&os->nhw_res1_bit_len,2,1,compressed_file);
+	if (imd->setup->quality_setting>LOW8) fread(&os->nhw_res1_bit_len,2,1,compressed_file);
 
 	if (imd->setup->quality_setting>=HIGH1)
 	{
@@ -1727,9 +1734,13 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	os->d_tree1=(unsigned char*)calloc(os->d_size_tree1,sizeof(char));
 	os->d_tree2=(unsigned char*)calloc(os->d_size_tree2,sizeof(char));
 	os->exw_Y=(unsigned char*)malloc(os->exw_Y_end*sizeof(char));
-	os->nhw_res1=(unsigned char*)malloc(os->nhw_res1_len*sizeof(char));
-	os->nhw_res1_bit=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
-	os->nhw_res1_word=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
+	
+	if (imd->setup->quality_setting>LOW8)
+	{
+		os->nhw_res1=(unsigned char*)malloc(os->nhw_res1_len*sizeof(char));
+		os->nhw_res1_bit=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
+		os->nhw_res1_word=(unsigned char*)malloc(os->nhw_res1_bit_len*sizeof(char));
+	}
 
 	if (imd->setup->quality_setting>=LOW1)
 	{
@@ -1762,9 +1773,13 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 	fread(os->d_tree1,os->d_size_tree1,1,compressed_file);
 	fread(os->d_tree2,os->d_size_tree2,1,compressed_file);
 	fread(os->exw_Y,os->exw_Y_end,1,compressed_file);
-	fread(os->nhw_res1,os->nhw_res1_len,1,compressed_file);
-	fread(os->nhw_res1_bit,os->nhw_res1_bit_len,1,compressed_file);
-	fread(os->nhw_res1_word,os->nhw_res1_bit_len,1,compressed_file);
+	
+	if (imd->setup->quality_setting>LOW8)
+	{
+		fread(os->nhw_res1,os->nhw_res1_len,1,compressed_file);
+		fread(os->nhw_res1_bit,os->nhw_res1_bit_len,1,compressed_file);
+		fread(os->nhw_res1_word,os->nhw_res1_bit_len,1,compressed_file);
+	}
 
 	if (imd->setup->quality_setting>LOW3)
 	{
