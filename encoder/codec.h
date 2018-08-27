@@ -142,7 +142,7 @@ typedef struct{
 	unsigned char *nhw_res5_word;
 	unsigned char *nhw_res6_word;
 	unsigned short *nhw_char_res1;
-	unsigned short *nhw_char_res1_len;
+	unsigned short nhw_char_res1_len;
 	unsigned short nhw_select1;
 	unsigned short nhw_select2;
 	unsigned char *nhw_select_word1;
