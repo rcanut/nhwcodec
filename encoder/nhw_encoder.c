@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 09062018 nhw exp $							           *
+*  last update: $ 09252018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -336,8 +336,8 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i,j=0;j<(IM_DIM>>1)-4;j++,scan++)
 			{
-				if (abs(nhw_process[scan+4]-nhw_process[scan])<9 && abs(nhw_process[scan+4]-nhw_process[scan+3])<8 && abs(nhw_process[scan+1]-nhw_process[scan])<8 && 
-					abs(nhw_process[scan+3]-nhw_process[scan+1])<9 && abs(nhw_process[scan+3]-nhw_process[scan+2])<14)
+				if (abs(nhw_process[scan+4]-nhw_process[scan])<8 && abs(nhw_process[scan+4]-nhw_process[scan+3])<8 && abs(nhw_process[scan+1]-nhw_process[scan])<8 && 
+					abs(nhw_process[scan+3]-nhw_process[scan+1])<8 && abs(nhw_process[scan+3]-nhw_process[scan+2])<13)
 				{
 							nhw_process[scan+2]=(nhw_process[scan+3]+nhw_process[scan+1])>>1;
 							
@@ -362,7 +362,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				}
 				else if (abs(nhw_process[scan+4]-nhw_process[scan])<14 && abs(nhw_process[scan+4]-nhw_process[scan+3])<14 && abs(nhw_process[scan+1]-nhw_process[scan])<14)
 				{
-					if (abs(nhw_process[scan+3]-nhw_process[scan+1])<20 && abs(nhw_process[scan+3]-nhw_process[scan+2])<20)
+					if (abs(nhw_process[scan+3]-nhw_process[scan+1])<19 && abs(nhw_process[scan+3]-nhw_process[scan+2])<19)
 					{
 						if (((nhw_process[scan+3]-nhw_process[scan+2])>=0 && (nhw_process[scan+2]-nhw_process[scan+1])>=0) ||
 							((nhw_process[scan+3]-nhw_process[scan+2])<=0 && (nhw_process[scan+2]-nhw_process[scan+1])<=0)) 
@@ -388,6 +388,38 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 								if (abs(nhw_process[((scan+count)<<1)+e+(2*IM_DIM)+1])<34) nhw_process[((scan+count)<<1)+e+(2*IM_DIM)+1]=0;
 							}
 						}
+					}
+				}
+			}
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE)-(4*IM_DIM);i+=(2*IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>1)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+1]-nhw_process[scan+(4*IM_DIM)+1])<6 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)+2])<6)
+				{
+					if (abs(nhw_process[scan+(2*IM_DIM)+1]-nhw_process[scan+(2*IM_DIM)])<10 && abs(nhw_process[scan+1]-nhw_process[scan+(2*IM_DIM)+1])<11)
+					{
+						nhw_process[scan+(2*IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(4*IM_DIM)+1]+nhw_process[scan+(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)+2]+2)>>2;
+							
+						count=scan+(2*IM_DIM)+1;
+							
+						if (abs(nhw_process[(count<<1)+IM_DIM])<14) nhw_process[(count<<1)+IM_DIM]=0;
+						if (abs(nhw_process[(count<<1)+IM_DIM+1])<14) nhw_process[(count<<1)+IM_DIM+1]=0;
+						if (abs(nhw_process[(count<<1)+(3*IM_DIM)])<14) nhw_process[(count<<1)+(3*IM_DIM)]=0;
+						if (abs(nhw_process[(count<<1)+(3*IM_DIM)+1])<14) nhw_process[(count<<1)+(3*IM_DIM)+1]=0;
+							
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)])<20) nhw_process[(count<<1)+(2*IM_SIZE)]=0;
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+1])<20) nhw_process[(count<<1)+(2*IM_SIZE)+1]=0;
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)])<20) nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)]=0;
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)+1])<20) nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)+1]=0;
+							
+						e=(2*IM_SIZE)+IM_DIM;
+						if (abs(nhw_process[(count<<1)+e])<32) nhw_process[(count<<1)+e]=0;
+						if (abs(nhw_process[(count<<1)+e+1])<32) nhw_process[(count<<1)+e+1]=0;
+						if (abs(nhw_process[(count<<1)+e+(2*IM_DIM)])<32) nhw_process[(count<<1)+e+(2*IM_DIM)]=0;
+						if (abs(nhw_process[(count<<1)+e+(2*IM_DIM)+1])<32) nhw_process[(count<<1)+e+(2*IM_DIM)+1]=0;
 					}
 				}
 			}
