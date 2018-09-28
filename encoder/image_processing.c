@@ -426,6 +426,7 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW6) sharpness=72;
 	else if (im->setup->quality_setting==LOW7) sharpness=67;
 	else if (im->setup->quality_setting==LOW8) sharpness=64;
+	else if (im->setup->quality_setting==LOW9) sharpness=58;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
