@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 09282018 nhw exp $							           *
+*  last update: $ 09292018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -87,7 +87,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
 		else if (strcmp(arg,"-l7")==0) im.setup->quality_setting=LOW7; 
 		else if (strcmp(arg,"-l8")==0) im.setup->quality_setting=LOW8; 
-		//else if (strcmp(arg,"-l9")==0) im.setup->quality_setting=LOW9;
+		else if (strcmp(arg,"-l9")==0) im.setup->quality_setting=LOW9;
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -285,10 +285,19 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<9) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<10) 
 				{	
-					nhw_process[scan]=0;
-					//if (nhw_process[scan]>0) nhw_process[scan]=7;else nhw_process[scan]=-7;
+					if (abs(nhw_process[scan-1])<ratio && abs(nhw_process[scan+1])<ratio) 
+					{
+						nhw_process[scan]=0;
+					}
+					else if (abs(nhw_process[scan])==ratio)
+					{
+						if (abs(nhw_process[scan-1])<ratio || abs(nhw_process[scan+1])<ratio) 
+						{
+							nhw_process[scan]=0;
+						}
+					}
 				}
 			}
 		}
@@ -307,10 +316,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		}
 		else if (im->setup->quality_setting==LOW9)
 		{
-			wvlt_thrx1=12;
-			wvlt_thrx2=15;
-			wvlt_thrx3=11;
-			wvlt_thrx4=14;
+			wvlt_thrx1=9;
+			wvlt_thrx2=14;
+			wvlt_thrx3=8;
+			wvlt_thrx4=13;
 			wvlt_thrx5=34;
 			wvlt_thrx6=16;
 		}
@@ -479,6 +488,43 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 								if (abs(nhw_process[count+e-1+IM_SIZE+(IM_DIM>>1)])<13) nhw_process[count+e-1+IM_SIZE+(IM_DIM>>1)]=0;
 							}
 						}
+					}
+				}
+			}
+		}
+		
+		if (im->setup->quality_setting<=LOW9)
+		{
+			for (i=0,scan=0;i<(IM_SIZE);i+=(2*IM_DIM))
+			{
+				for (scan=i,j=0;j<(IM_DIM>>1)-2;j++,scan++)
+				{
+					if (abs(nhw_process[scan+2]-nhw_process[scan+1])<15 && abs(nhw_process[scan+2]-nhw_process[scan])<15 && abs(nhw_process[scan+1]-nhw_process[scan])<15)
+					{
+						count=scan+1;
+							
+						if (abs(nhw_process[(count<<1)+IM_DIM])<wvlt_thrx6) nhw_process[(count<<1)+IM_DIM]=0;
+						if (abs(nhw_process[(count<<1)+IM_DIM+1])<wvlt_thrx6) nhw_process[(count<<1)+IM_DIM+1]=0;
+						if (abs(nhw_process[(count<<1)+(3*IM_DIM)])<wvlt_thrx6) nhw_process[(count<<1)+(3*IM_DIM)]=0;
+						if (abs(nhw_process[(count<<1)+(3*IM_DIM)+1])<wvlt_thrx6) nhw_process[(count<<1)+(3*IM_DIM)+1]=0;
+							
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)])<(wvlt_thrx6+6)) nhw_process[(count<<1)+(2*IM_SIZE)]=0;
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+1])<(wvlt_thrx6+6)) nhw_process[(count<<1)+(2*IM_SIZE)+1]=0;
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)])<(wvlt_thrx6+6)) nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)]=0;
+						if (abs(nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)+1])<(wvlt_thrx6+6)) nhw_process[(count<<1)+(2*IM_SIZE)+(2*IM_DIM)+1]=0;
+							
+						e=(2*IM_SIZE)+IM_DIM;
+						if (abs(nhw_process[(count<<1)+e])<34) nhw_process[(count<<1)+e]=0;
+						if (abs(nhw_process[(count<<1)+e+1])<34) nhw_process[(count<<1)+e+1]=0;
+						if (abs(nhw_process[(count<<1)+e+(2*IM_DIM)])<34) nhw_process[(count<<1)+e+(2*IM_DIM)]=0;
+						if (abs(nhw_process[(count<<1)+e+(2*IM_DIM)+1])<34) nhw_process[(count<<1)+e+(2*IM_DIM)+1]=0;
+						
+						//for (e=0;e<3;e++)
+						//{
+								if (abs(nhw_process[count+(IM_DIM>>1)])<11) nhw_process[count+(IM_DIM>>1)]=0;
+								if (abs(nhw_process[count+IM_SIZE])<12) nhw_process[count+IM_SIZE]=0;
+								if (abs(nhw_process[count+IM_SIZE+(IM_DIM>>1)])<13) nhw_process[count+IM_SIZE+(IM_DIM>>1)]=0;
+						//}
 					}
 				}
 			}
@@ -713,10 +759,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				{
 					wvlt_thrx1++;wvlt_thrx2++;wvlt_thrx3++;wvlt_thrx4++;wvlt_thrx5++;
 				}
-				/*else
-				{
-					wvlt_thrx1+=2;wvlt_thrx2+=2;wvlt_thrx3+=2;wvlt_thrx4+=2;wvlt_thrx5+=2;
-				}*/
+				else wvlt_thrx1++;
 			}
 		}
 		
