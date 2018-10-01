@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2017 NHW Project
+/* Copyright (C) 2007-2018 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -316,12 +316,12 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		}
 		else if (im->setup->quality_setting==LOW9)
 		{
-			wvlt_thrx1=9;
-			wvlt_thrx2=14;
-			wvlt_thrx3=8;
-			wvlt_thrx4=13;
+			wvlt_thrx1=8;
+			wvlt_thrx2=13;
+			wvlt_thrx3=6;
+			wvlt_thrx4=11;
 			wvlt_thrx5=34;
-			wvlt_thrx6=16;
+			wvlt_thrx6=15;
 		}
 			
 		for (i=0,scan=0;i<(IM_SIZE);i+=(2*IM_DIM))
@@ -2326,6 +2326,48 @@ L_W5:			res256[count]=14000;
 	}
 
 	free(resIII);
+	
+	if (im->setup->quality_setting<=LOW9)
+	{
+		if (im->setup->quality_setting==LOW9)
+		{
+			wvlt_thrx1=2;
+			wvlt_thrx2=3;
+			wvlt_thrx3=5;
+			wvlt_thrx4=8;
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+1]-nhw_process[scan+(2*IM_DIM)+1])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
+				{
+					if (abs(nhw_process[scan+(IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<(wvlt_thrx4-1) && abs(nhw_process[scan+1]-nhw_process[scan+(IM_DIM)+1])<wvlt_thrx4)
+					{
+						nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+2)>>2;
+					}
+				}
+			}
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+2]-nhw_process[scan+1])<wvlt_thrx3 && abs(nhw_process[scan+1]-nhw_process[scan])<wvlt_thrx3)
+				{
+					if (abs(nhw_process[scan]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+2]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
+					{
+						if (abs(nhw_process[scan+(2*IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+1])<wvlt_thrx4) 
+						{
+							nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+1)>>2;
+						}
+					}
+				}
+			}
+		}
+	}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2585,6 +2627,90 @@ L_W5:			res256[count]=14000;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 	free(im->im_jpeg);
+	
+	if (im->setup->quality_setting<=LOW9)
+	{
+		if (im->setup->quality_setting==LOW9)
+		{
+			wvlt_thrx1=2;
+			wvlt_thrx2=3;
+			wvlt_thrx3=5;
+			wvlt_thrx4=8;
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+1]-nhw_process[scan+(2*IM_DIM)+1])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
+				{
+					if (abs(nhw_process[scan+(IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<(wvlt_thrx4-1) && abs(nhw_process[scan+1]-nhw_process[scan+(IM_DIM)+1])<wvlt_thrx4)
+					{
+						nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+2)>>2;
+					}
+				}
+			}
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+2]-nhw_process[scan+1])<wvlt_thrx3 && abs(nhw_process[scan+1]-nhw_process[scan])<wvlt_thrx3)
+				{
+					if (abs(nhw_process[scan]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+2]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
+					{
+						if (abs(nhw_process[scan+(2*IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+1])<wvlt_thrx4) 
+						{
+							nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+1)>>2;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/*if (im->setup->quality_setting<=LOW9)
+	{
+		if (im->setup->quality_setting==LOW9)
+		{
+			wvlt_thrx1=2;
+			wvlt_thrx2=3;
+			wvlt_thrx3=3;
+			wvlt_thrx4=5;
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+1]-nhw_process[scan+(2*IM_DIM)+1])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
+				{
+					if (abs(nhw_process[scan+(IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<(wvlt_thrx4-1) && abs(nhw_process[scan+1]-nhw_process[scan+(IM_DIM)+1])<wvlt_thrx4)
+					{
+						nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+2)>>2;
+					}
+				}
+			}
+		}
+		
+		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
+		{
+			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
+			{
+				if (abs(nhw_process[scan+2]-nhw_process[scan+1])<wvlt_thrx3 && abs(nhw_process[scan+1]-nhw_process[scan])<wvlt_thrx3)
+				{
+					if (abs(nhw_process[scan]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+2]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
+					{
+						if (abs(nhw_process[scan+(2*IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+1])>wvlt_thrx4) 
+						{
+							nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+1)>>2;
+						}
+					}
+				}
+			}
+		}
+	}*/
 
 	enc->exw_Y[enc->exw_Y_end++]=0;enc->exw_Y[enc->exw_Y_end++]=0;
 
