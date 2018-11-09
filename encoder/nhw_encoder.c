@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 09292018 nhw exp $							           *
+*  last update: $ 11082018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -88,6 +88,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l7")==0) im.setup->quality_setting=LOW7; 
 		else if (strcmp(arg,"-l8")==0) im.setup->quality_setting=LOW8; 
 		else if (strcmp(arg,"-l9")==0) im.setup->quality_setting=LOW9;
+		else if (strcmp(arg,"-l10")==0) im.setup->quality_setting=LOW10;
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -106,7 +107,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 {
 	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet,y_wavelet2;
 	unsigned char *highres,*ch_comp,*scan_run,*nhw_res1I_word,*nhw_res3I_word,*nhw_res5I_word;
-	unsigned char wvlt_thrx1,wvlt_thrx2,wvlt_thrx3,wvlt_thrx4,wvlt_thrx5,wvlt_thrx6;
+	unsigned char wvlt_thrx1,wvlt_thrx2,wvlt_thrx3,wvlt_thrx4,wvlt_thrx5,wvlt_thrx6,wvlt_thrx7;
 	short *res256,*resIII,*nhw_process,*nhw_process2;
 
 	im->im_process=(short*)malloc(4*IM_SIZE*sizeof(short));
@@ -281,11 +282,14 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	
 	if (im->setup->quality_setting<=LOW9)
 	{
+		if (im->setup->quality_setting==LOW9) wvlt_thrx1=10;
+		else wvlt_thrx1=10;
+			
 		for (i=IM_SIZE;i<(2*IM_SIZE);i+=(2*IM_DIM))
 		{
 			for (scan=i,j=0;j<(IM_DIM);j++,scan++)
 			{
-				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<10) 
+				if (abs(nhw_process[scan])>=ratio &&  abs(nhw_process[scan])<wvlt_thrx1) 
 				{	
 					if (abs(nhw_process[scan-1])<ratio && abs(nhw_process[scan+1])<ratio) 
 					{
@@ -314,7 +318,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx5=34;
 			wvlt_thrx6=14;
 		}
-		else if (im->setup->quality_setting==LOW9)
+		else if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
 		{
 			wvlt_thrx1=8;
 			wvlt_thrx2=13;
@@ -322,7 +326,18 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx4=11;
 			wvlt_thrx5=34;
 			wvlt_thrx6=15;
+			wvlt_thrx7=15;
 		}
+		/*else if (im->setup->quality_setting==LOW10)
+		{
+			wvlt_thrx1=10;
+			wvlt_thrx2=15;
+			wvlt_thrx3=8;
+			wvlt_thrx4=13;
+			wvlt_thrx5=35;
+			wvlt_thrx6=16;
+			wvlt_thrx7=16;
+		}*/
 			
 		for (i=0,scan=0;i<(IM_SIZE);i+=(2*IM_DIM))
 		{
@@ -499,7 +514,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			{
 				for (scan=i,j=0;j<(IM_DIM>>1)-2;j++,scan++)
 				{
-					if (abs(nhw_process[scan+2]-nhw_process[scan+1])<15 && abs(nhw_process[scan+2]-nhw_process[scan])<15 && abs(nhw_process[scan+1]-nhw_process[scan])<15)
+					if (abs(nhw_process[scan+2]-nhw_process[scan+1])<wvlt_thrx7 && abs(nhw_process[scan+2]-nhw_process[scan])<wvlt_thrx7  && abs(nhw_process[scan+1]-nhw_process[scan])<wvlt_thrx7)
 					{
 						count=scan+1;
 							
@@ -753,13 +768,24 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			else if (count>10000) {wvlt_thrx1=18;wvlt_thrx2=30;wvlt_thrx3=12;wvlt_thrx4=8;wvlt_thrx5=6;}
 			else if (count>=7000) {wvlt_thrx1=17;wvlt_thrx2=29;wvlt_thrx3=11;wvlt_thrx4=8;wvlt_thrx5=5;}
 			
-			if (im->setup->quality_setting<=LOW9) 
+			if (im->setup->quality_setting==LOW9) 
 			{
 				if (count>12500) 
 				{
 					wvlt_thrx1++;wvlt_thrx2++;wvlt_thrx3++;wvlt_thrx4++;wvlt_thrx5++;
 				}
 				else wvlt_thrx1++;
+			}
+			else if (im->setup->quality_setting==LOW10) 
+			{
+				if (count>12500) 
+				{
+					wvlt_thrx1+=3;wvlt_thrx2+=3;wvlt_thrx3+=2;wvlt_thrx4+=3;wvlt_thrx5+=3;
+				}
+				else 
+				{
+					wvlt_thrx1+=3;wvlt_thrx2+=2;wvlt_thrx3+=2;wvlt_thrx4+=2;wvlt_thrx5+=2;
+				}
 			}
 		}
 		
@@ -839,15 +865,21 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				{	
 					if (abs(nhw_process[scan-1])<ratio && abs(nhw_process[scan+1])<ratio) 
 					{
-						if (nhw_process[scan]>=16) nhw_process[scan]=7;
-						else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;	
-						else 	nhw_process[scan]=0;
+						if (im->setup->quality_setting>LOW10)
+						{
+							if (nhw_process[scan]>=16) nhw_process[scan]=7;
+							else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;	
+							else 	nhw_process[scan]=0;
+						}
 					}
 					else if (abs(nhw_process[scan])<(wvlt_thrx2-5))
 					{
-						if (nhw_process[scan]>=16) nhw_process[scan]=7;
-						else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;	
-						else 	nhw_process[scan]=0;
+						if (im->setup->quality_setting>LOW10)
+						{
+							if (nhw_process[scan]>=16) nhw_process[scan]=7;
+							else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;	
+							else 	nhw_process[scan]=0;
+						}
 					}
 				}
 			}
@@ -2329,7 +2361,7 @@ L_W5:			res256[count]=14000;
 	
 	if (im->setup->quality_setting<=LOW9)
 	{
-		if (im->setup->quality_setting==LOW9)
+		if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
 		{
 			wvlt_thrx1=2;
 			wvlt_thrx2=3;
@@ -2630,7 +2662,7 @@ L_W5:			res256[count]=14000;
 	
 	if (im->setup->quality_setting<=LOW9)
 	{
-		if (im->setup->quality_setting==LOW9)
+		if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
 		{
 			wvlt_thrx1=2;
 			wvlt_thrx2=3;
@@ -2669,48 +2701,6 @@ L_W5:			res256[count]=14000;
 			}
 		}
 	}
-	
-	/*if (im->setup->quality_setting<=LOW9)
-	{
-		if (im->setup->quality_setting==LOW9)
-		{
-			wvlt_thrx1=2;
-			wvlt_thrx2=3;
-			wvlt_thrx3=3;
-			wvlt_thrx4=5;
-		}
-		
-		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
-		{
-			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
-			{
-				if (abs(nhw_process[scan+1]-nhw_process[scan+(2*IM_DIM)+1])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
-				{
-					if (abs(nhw_process[scan+(IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<(wvlt_thrx4-1) && abs(nhw_process[scan+1]-nhw_process[scan+(IM_DIM)+1])<wvlt_thrx4)
-					{
-						nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+2)>>2;
-					}
-				}
-			}
-		}
-		
-		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
-		{
-			for (scan=i,j=0;j<(IM_DIM>>2)-2;j++,scan++)
-			{
-				if (abs(nhw_process[scan+2]-nhw_process[scan+1])<wvlt_thrx3 && abs(nhw_process[scan+1]-nhw_process[scan])<wvlt_thrx3)
-				{
-					if (abs(nhw_process[scan]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+2]-nhw_process[scan+(IM_DIM)+2])<wvlt_thrx3)
-					{
-						if (abs(nhw_process[scan+(2*IM_DIM)+1]-nhw_process[scan+(IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+(IM_DIM)]-nhw_process[scan+(IM_DIM)+1])>wvlt_thrx4) 
-						{
-							nhw_process[scan+(IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(2*IM_DIM)+1]+nhw_process[scan+(IM_DIM)]+nhw_process[scan+(IM_DIM)+2]+1)>>2;
-						}
-					}
-				}
-			}
-		}
-	}*/
 
 	enc->exw_Y[enc->exw_Y_end++]=0;enc->exw_Y[enc->exw_Y_end++]=0;
 
@@ -2816,7 +2806,6 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	int i;
 	FILE *im256;
 	unsigned char *im4;
-	float q_setting;
  
 	// INITS & MEMORY ALLOCATION FOR ENCODING
 	//im->setup=(codec_setup*)malloc(sizeof(codec_setup));
@@ -2925,19 +2914,10 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 		fwrite(enc->nhw_res1_word,enc->nhw_res1_word_len,1,compressed);
 	}
 	
-	
-	
-	/*printf("%d %d %d %d\n%d %d %d %d\n%d %d %d %d\n %d %d %d %d\n",enc->size_tree1,enc->size_tree2,enc->size_data1,enc->size_data2,enc->tree_end,enc->exw_Y_end,
-	enc->nhw_res1_len,enc->nhw_res3_len,enc->nhw_res3_bit_len,enc->nhw_res4_len,enc->nhw_res1_bit_len,enc->nhw_select1,enc->nhw_select2,enc->highres_comp_len,
-	enc->end_ch_res);*/
-	
 	if (im->setup->quality_setting>LOW3)
 	{
 		fwrite(enc->nhw_res4,enc->nhw_res4_len,1,compressed);
 	}
-
-	//i=enc->nhw_res1_len+enc->nhw_res1_bit_len+enc->nhw_res1_word_len+
-	//  enc->nhw_res3_len+enc->nhw_res3_bit_len+enc->nhw_res3_word_len;
 	
 	if (im->setup->quality_setting>=LOW1)
 	{

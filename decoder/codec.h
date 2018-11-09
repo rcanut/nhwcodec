@@ -62,20 +62,23 @@
 // IMAGE DIMENSION 
 #define IM_DIM 256	
 
-// QUALITY SETTING
-#define HIGH3 12
-#define HIGH2 11
-#define HIGH1 10
-#define NORM 9
-#define LOW1 8
-#define LOW2 7
-#define LOW3 6
-#define LOW4 5
-#define LOW5 4
-#define LOW6 3
-#define LOW7 2
-#define LOW8 1
-#define LOW9 0
+//QUALITY SETTINGS
+#define HIGH3 15
+#define HIGH2 14
+#define HIGH1 13
+#define NORM 12
+#define LOW1 11
+#define LOW2 10
+#define LOW3 9
+#define LOW4 8
+#define LOW5 7
+#define LOW6 6
+#define LOW7 5
+#define LOW8 4
+#define LOW9 3
+#define LOW10 2
+#define LOW11 1
+#define LOW12 0
 
 /*==========================================*/
 

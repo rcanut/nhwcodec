@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.4 						     		     				   *
-*  last update: $ 05302018 nhw exp $							           *
+*  last update: $ 11082018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2017 NHW Project
+/* Copyright (C) 2007-2018 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -211,7 +211,8 @@ void main(int argc, char **argv)
 		else if (im.setup->quality_setting==LOW6) Y_inv=1.138331; // 1/0.8
 		else if (im.setup->quality_setting==LOW7) Y_inv=1.186945; 
 		else if (im.setup->quality_setting==LOW8) Y_inv=1.186945;
-		else if (im.setup->quality_setting==LOW9) Y_inv=1.200205; 		
+		else if (im.setup->quality_setting==LOW9) Y_inv=1.200205; 
+		else if (im.setup->quality_setting==LOW10) Y_inv=1.32396; 
 
 		for (m=0;m<4;m++)
 		{
