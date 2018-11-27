@@ -213,6 +213,7 @@ void main(int argc, char **argv)
 		else if (im.setup->quality_setting==LOW8) Y_inv=1.186945;
 		else if (im.setup->quality_setting==LOW9) Y_inv=1.200205; 
 		else if (im.setup->quality_setting==LOW10) Y_inv=1.32396; 
+		else if (im.setup->quality_setting==LOW11) Y_inv=1.440352;
 
 		for (m=0;m<4;m++)
 		{

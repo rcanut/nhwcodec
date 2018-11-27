@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.5 						     		     				   *
-*  last update: $ 11232018 nhw exp $							           *
+*  last update: $ 11272018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -89,6 +89,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l8")==0) im.setup->quality_setting=LOW8; 
 		else if (strcmp(arg,"-l9")==0) im.setup->quality_setting=LOW9;
 		else if (strcmp(arg,"-l10")==0) im.setup->quality_setting=LOW10;
+		else if (strcmp(arg,"-l11")==0) im.setup->quality_setting=LOW11;
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -282,8 +283,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	
 	if (im->setup->quality_setting<=LOW9)
 	{
-		if (im->setup->quality_setting==LOW9) wvlt_thrx1=10;
-		else wvlt_thrx1=10;
+		wvlt_thrx1=10;
 			
 		for (i=IM_SIZE;i<(2*IM_SIZE);i+=(2*IM_DIM))
 		{
@@ -318,7 +318,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx5=34;
 			wvlt_thrx6=14;
 		}
-		else if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
+		else if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10 || im->setup->quality_setting==LOW11)
 		{
 			wvlt_thrx1=8;
 			wvlt_thrx2=13;
@@ -799,7 +799,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				}
 				else wvlt_thrx1++;
 			}
-			else if (im->setup->quality_setting==LOW10) 
+			else if (im->setup->quality_setting<=LOW10) 
 			{
 				if (count>12500) 
 				{
@@ -2384,13 +2384,13 @@ L_W5:			res256[count]=14000;
 	
 	if (im->setup->quality_setting<=LOW9)
 	{
-		if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
-		{
+		//if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
+		//{
 			wvlt_thrx1=2;
 			wvlt_thrx2=3;
 			wvlt_thrx3=5;
 			wvlt_thrx4=8;
-		}
+		//}
 		
 		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
 		{
@@ -2685,13 +2685,13 @@ L_W5:			res256[count]=14000;
 	
 	if (im->setup->quality_setting<=LOW9)
 	{
-		if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
-		{
+		//if (im->setup->quality_setting==LOW9 || im->setup->quality_setting==LOW10)
+		//{
 			wvlt_thrx1=2;
 			wvlt_thrx2=3;
 			wvlt_thrx3=5;
 			wvlt_thrx4=8;
-		}
+		//}
 		
 		for (i=0,scan=0;i<(IM_SIZE>>2)-(2*IM_DIM);i+=(IM_DIM))
 		{

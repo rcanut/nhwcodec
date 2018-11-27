@@ -411,7 +411,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,count,e=0,a=0,sharpness;
+	int i,j,scan,res,count,e=0,a=0,sharpness,n1;
 	short *nhw_process;
 	char lower_quality_setting_on;
 
@@ -420,6 +420,8 @@ void pre_processing(image_buffer *im)
 
 	if (im->setup->quality_setting<=LOW6) lower_quality_setting_on=1;
 	else lower_quality_setting_on=0;
+	
+	if (im->setup->quality_setting>LOW11) n1=36;else n1=30;
 
 	if (im->setup->quality_setting==LOW4) sharpness=82;
 	else if (im->setup->quality_setting==LOW5) sharpness=77;
@@ -428,6 +430,7 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW8) sharpness=64;
 	else if (im->setup->quality_setting==LOW9) sharpness=58;
 	else if (im->setup->quality_setting==LOW10) sharpness=46;
+	else if (im->setup->quality_setting==LOW11) sharpness=30;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -451,7 +454,7 @@ void pre_processing(image_buffer *im)
 
 			if (lower_quality_setting_on)
 			{
-				if (abs(res)>4 && abs(res)<36)
+				if (abs(res)>4 && abs(res)<n1)
 				{
 					scan--;
 					
@@ -466,7 +469,7 @@ void pre_processing(image_buffer *im)
 					scan++;
 				}
 				
-				if (abs(count)>4 && abs(count)<36)
+				if (abs(count)>4 && abs(count)<n1)
 				{
 					if (abs(nhw_process[scan-(2*IM_DIM)]-nhw_process[scan-1])<4 && abs(nhw_process[scan-1]-nhw_process[scan+(2*IM_DIM)])<4 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+1])<4 && abs(nhw_process[scan+1]-nhw_process[scan-(2*IM_DIM)])<4)
 					{
@@ -520,7 +523,7 @@ void pre_processing(image_buffer *im)
 
 			}
 
-			if (im->setup->quality_setting>LOW6 || im->setup->quality_setting==LOW10) 
+			if (im->setup->quality_setting>LOW6 || im->setup->quality_setting<=LOW10) 
 			{
 				if (res<32 && res>10) 
 				{
