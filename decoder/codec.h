@@ -63,22 +63,25 @@
 #define IM_DIM 256	
 
 //QUALITY SETTINGS
-#define HIGH3 15
-#define HIGH2 14
-#define HIGH1 13
-#define NORM 12
-#define LOW1 11
-#define LOW2 10
-#define LOW3 9
-#define LOW4 8
-#define LOW5 7
-#define LOW6 6
-#define LOW7 5
-#define LOW8 4
-#define LOW9 3
-#define LOW10 2
-#define LOW11 1
-#define LOW12 0
+#define HIGH3 18
+#define HIGH2 17
+#define HIGH1 16
+#define NORM 15
+#define LOW1 14
+#define LOW2 13
+#define LOW3 12
+#define LOW4 11
+#define LOW5 10
+#define LOW6 9
+#define LOW7 8
+#define LOW8 7
+#define LOW9 6
+#define LOW10 5
+#define LOW11 4
+#define LOW12 3
+#define LOW13 2
+#define LOW14 1
+#define LOW15 0
 
 /*==========================================*/
 

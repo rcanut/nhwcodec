@@ -430,10 +430,12 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW10) sharpness=46;
 	else if (im->setup->quality_setting==LOW11) sharpness=30;
 	else if (im->setup->quality_setting==LOW12) sharpness=7;
+	else if (im->setup->quality_setting<LOW12) sharpness=0;
 	
 	if (im->setup->quality_setting>LOW11) n1=36;
 	else if (im->setup->quality_setting==LOW11) n1=30;
 	else if (im->setup->quality_setting==LOW12) n1=16;
+	else if (im->setup->quality_setting==LOW13) n1=12;
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{

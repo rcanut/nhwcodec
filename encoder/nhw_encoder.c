@@ -91,6 +91,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l10")==0) im.setup->quality_setting=LOW10;
 		else if (strcmp(arg,"-l11")==0) im.setup->quality_setting=LOW11;
 		else if (strcmp(arg,"-l12")==0) im.setup->quality_setting=LOW12;
+		else if (strcmp(arg,"-l13")==0) im.setup->quality_setting=LOW13;
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -319,7 +320,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx5=34;
 			wvlt_thrx6=14;
 		}
-		else if (im->setup->quality_setting<=LOW9)
+		else if (im->setup->quality_setting<=LOW9 && im->setup->quality_setting>=LOW12)
 		{
 			wvlt_thrx1=8;
 			wvlt_thrx2=13;
@@ -329,16 +330,16 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx6=15;
 			wvlt_thrx7=15;
 		}
-		/*else if (im->setup->quality_setting==LOW10)
+		else if (im->setup->quality_setting==LOW13)
 		{
-			wvlt_thrx1=10;
-			wvlt_thrx2=15;
-			wvlt_thrx3=8;
-			wvlt_thrx4=13;
-			wvlt_thrx5=35;
-			wvlt_thrx6=16;
-			wvlt_thrx7=16;
-		}*/
+			wvlt_thrx1=11;
+			wvlt_thrx2=16;
+			wvlt_thrx3=9;
+			wvlt_thrx4=14;
+			wvlt_thrx5=36;
+			wvlt_thrx6=17;
+			wvlt_thrx7=17;
+		}
 			
 		for (i=0,scan=0;i<(IM_SIZE);i+=(2*IM_DIM))
 		{
