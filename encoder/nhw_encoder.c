@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.5 						     		     				   *
-*  last update: $ 12042018 nhw exp $							           *
+*  last update: $ 12102018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -410,7 +410,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 						if (((nhw_process[scan+3]-nhw_process[scan+2])>=0 && (nhw_process[scan+2]-nhw_process[scan+1])>=0) ||
 							((nhw_process[scan+3]-nhw_process[scan+2])<=0 && (nhw_process[scan+2]-nhw_process[scan+1])<=0)) 
 						{
-							nhw_process[scan+2]=(nhw_process[scan+3]+nhw_process[scan+1]+1)>>1;
+							//nhw_process[scan+2]=(nhw_process[scan+3]+nhw_process[scan+1]+1)>>1;
 							
 							for (count=1;count<4;count++)
 							{
