@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.5 						     		     				   *
-*  last update: $ 12102018 nhw exp $							           *
+*  last update: $ 12122018 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -92,6 +92,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l11")==0) im.setup->quality_setting=LOW11;
 		else if (strcmp(arg,"-l12")==0) im.setup->quality_setting=LOW12;
 		else if (strcmp(arg,"-l13")==0) im.setup->quality_setting=LOW13;
+		else if (strcmp(arg,"-l14")==0) im.setup->quality_setting=LOW14;
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -143,7 +144,10 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	im->setup->RES_HIGH=0;
 
 	wavelet_analysis(im,(2*IM_DIM)>>1,end_transform,1);
-
+	
+	if (im->setup->quality_setting>LOW14) 
+	{
+		
 	for (i=0,count=0;i<(4*IM_SIZE>>1);i+=(2*IM_DIM),count+=IM_DIM)
 	{
 		for (scan=i,j=0;j<IM_DIM;j++,scan++) 
@@ -283,9 +287,11 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	wavelet_analysis(im,(2*IM_DIM)>>1,end_transform,1);
 	
+	}
+	
 	if (im->setup->quality_setting<=LOW9)
 	{
-		wvlt_thrx1=10;
+		if (im->setup->quality_setting>LOW14) wvlt_thrx1=10;else wvlt_thrx1=11;
 			
 		for (i=IM_SIZE;i<(2*IM_SIZE);i+=(2*IM_DIM))
 		{
@@ -336,6 +342,16 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx2=16;
 			wvlt_thrx3=9;
 			wvlt_thrx4=14;
+			wvlt_thrx5=36;
+			wvlt_thrx6=17;
+			wvlt_thrx7=17;
+		}
+		else if (im->setup->quality_setting==LOW14)
+		{
+			wvlt_thrx1=12;
+			wvlt_thrx2=16;
+			wvlt_thrx3=10;
+			wvlt_thrx4=15;
 			wvlt_thrx5=36;
 			wvlt_thrx6=17;
 			wvlt_thrx7=17;
@@ -894,17 +910,19 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 						{
 							if (nhw_process[scan]>=16) nhw_process[scan]=7;
 							else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;	
-							else 	nhw_process[scan]=0;
+							else nhw_process[scan]=0;
 						}
+						else nhw_process[scan]=0;
 					}
 					else if (abs(nhw_process[scan])<(wvlt_thrx2-5))
 					{
 						if (im->setup->quality_setting>LOW10)
 						{
 							if (nhw_process[scan]>=16) nhw_process[scan]=7;
-							else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;	
-							else 	nhw_process[scan]=0;
+							else if (nhw_process[scan]<=-16) nhw_process[scan]=-7;
+							else nhw_process[scan]=0;							
 						}
+						else nhw_process[scan]=0;
 					}
 				}
 			}
