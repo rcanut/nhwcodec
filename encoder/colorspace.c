@@ -175,14 +175,14 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 		else if (im->setup->quality_setting==LOW5) Qtz=31262;
 		else if (im->setup->quality_setting==LOW6) Qtz=28786;
 		else if (im->setup->quality_setting==LOW7) Qtz=27607;
-		else if (im->setup->quality_setting==LOW8) Qtz=27607;
-		else if (im->setup->quality_setting==LOW9) Qtz=27302;
-		else if (im->setup->quality_setting==LOW10) Qtz=25350;
-		else if (im->setup->quality_setting==LOW11) Qtz=23320;
-		else if (im->setup->quality_setting==LOW12) Qtz=21320;
-		else if (im->setup->quality_setting==LOW13) Qtz=20420;
-		else if (im->setup->quality_setting==LOW14) Qtz=19450;
-		else if (im->setup->quality_setting==LOW15) Qtz=18600;
+		else if (im->setup->quality_setting==LOW8) Qtz=27830;
+		else if (im->setup->quality_setting==LOW9) Qtz=27522;
+		else if (im->setup->quality_setting==LOW10) Qtz=25570;
+		else if (im->setup->quality_setting==LOW11) Qtz=23540;
+		else if (im->setup->quality_setting==LOW12) Qtz=21540;
+		else if (im->setup->quality_setting==LOW13) Qtz=20640;
+		else if (im->setup->quality_setting==LOW14) Qtz=19670;
+		else if (im->setup->quality_setting==LOW15) Qtz=18820;
 
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
 		{

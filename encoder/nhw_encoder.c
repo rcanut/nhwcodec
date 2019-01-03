@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.6 						     		     				   *
-*  last update: $ 12192018 nhw exp $							           *
+*  last update: $ 01032019 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2018 NHW Project
+/* Copyright (C) 2007-2019 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -471,8 +471,13 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				{
 					if (abs(nhw_process[scan+(2*IM_DIM)+1]-nhw_process[scan+(2*IM_DIM)])<(wvlt_thrx4-1) && abs(nhw_process[scan+1]-nhw_process[scan+(2*IM_DIM)+1])<wvlt_thrx4)
 					{
-						nhw_process[scan+(2*IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(4*IM_DIM)+1]+nhw_process[scan+(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)+2]+2)>>2;
+						e=(nhw_process[scan+1]+nhw_process[scan+(4*IM_DIM)+1]+nhw_process[scan+(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)+2]+2)>>2;
 							
+						if (abs(e-nhw_process[scan+(2*IM_DIM)])<5 || abs(e-nhw_process[scan+(2*IM_DIM)+2])<5)
+						{
+							nhw_process[scan+(2*IM_DIM)+1]=e;
+						}
+						
 						count=scan+(2*IM_DIM)+1;
 							
 						if (abs(nhw_process[(count<<1)+IM_DIM])<wvlt_thrx6) nhw_process[(count<<1)+IM_DIM]=0;
@@ -515,7 +520,12 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 					{
 						if (abs(nhw_process[scan+(4*IM_DIM)+1]-nhw_process[scan+(2*IM_DIM)])<wvlt_thrx3 && abs(nhw_process[scan+(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)+1])<wvlt_thrx4) 
 						{
-							nhw_process[scan+(2*IM_DIM)+1]=(nhw_process[scan+1]+nhw_process[scan+(4*IM_DIM)+1]+nhw_process[scan+(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)+2]+1)>>2;
+							e=(nhw_process[scan+1]+nhw_process[scan+(4*IM_DIM)+1]+nhw_process[scan+(2*IM_DIM)]+nhw_process[scan+(2*IM_DIM)+2]+1)>>2;
+							
+							if (abs(e-nhw_process[scan+(2*IM_DIM)])<5 || abs(e-nhw_process[scan+(2*IM_DIM)+2])<5)
+							{
+								nhw_process[scan+(2*IM_DIM)+1]=e;
+							}
 							
 							count=scan+(2*IM_DIM)+1;
 							
@@ -723,6 +733,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	}
 
 	//free(resIII);
+	
+	if (im->setup->quality_setting>LOW8)
+	{
 
 	offsetY_recons256(im,enc,ratio,0);
 
@@ -739,6 +752,8 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 				im->im_wavelet_first_order[count++]=im->im_jpeg[scan++];
 			}
 		}
+	}
+	
 	}
 
 	free(im->im_jpeg);
@@ -1040,7 +1055,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	else if (im->setup->quality_setting>=LOW2) res_setting=4;
 	else if (im->setup->quality_setting>=LOW5) res_setting=6;
 	else if (im->setup->quality_setting>=LOW7) res_setting=8;
-	else res_setting=1000000;
+	
+	if (im->setup->quality_setting>LOW8)
+	{
 
 	for (j=0,count=0,res=0,stage=0,e=0;j<IM_DIM;j++)
 	{
@@ -1380,19 +1397,9 @@ L_W5:			res256[count]=14000;
 		}	
 	}
 	
-	if (im->setup->quality_setting<LOW7)
-	{
-		for (i=0,count=0;i<IM_SIZE;i+=IM_DIM)
-		{
-			for (scan=i,j=0;j<IM_DIM;j++,scan++)
-			{
-				res256[scan]=0;
-			}
-		}
 	}
 
 	highres=(unsigned char*)malloc(((96*IM_DIM)+1)*sizeof(char));
-	nhw_res1I_word=(unsigned char*)malloc(enc->nhw_res1_word_len*sizeof(char));
 
 	if (im->setup->quality_setting>HIGH1)
 	{
@@ -1468,6 +1475,9 @@ L_W5:			res256[count]=14000;
 	
 	if (im->setup->quality_setting>LOW8)
 	{
+		
+	nhw_res1I_word=(unsigned char*)malloc(enc->nhw_res1_word_len*sizeof(char));
+	
 	for (i=0,count=0,res=0,e=0;i<IM_SIZE;i+=IM_DIM)
 	{
 		for (scan=i,j=0;j<IM_DIM;j++,scan++)

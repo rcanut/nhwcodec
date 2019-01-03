@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_decoder.c  										           *
 *  version: 0.1.6 						     		     				   *
-*  last update: $ 12192018 nhw exp $							           *
+*  last update: $ 01032019 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2018 NHW Project
+/* Copyright (C) 2007-2019 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -210,14 +210,14 @@ void main(int argc, char **argv)
 		else if (im.setup->quality_setting==LOW5) Y_inv=1.048174; // 1/0.906
 		else if (im.setup->quality_setting==LOW6) Y_inv=1.138331; // 1/0.8
 		else if (im.setup->quality_setting==LOW7) Y_inv=1.186945; 
-		else if (im.setup->quality_setting==LOW8) Y_inv=1.186945;
-		else if (im.setup->quality_setting==LOW9) Y_inv=1.200205; 
-		else if (im.setup->quality_setting==LOW10) Y_inv=1.292623; 
-		else if (im.setup->quality_setting==LOW11) Y_inv=1.405146;
-		else if (im.setup->quality_setting==LOW12) Y_inv=1.536961;
-		else if (im.setup->quality_setting==LOW13) Y_inv=1.604701;
-		else if (im.setup->quality_setting==LOW14) Y_inv=1.684730;
-		else if (im.setup->quality_setting==LOW15) Y_inv=1.761720;
+		else if (im.setup->quality_setting==LOW8) Y_inv=1.177434;
+		else if (im.setup->quality_setting==LOW9) Y_inv=1.190611; 
+		else if (im.setup->quality_setting==LOW10) Y_inv=1.281502; 
+		else if (im.setup->quality_setting==LOW11) Y_inv=1.392014;
+		else if (im.setup->quality_setting==LOW12) Y_inv=1.521263;
+		else if (im.setup->quality_setting==LOW13) Y_inv=1.587597;
+		else if (im.setup->quality_setting==LOW14) Y_inv=1.665887;
+		else if (im.setup->quality_setting==LOW15) Y_inv=1.741126;
 
 		for (m=0;m<4;m++)
 		{
