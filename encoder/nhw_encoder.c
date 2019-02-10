@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
 *  version: 0.1.6 						     		     				   *
-*  last update: $ 01272019 nhw exp $							           *
+*  last update: $ 02102019 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -96,6 +96,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l15")==0) im.setup->quality_setting=LOW15;
 		else if (strcmp(arg,"-l16")==0) im.setup->quality_setting=LOW16;
 		else if (strcmp(arg,"-l17")==0) im.setup->quality_setting=LOW17;
+		else if (strcmp(arg,"-l18")==0) im.setup->quality_setting=LOW18;
 		*argv--;*argv--;*argv--;
 
 		select=8; //for now...
@@ -368,6 +369,16 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 			wvlt_thrx5=36;
 			wvlt_thrx6=18;
 			wvlt_thrx7=18;
+		}
+		else if (im->setup->quality_setting==LOW18)
+		{
+			wvlt_thrx1=11;
+			wvlt_thrx2=15;
+			wvlt_thrx3=10;
+			wvlt_thrx4=15;
+			wvlt_thrx5=36;
+			wvlt_thrx6=19;
+			wvlt_thrx7=20;
 		}
 			
 		for (i=0,scan=0;i<(IM_SIZE);i+=(2*IM_DIM))
