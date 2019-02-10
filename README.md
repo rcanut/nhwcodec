@@ -19,7 +19,7 @@ For Linux: gcc *.c -O3 -lm -o nhw_en/decoder.exe
 
 To encode an image (512x512 bitmap color image for now): nhw_encoder.exe imagename.bmp
 
-encoder options: quality settings: -h1..3 or -l1..17
+encoder options: quality settings: -h1..3 or -l1..18
 
 example: nhw_encoder.exe imagename.bmp -l3
                  
