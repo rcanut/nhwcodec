@@ -221,6 +221,8 @@ void main(int argc, char **argv)
 		else if (im.setup->quality_setting==LOW16) Y_inv=1.820444;
 		else if (im.setup->quality_setting==LOW17) Y_inv=1.916257;
 		else if (im.setup->quality_setting==LOW18) Y_inv=1.985939;
+		else if (im.setup->quality_setting==LOW19) Y_inv=2.060881;
+
 
 		for (m=0;m<4;m++)
 		{

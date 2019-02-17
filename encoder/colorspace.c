@@ -186,6 +186,7 @@ void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
 		else if (im->setup->quality_setting==LOW16) Qtz=18000;
 		else if (im->setup->quality_setting==LOW17) Qtz=17100;
 		else if (im->setup->quality_setting==LOW18) Qtz=16500;
+		else if (im->setup->quality_setting==LOW19) Qtz=15900;
 
 
 		for (i=0,j=0;i<12*IM_SIZE;i+=3,j++)
