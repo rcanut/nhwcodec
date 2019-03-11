@@ -464,7 +464,7 @@ L15:	e=0;
 	a+=Y;
 
 	enc->highres_mem_len=0;
-	enc->highres_comp=(unsigned char*)calloc((96*IM_DIM),sizeof(char));
+	enc->highres_comp=(unsigned char*)calloc((IM_SIZE>>1),sizeof(char));
 	enc->highres_mem=(unsigned short*)malloc((IM_SIZE>>2)*sizeof(short));
 	ch_comp=(unsigned char*)enc->highres_comp;
 
