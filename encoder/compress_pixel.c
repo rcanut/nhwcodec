@@ -75,8 +75,38 @@ L1:	if (part==0) select=4; else select=3;
 	/////// FIRST STAGE ////////
 
 	e=0;b=0;c=0;
-
+	
+	e=1;
+	
 	for (i=p1;i<p2-1;i++)   
+	{
+L_RUN1:	if (nhw_comp[i]==128)   
+		{
+			while (i<(p2-1) && nhw_comp[i+1]==128)
+			{
+				e++;c=1;
+				if (e>255) 
+				{
+					
+					e=254;rle_128[254]++;e=1;c=0;
+					goto L_RUN1;
+				}
+				else i++;
+			}
+		}
+
+		if (c) 
+		{
+			rle_128[e]++;
+		}
+		else 
+		{
+			rle_buf[nhw_comp[i]]++;
+		}
+		e=1;c=0;
+	}
+
+	/*for (i=p1;i<p2-1;i++)   
 	{
 L_RUN1:	if (nhw_comp[i]==128)   
 		{
@@ -97,7 +127,7 @@ L_RUN1:	if (nhw_comp[i]==128)
 			rle_buf[nhw_comp[i]]++;
 		}
 		e=0;c=0;
-	}
+	}*/
 
 L_RATIO:
 	memset(weight,0,354*sizeof(int));
@@ -280,7 +310,7 @@ L_RATIO:
 
 		if (pixel==128)   
 		{
-			while (nhw_comp[i+1]==128)
+			while (i<(p2-1) && nhw_comp[i+1]==128)
 			{
 				e++;
 				if (e>255) {e=254;i--;goto L_JUMP;}
