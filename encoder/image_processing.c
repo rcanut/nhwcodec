@@ -421,15 +421,15 @@ void pre_processing(image_buffer *im)
 	if (im->setup->quality_setting<=LOW6) lower_quality_setting_on=1;
 	else lower_quality_setting_on=0;
 
-	if (im->setup->quality_setting==LOW4) sharpness=82;
-	else if (im->setup->quality_setting==LOW5) sharpness=77;
-	else if (im->setup->quality_setting==LOW6) sharpness=72;
-	else if (im->setup->quality_setting==LOW7) sharpness=67;
-	else if (im->setup->quality_setting==LOW8) sharpness=64;
-	else if (im->setup->quality_setting==LOW9) sharpness=58;
-	else if (im->setup->quality_setting==LOW10) sharpness=40;
-	else if (im->setup->quality_setting==LOW11) sharpness=24;
-	else if (im->setup->quality_setting==LOW12) sharpness=3;
+	if (im->setup->quality_setting==LOW4) sharpness=59;
+	else if (im->setup->quality_setting==LOW5) sharpness=54;
+	else if (im->setup->quality_setting==LOW6) sharpness=49;
+	else if (im->setup->quality_setting==LOW7) sharpness=44;
+	else if (im->setup->quality_setting==LOW8) sharpness=41;
+	else if (im->setup->quality_setting==LOW9) sharpness=35;
+	else if (im->setup->quality_setting==LOW10) sharpness=17;
+	else if (im->setup->quality_setting==LOW11) sharpness=1;
+	else if (im->setup->quality_setting==LOW12) sharpness=0;
 	else if (im->setup->quality_setting==LOW13) sharpness=0;
 	else if (im->setup->quality_setting==LOW14) sharpness=0;
 	else if (im->setup->quality_setting==LOW15 || im->setup->quality_setting==LOW16) sharpness=24;
