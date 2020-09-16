@@ -411,7 +411,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,count,e=0,a=0,sharpness,n1;
+	int i,j,scan,res,count,e=0,a=0,sharpness,sharpn2,n1;
 	short *nhw_process;
 	char lower_quality_setting_on;
 
@@ -437,6 +437,7 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW18) sharpness=45;
 	else if (im->setup->quality_setting==LOW19) sharpness=48;
 	
+	if (sharpness<10) sharpn2=10;else sharpn2=sharpness;
 	
 	if (im->setup->quality_setting>LOW11) n1=36;
 	else if (im->setup->quality_setting==LOW11) n1=24;
@@ -535,7 +536,29 @@ void pre_processing(image_buffer *im)
 				{
 					if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
 				}
-
+				
+				if (abs(res)>(sharpness+20) && abs(count)>(sharpness>>1) && abs(count)<=sharpn2)
+				{
+					if (res>0 && count>0)
+					{
+						im->im_jpeg[scan]++;
+					}
+					else if (res<0 && count<0)  
+					{
+						im->im_jpeg[scan]--;
+					}
+				}
+				else if (abs(count)>(sharpness+20) && abs(res)>(sharpness>>1) && abs(res)<=sharpn2)
+				{
+					if (res>0 && count>0)
+					{
+						im->im_jpeg[scan-1]++;
+					}
+					else if (res<0 && count<0)  
+					{
+						im->im_jpeg[scan-1]--;
+					}
+				}
 			}
 
 			if (im->setup->quality_setting>LOW6 || (im->setup->quality_setting<=LOW10 && im->setup->quality_setting>LOW13)) 
