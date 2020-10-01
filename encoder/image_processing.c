@@ -541,22 +541,22 @@ void pre_processing(image_buffer *im)
 				{
 					if (res>0 && count>0)
 					{
-						im->im_jpeg[scan]++;
+						im->im_jpeg[scan-1]++;im->im_jpeg[scan]+=2;
 					}
 					else if (res<0 && count<0)  
 					{
-						im->im_jpeg[scan]--;
+						im->im_jpeg[scan-1]--;im->im_jpeg[scan]-=2;
 					}
 				}
 				else if (abs(count)>(sharpness+20) && abs(res)>(sharpness>>1) && abs(res)<=sharpn2)
 				{
 					if (res>0 && count>0)
 					{
-						im->im_jpeg[scan-1]++;
+						im->im_jpeg[scan]++;im->im_jpeg[scan-1]+=2;
 					}
 					else if (res<0 && count<0)  
 					{
-						im->im_jpeg[scan-1]--;
+						im->im_jpeg[scan]--;im->im_jpeg[scan-1]-=2;
 					}
 				}
 			}
