@@ -411,7 +411,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,count,e=0,a=0,sharpness,sharpn2,n1;
+	int i,j,scan,res,res2,count,e=0,a=0,sharpness,sharpn2,n1;
 	short *nhw_process;
 	char lower_quality_setting_on;
 
@@ -447,6 +447,7 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting<=LOW15 && im->setup->quality_setting>=LOW17) n1=36;
 	else if (im->setup->quality_setting==LOW18) n1=56;
 	else if (im->setup->quality_setting==LOW19) n1=60;
+	
 
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
@@ -542,10 +543,64 @@ void pre_processing(image_buffer *im)
 					if (res>0 && count>0)
 					{
 						im->im_jpeg[scan-1]++;im->im_jpeg[scan]+=2;
+						
+						scan-=(2*IM_DIM);
+						
+						res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+						if (res2>4) im->im_jpeg[scan]++;
+						else
+						{
+
+							scan--;
+						
+							res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+							if (res2>4) im->im_jpeg[scan]++;
+							
+							scan++;
+						}
+
+						scan+=(2*IM_DIM);
 					}
 					else if (res<0 && count<0)  
 					{
 						im->im_jpeg[scan-1]--;im->im_jpeg[scan]-=2;
+						
+						scan-=(2*IM_DIM);
+						
+						res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+						if (res2<-4) im->im_jpeg[scan]--;
+						else
+						{
+
+							scan--;
+						
+							res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+							if (res2<-4) im->im_jpeg[scan]--;
+							
+							scan++;
+						}
+
+						scan+=(2*IM_DIM);
 					}
 				}
 				else if (abs(count)>(sharpness+20) && abs(res)>(sharpness>>1) && abs(res)<=sharpn2)
@@ -553,10 +608,64 @@ void pre_processing(image_buffer *im)
 					if (res>0 && count>0)
 					{
 						im->im_jpeg[scan]++;im->im_jpeg[scan-1]+=2;
+						
+						scan-=(2*IM_DIM+1);
+						
+						res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+						if (res2>4) im->im_jpeg[scan]++;
+						else
+						{
+
+							scan++;
+						
+							res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+							if (res2>4) im->im_jpeg[scan]++;
+							
+							scan--;
+						}
+
+						scan+=(2*IM_DIM+1);
 					}
 					else if (res<0 && count<0)  
 					{
 						im->im_jpeg[scan]--;im->im_jpeg[scan-1]-=2;
+						
+						scan-=(2*IM_DIM+1);
+						
+						res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+						if (res2<-4) im->im_jpeg[scan]--;
+						else
+						{
+
+							scan++;
+						
+							res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+							if (res2<-4) im->im_jpeg[scan]--;
+							
+							scan--;
+						}
+
+						scan+=(2*IM_DIM+1);
 					}
 				}
 			}
