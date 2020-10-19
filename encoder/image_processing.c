@@ -544,19 +544,9 @@ void pre_processing(image_buffer *im)
 					{
 						im->im_jpeg[scan-1]++;im->im_jpeg[scan]+=2;
 						
-						scan-=(2*IM_DIM);
-						
-						res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-						if (res2>4) im->im_jpeg[scan]++;
-						else
+						if (scan>=((4*IM_DIM)+2))
 						{
-
-							scan--;
+							scan-=(2*IM_DIM);
 						
 							res2	   =   (nhw_process[scan]<<3) -
 										nhw_process[scan-1]-nhw_process[scan+1]-
@@ -565,42 +555,60 @@ void pre_processing(image_buffer *im)
 										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 						
 							if (res2>4) im->im_jpeg[scan]++;
-							
-							scan++;
-						}
+							else
+							{
 
-						scan+=(2*IM_DIM);
+								scan--;
+						
+								res2	   =   (nhw_process[scan]<<3) -
+										nhw_process[scan-1]-nhw_process[scan+1]-
+										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+						
+								if (res2>4) im->im_jpeg[scan]++;
+								
+								scan++;
+							}
+
+							scan+=(2*IM_DIM);
+							
+						}
 					}
 					else if (res<0 && count<0)  
 					{
 						im->im_jpeg[scan-1]--;im->im_jpeg[scan]-=2;
 						
-						scan-=(2*IM_DIM);
-						
-						res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-						if (res2<-4) im->im_jpeg[scan]--;
-						else
+						if (scan>=((4*IM_DIM)+2))
 						{
-
-							scan--;
-						
-							res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-							if (res2<-4) im->im_jpeg[scan]--;
+							scan-=(2*IM_DIM);
 							
-							scan++;
-						}
+							res2	   =   (nhw_process[scan]<<3) -
+											nhw_process[scan-1]-nhw_process[scan+1]-
+											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+							
+							if (res2<-4) im->im_jpeg[scan]--;
+							else
+							{
+
+								scan--;
+							
+								res2	   =   (nhw_process[scan]<<3) -
+											nhw_process[scan-1]-nhw_process[scan+1]-
+											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+							
+								if (res2<-4) im->im_jpeg[scan]--;
+								
+								scan++;
+							}
 
 						scan+=(2*IM_DIM);
+						
+						}
 					}
 				}
 				else if (abs(count)>(sharpness+20) && abs(res)>(sharpness>>1) && abs(res)<=sharpn2)
@@ -609,63 +617,73 @@ void pre_processing(image_buffer *im)
 					{
 						im->im_jpeg[scan]++;im->im_jpeg[scan-1]+=2;
 						
-						scan-=(2*IM_DIM+1);
-						
-						res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-						if (res2>4) im->im_jpeg[scan]++;
-						else
+						if (scan>=((4*IM_DIM)+2))
 						{
-
-							scan++;
 						
-							res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-							if (res2>4) im->im_jpeg[scan]++;
+							scan-=(2*IM_DIM+1);
 							
-							scan--;
-						}
+							res2	   =   (nhw_process[scan]<<3) -
+											nhw_process[scan-1]-nhw_process[scan+1]-
+											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+							
+							if (res2>4) im->im_jpeg[scan]++;
+							else
+							{
 
-						scan+=(2*IM_DIM+1);
+								scan++;
+							
+								res2	   =   (nhw_process[scan]<<3) -
+											nhw_process[scan-1]-nhw_process[scan+1]-
+											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+							
+								if (res2>4) im->im_jpeg[scan]++;
+								
+								scan--;
+							}
+
+							scan+=(2*IM_DIM+1);
+						
+						}
 					}
 					else if (res<0 && count<0)  
 					{
 						im->im_jpeg[scan]--;im->im_jpeg[scan-1]-=2;
 						
-						scan-=(2*IM_DIM+1);
-						
-						res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-						if (res2<-4) im->im_jpeg[scan]--;
-						else
+						if (scan>=((4*IM_DIM)+2))
 						{
-
-							scan++;
 						
-							res2	   =   (nhw_process[scan]<<3) -
-										nhw_process[scan-1]-nhw_process[scan+1]-
-										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
-						
-							if (res2<-4) im->im_jpeg[scan]--;
+							scan-=(2*IM_DIM+1);
 							
-							scan--;
-						}
+							res2	   =   (nhw_process[scan]<<3) -
+											nhw_process[scan-1]-nhw_process[scan+1]-
+											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+							
+							if (res2<-4) im->im_jpeg[scan]--;
+							else
+							{
 
-						scan+=(2*IM_DIM+1);
+								scan++;
+							
+								res2	   =   (nhw_process[scan]<<3) -
+											nhw_process[scan-1]-nhw_process[scan+1]-
+											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
+							
+								if (res2<-4) im->im_jpeg[scan]--;
+								
+								scan--;
+							}
+
+							scan+=(2*IM_DIM+1);
+						
+						}
 					}
 				}
 			}

@@ -62,8 +62,8 @@ int wavlts2packet(image_buffer *im,encode_state *enc)
 	nhw_comp=(unsigned char*)im->im_nhw;
 
 	enc->encode=(unsigned int*)calloc(80000,sizeof(int));
-	enc->tree1=(unsigned char*)calloc(291*2,sizeof(char));
-	enc->tree2=(unsigned char*)calloc(291*2,sizeof(char));
+	enc->tree1=(unsigned char*)calloc(354*2,sizeof(char));
+	enc->tree2=(unsigned char*)calloc(354*2,sizeof(char));
 
 	part=0;p1=0;p2=(4*IM_SIZE);a=0;color=im->im_nhw[4*IM_SIZE];im->im_nhw[4*IM_SIZE]=3;
 
