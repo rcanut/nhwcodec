@@ -540,9 +540,11 @@ void pre_processing(image_buffer *im)
 				
 				if (abs(res)>(sharpness+20) && abs(count)>(sharpness>>1) && abs(count)<=sharpn2)
 				{
-					if (res>0 && count>0)
+					if (res>0)
 					{
-						im->im_jpeg[scan-1]++;im->im_jpeg[scan]+=2;
+						im->im_jpeg[scan-1]++;
+						
+						if (count>0) im->im_jpeg[scan]+=2;
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -575,9 +577,11 @@ void pre_processing(image_buffer *im)
 							
 						}
 					}
-					else if (res<0 && count<0)  
+					else if (res<0)  
 					{
-						im->im_jpeg[scan-1]--;im->im_jpeg[scan]-=2;
+						im->im_jpeg[scan-1]--;
+						
+						if (count<0) im->im_jpeg[scan]-=2;
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -613,9 +617,11 @@ void pre_processing(image_buffer *im)
 				}
 				else if (abs(count)>(sharpness+20) && abs(res)>(sharpness>>1) && abs(res)<=sharpn2)
 				{
-					if (res>0 && count>0)
+					if (count>0)
 					{
-						im->im_jpeg[scan]++;im->im_jpeg[scan-1]+=2;
+						im->im_jpeg[scan]++;
+						
+						if (res>0) im->im_jpeg[scan-1]+=2;
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -649,9 +655,11 @@ void pre_processing(image_buffer *im)
 						
 						}
 					}
-					else if (res<0 && count<0)  
+					else if (count<0)  
 					{
-						im->im_jpeg[scan]--;im->im_jpeg[scan-1]-=2;
+						im->im_jpeg[scan]--;
+						
+						if (res<0) im->im_jpeg[scan-1]-=2;
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
