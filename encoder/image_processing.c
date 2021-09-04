@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.1.3 						     		     				   *
-*  last update: $ 06012012 nhw exp $							           *
+*  version: 0.2.0 						     		     				   *
+*  last update: $ 09042021 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -image processing set										   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2013 NHW Project
+/* Copyright (C) 2007-2021 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -411,7 +411,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,res2,count,e=0,a=0,sharpness,sharpn2,n1;
+	int i,j,scan,res,res2,res3,count,e=0,a=0,sharpness,sharpn2,n1;
 	short *nhw_process;
 	char lower_quality_setting_on;
 
@@ -557,21 +557,21 @@ void pre_processing(image_buffer *im)
 										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 						
 							if (res2>4) im->im_jpeg[scan]++;
-							else
-							{
-
-								scan--;
 						
-								res2	   =   (nhw_process[scan]<<3) -
+							scan--;
+						
+							res3	   =   (nhw_process[scan]<<3) -
 										nhw_process[scan-1]-nhw_process[scan+1]-
 										nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 										nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 										nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 						
-								if (res2>4) im->im_jpeg[scan]++;
+							if (res3>4) im->im_jpeg[scan]++;
+								 
+							if (res2<-24) im->im_jpeg[scan+1]--;
+							if (res3<-24) im->im_jpeg[scan]--;
 								
-								scan++;
-							}
+							scan++;
 
 							scan+=(2*IM_DIM);
 							
@@ -594,23 +594,23 @@ void pre_processing(image_buffer *im)
 											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 							
 							if (res2<-4) im->im_jpeg[scan]--;
-							else
-							{
 
-								scan--;
+							scan--;
 							
-								res2	   =   (nhw_process[scan]<<3) -
+							res3	   =   (nhw_process[scan]<<3) -
 											nhw_process[scan-1]-nhw_process[scan+1]-
 											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 							
-								if (res2<-4) im->im_jpeg[scan]--;
+							if (res3<-4) im->im_jpeg[scan]--;
 								
-								scan++;
-							}
+							if (res2>24) im->im_jpeg[scan+1]++;
+							if (res3>24) im->im_jpeg[scan]++;
+								
+							scan++;
 
-						scan+=(2*IM_DIM);
+						    scan+=(2*IM_DIM);
 						
 						}
 					}
@@ -635,21 +635,21 @@ void pre_processing(image_buffer *im)
 											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 							
 							if (res2>4) im->im_jpeg[scan]++;
-							else
-							{
 
-								scan++;
+							scan++;
 							
-								res2	   =   (nhw_process[scan]<<3) -
+							res3	   =   (nhw_process[scan]<<3) -
 											nhw_process[scan-1]-nhw_process[scan+1]-
 											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 							
-								if (res2>4) im->im_jpeg[scan]++;
+							if (res3>4) im->im_jpeg[scan]++;
 								
-								scan--;
-							}
+							if (res2<-24) im->im_jpeg[scan-1]--;
+							if (res3<-24) im->im_jpeg[scan]--;
+								
+							scan--;
 
 							scan+=(2*IM_DIM+1);
 						
@@ -673,21 +673,21 @@ void pre_processing(image_buffer *im)
 											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 							
 							if (res2<-4) im->im_jpeg[scan]--;
-							else
-							{
 
-								scan++;
+							scan++;
 							
-								res2	   =   (nhw_process[scan]<<3) -
+							res3	   =   (nhw_process[scan]<<3) -
 											nhw_process[scan-1]-nhw_process[scan+1]-
 											nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 											nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 											nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)]; 
 							
-								if (res2<-4) im->im_jpeg[scan]--;
+							if (res3<-4) im->im_jpeg[scan]--;
 								
-								scan--;
-							}
+							if (res2>24) im->im_jpeg[scan-1]++;
+							if (res3>24) im->im_jpeg[scan]++;
+								
+							scan--;
 
 							scan+=(2*IM_DIM+1);
 						
