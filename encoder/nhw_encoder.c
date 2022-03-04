@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
-*  version: 0.2.0 						     		     				   *
-*  last update: $ 09042021 nhw exp $							           *
+*  version: 0.2.1 						     		     				   *
+*  last update: $ 03042022 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec												   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2021 NHW Project
+/* Copyright (C) 2007-2022 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
