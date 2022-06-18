@@ -614,9 +614,9 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) 
 	{
-		for (i=(2*IM_DIM),e=0,t=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+		for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 		{
-			for (scan=i+1,j=1;j<((2*IM_DIM)-3);j++,scan++)
+			for (scan=i+1,j=1,e=0,t=0;j<((2*IM_DIM)-3);j++,scan++)
 			{ 
 				res= nhw_kernel[scan];
 			
