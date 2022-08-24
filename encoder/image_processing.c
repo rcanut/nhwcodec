@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.1 						     		     				   *
-*  last update: $ 03042022 nhw exp $							           *
+*  version: 0.2.2 						     		     				   *
+*  last update: $ 08242022 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -411,7 +411,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,res2,res3,count,e=0,a=0,sharpness,sharpn2,n1,t;
+	int i,j,scan,res,res2,res3,count,e=0,f=0,a=0,sharpness,sharpn2,n1,t;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on;
 
@@ -616,7 +616,7 @@ void pre_processing(image_buffer *im)
 	{
 		for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 		{
-			for (scan=i+1,j=1,e=0,t=0;j<((2*IM_DIM)-3);j++,scan++)
+			for (scan=i+1,j=1,e=0,t=0,f=0;j<((2*IM_DIM)-3);j++,scan++)
 			{ 
 				res= nhw_kernel[scan];
 			
@@ -655,10 +655,10 @@ void pre_processing(image_buffer *im)
 							
 						}
 						
-						e=0;
+						e=0;f=0;
 					}
 					else if (res<0)  
-					{
+					{	
 						im->im_jpeg[scan-1]--;
 						
 						if (count<0) im->im_jpeg[scan]-=2;
@@ -686,12 +686,16 @@ void pre_processing(image_buffer *im)
 						
 						}
 						
-						e=0;
+						e=0;f=0;
 					}
 					
 					if (t==1)
 					{
 						j++;scan++;t=0;
+					}
+					else if (t==2)
+					{
+						j+=3;scan+=3;t=0;
 					}
 				}
 				else if (abs(count)>(sharpness+20) && abs(res)>(sharpness>>1) && abs(res)<=sharpn2)
@@ -726,7 +730,7 @@ void pre_processing(image_buffer *im)
 						
 						}
 						
-						e=0;
+						e=0;f=0;
 					}
 					else if (count<0)  
 					{
@@ -758,17 +762,22 @@ void pre_processing(image_buffer *im)
 						
 						}
 						
-						e=0;
+						e=0;f=0;
 					} 
 					
 					if (t==1)
 					{
 						j++;scan++;t=0;
 					}
+					else if (t==2)
+					{
+						j+=3;scan+=3;t=0;
+					}
 				}
 				else
 				{
 					e++;
+					if (!t) f++;
 					
 					if (e==2)
 					{
@@ -779,6 +788,20 @@ void pre_processing(image_buffer *im)
 					else if (t==1)
 					{
 						j++;scan++;t=0;e=0;
+						
+						if (f==4)
+						{
+							if(abs(nhw_kernel[scan-5])<=sharpn2 || abs(nhw_kernel[scan-2])<=sharpn2)
+							{
+								j-=5;scan-=5;t=2;
+							}
+							
+							f=0;
+						}
+					}
+					else if (t==2)
+					{
+						j+=3;scan+=3;t=0;e=0;f=0;
 					}
 		
 				}
