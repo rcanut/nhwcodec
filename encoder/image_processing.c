@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.2 						     		     				   *
-*  last update: $ 08242022 nhw exp $							           *
+*  version: 0.2.3 						     		     				   *
+*  last update: $ 09152022 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -543,6 +543,18 @@ void pre_processing(image_buffer *im)
 				{
 					if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
 				}
+				
+				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
+				{
+					if (res>0 && count>0) 
+					{
+						if (res>=count) im->im_jpeg[scan-1]++;else im->im_jpeg[scan]++;
+					}
+					else if (res<0 && count<0) 
+					{
+						if (res<=count) im->im_jpeg[scan-1]--;else im->im_jpeg[scan]--;
+					}
+				}
 			}
 
 			if (im->setup->quality_setting>LOW6 || (im->setup->quality_setting<=LOW10 && im->setup->quality_setting>LOW13)) 
@@ -803,7 +815,6 @@ void pre_processing(image_buffer *im)
 					{
 						j+=3;scan+=3;t=0;e=0;f=0;
 					}
-		
 				}
 			}
 		}
