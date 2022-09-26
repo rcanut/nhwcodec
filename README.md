@@ -25,6 +25,7 @@ Using the CMake config file: mkdir build && cd build && cmake ../ && make
 
 
 
+
 To encode an image (512x512 bitmap color image for now): nhw_encoder.exe imagename.bmp
 
 encoder options: quality settings: -h1..3 or -l1..19
