@@ -13,9 +13,17 @@ Another advantage of the NHW codec is that it has a high speed, making it suitab
 How to compile?
 ============
 
+1) With gcc
+
 For Windows: gcc *.c -O3 -o nhw_en/decoder.exe
 
 For Linux: gcc *.c -O3 -lm -o nhw_en/decoder.exe
+
+2) With CMake
+
+Using the CMake config file: mkdir build && cd build && cmake ../ && make
+
+
 
 To encode an image (512x512 bitmap color image for now): nhw_encoder.exe imagename.bmp
 
