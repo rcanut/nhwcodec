@@ -266,7 +266,7 @@ L_RATIO:
 		else rle_128[(rle_tree[i]>>8)]=i;
 	}
 
-	if ((rle_tree[0]==((1<<8)|128))) b=1; else b=0;
+	if (rle_tree[0]==((1<<8)|128)) b=1; else b=0;
 	if ((part==0) && (b==0) && (k>290)) exit(-1);
 	if ((part==1) && (select!=4) && (k>290)) exit(-1);
 
@@ -461,8 +461,11 @@ L_COD2:	if (codebook[i]==128)
 	enc->size_tree2=b;
 	}
 
-	if (part==0) {part=1;a++;p1=4*IM_SIZE;p2=6*IM_SIZE;im->im_nhw[4*IM_SIZE]=color;
-											im->im_nhw[6*IM_SIZE-1]=im->im_nhw[6*IM_SIZE-2];goto L1;}
+	if (part==0) {
+		part=1;a++;p1=4*IM_SIZE;p2=6*IM_SIZE;im->im_nhw[4*IM_SIZE]=color;
+		im->im_nhw[6*IM_SIZE-1]=im->im_nhw[6*IM_SIZE-2];goto L1;
+	}
+	return 0;
 }
 
 void Y_highres_compression(image_buffer *im,encode_state *enc)

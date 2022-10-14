@@ -51,7 +51,7 @@
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	image_buffer im;
 	decode_state dec;
@@ -257,6 +257,7 @@ void main(int argc, char **argv)
 	free(im.im_bufferU);
 	free(im.im_bufferV);
 	free(im.im_buffer4);
+	return 0;
 }
 
 void decode_image(image_buffer *im,decode_state *os,char **argv)
