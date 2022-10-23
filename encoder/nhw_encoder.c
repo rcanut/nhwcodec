@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: nhw_encoder.c  										           *
-*  version: 0.2.3 						     		     				   *
-*  last update: $ 09152022 nhw exp $							           *
+*  version: 0.2.4 						     		     				   *
+*  last update: $ 10232022 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -53,7 +53,7 @@ char bmp_header[54];
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
-void main(int argc, char **argv) 
+int main(int argc, char **argv)
 {	
 	image_buffer im;
 	encode_state enc;
@@ -74,7 +74,7 @@ void main(int argc, char **argv)
 	if (argv[2]==NULL || argv[2]==0) select=8;
 	else
 	{
-		*argv++;*argv++;arg=*argv++;
+		argv += 2;arg=*argv++;
 
 		if (strcmp(arg,"-h3")==0) im.setup->quality_setting=HIGH3;
 		else if (strcmp(arg,"-h2")==0) im.setup->quality_setting=HIGH2; 
@@ -98,7 +98,7 @@ void main(int argc, char **argv)
 		else if (strcmp(arg,"-l17")==0) im.setup->quality_setting=LOW17;
 		else if (strcmp(arg,"-l18")==0) im.setup->quality_setting=LOW18;
 		else if (strcmp(arg,"-l19")==0) im.setup->quality_setting=LOW19;
-		*argv--;*argv--;*argv--;
+		argv -= 3;
 
 		select=8; //for now...
 	}
@@ -110,6 +110,8 @@ void main(int argc, char **argv)
 
 
 	write_compressed_file(&im,&enc,argv);
+
+	return 0;
 }
 
 void encode_image(image_buffer *im,encode_state *enc, int ratio)
@@ -3103,6 +3105,8 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 		free(enc->res_U_64);
 		free(enc->res_V_64);
 	}
+
+	return 0;
 }
 
 

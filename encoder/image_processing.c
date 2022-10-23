@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.3 						     		     				   *
-*  last update: $ 09152022 nhw exp $							           *
+*  version: 0.2.4 						     		     				   *
+*  last update: $ 10232022 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -413,7 +413,7 @@ void pre_processing(image_buffer *im)
 {
 	int i,j,scan,res,res2,res3,count,e=0,f=0,a=0,sharpness,sharpn2,n1,t;
 	short *nhw_process, *nhw_kernel;
-	char lower_quality_setting_on;
+	char lower_quality_setting_on, *nhw_sharp_on;
 
 	nhw_process=(short*)im->im_process;
 	memcpy(im->im_process,im->im_jpeg,4*IM_SIZE*sizeof(short));
@@ -626,6 +626,8 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) 
 	{
+		nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
+		
 		for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 		{
 			for (scan=i+1,j=1,e=0,t=0,f=0;j<((2*IM_DIM)-3);j++,scan++)
@@ -640,9 +642,9 @@ void pre_processing(image_buffer *im)
 				{				
 					if (res>0)
 					{
-						im->im_jpeg[scan-1]++;
+						im->im_jpeg[scan-1]++;nhw_sharp_on[scan-1]=1;
 						
-						if (count>0) im->im_jpeg[scan]+=2;
+						if (count>0) {im->im_jpeg[scan]+=2;nhw_sharp_on[scan]=1;}
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -650,16 +652,16 @@ void pre_processing(image_buffer *im)
 						
 							res2	   =   nhw_kernel[scan];
 						
-							if (res2>4) im->im_jpeg[scan]++;
+							if (res2>4) {im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;}
 						
 							scan--;
 						
 							res3	   =   nhw_kernel[scan];
 						
-							if (res3>4) im->im_jpeg[scan]++;
+							if (res3>4) {im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;}
 								 
-							if (res2<-24 && !t) im->im_jpeg[scan+1]--;
-							if (res3<-24 && !t) im->im_jpeg[scan]--;
+							if (res2<-24 && !t) {im->im_jpeg[scan+1]--;nhw_sharp_on[scan+1]=1;}
+							if (res3<-24 && !t) {im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;}
 								
 							scan++;
 
@@ -671,9 +673,9 @@ void pre_processing(image_buffer *im)
 					}
 					else if (res<0)  
 					{	
-						im->im_jpeg[scan-1]--;
+						im->im_jpeg[scan-1]--;nhw_sharp_on[scan-1]=1;
 						
-						if (count<0) im->im_jpeg[scan]-=2;
+						if (count<0) {im->im_jpeg[scan]-=2;nhw_sharp_on[scan]=1;}
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -681,16 +683,16 @@ void pre_processing(image_buffer *im)
 							
 							res2	   =   nhw_kernel[scan];
 							
-							if (res2<-4) im->im_jpeg[scan]--;
+							if (res2<-4) {im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;}
 
 							scan--;
 							
 							res3	   =   nhw_kernel[scan];
 							
-							if (res3<-4) im->im_jpeg[scan]--;
+							if (res3<-4) {im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;}
 								
-							if (res2>24 && !t) im->im_jpeg[scan+1]++;
-							if (res3>24 && !t) im->im_jpeg[scan]++;
+							if (res2>24 && !t) {im->im_jpeg[scan+1]++;nhw_sharp_on[scan+1]=1;}
+							if (res3>24 && !t) {im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;}
 								
 							scan++;
 
@@ -714,9 +716,9 @@ void pre_processing(image_buffer *im)
 				{					
 					if (count>0)
 					{
-						im->im_jpeg[scan]++;
+						im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;
 						
-						if (res>0) im->im_jpeg[scan-1]+=2;
+						if (res>0) {im->im_jpeg[scan-1]+=2;nhw_sharp_on[scan-1]=1;}
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -725,16 +727,16 @@ void pre_processing(image_buffer *im)
 							
 							res2	   =   nhw_kernel[scan];
 							
-							if (res2>4) im->im_jpeg[scan]++;
+							if (res2>4) {im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;}
 
 							scan++;
 							
 							res3	   =   nhw_kernel[scan]; 
 							
-							if (res3>4) im->im_jpeg[scan]++;
+							if (res3>4) {im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;}
 								
-							if (res2<-24 && !t) im->im_jpeg[scan-1]--;
-							if (res3<-24 && !t) im->im_jpeg[scan]--;
+							if (res2<-24 && !t) {im->im_jpeg[scan-1]--;nhw_sharp_on[scan-1]=1;}
+							if (res3<-24 && !t) {im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;}
 								
 							scan--;
 
@@ -746,9 +748,9 @@ void pre_processing(image_buffer *im)
 					}
 					else if (count<0)  
 					{
-						im->im_jpeg[scan]--;
+						im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;
 						
-						if (res<0) im->im_jpeg[scan-1]-=2;
+						if (res<0) {im->im_jpeg[scan-1]-=2;nhw_sharp_on[scan-1]=1;}
 						
 						if (scan>=((4*IM_DIM)+2))
 						{
@@ -757,16 +759,16 @@ void pre_processing(image_buffer *im)
 							
 							res2	   =   nhw_kernel[scan];
 							
-							if (res2<-4) im->im_jpeg[scan]--;
+							if (res2<-4) {im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;}
 
 							scan++;
 							
 							res3	   =   nhw_kernel[scan];
 							
-							if (res3<-4) im->im_jpeg[scan]--;
+							if (res3<-4) {im->im_jpeg[scan]--;nhw_sharp_on[scan]=1;}
 								
-							if (res2>24 && !t) im->im_jpeg[scan-1]++;
-							if (res3>24 && !t) im->im_jpeg[scan]++;
+							if (res2>24 && !t) {im->im_jpeg[scan-1]++;nhw_sharp_on[scan-1]=1;}
+							if (res3>24 && !t) {im->im_jpeg[scan]++;nhw_sharp_on[scan]=1;}
 								
 							scan--;
 
@@ -818,6 +820,29 @@ void pre_processing(image_buffer *im)
 				}
 			}
 		}
+		
+		for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+		{
+			for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
+			{   
+				res= nhw_kernel[scan];
+			
+				j++;scan++;
+			
+				count= nhw_kernel[scan];
+				
+				if (abs(res)>(sharpness+56) && abs(count)>(sharpness+56))
+				{
+					if (!nhw_sharp_on[scan-1] && !nhw_sharp_on[scan]) 
+					{
+						if (res>0 && count<0) {im->im_jpeg[scan-1]++;im->im_jpeg[scan]--;}
+						else if (res<0 && count>0) {im->im_jpeg[scan-1]--;im->im_jpeg[scan]++;}
+					}
+				}
+			}
+		}
+		
+		free(nhw_sharp_on);
 	}
 	
 	free(nhw_kernel);
