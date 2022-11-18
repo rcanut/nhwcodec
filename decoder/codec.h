@@ -184,10 +184,10 @@ typedef struct{
 }decode_state;
 
 
-extern void decode_image(image_buffer *im,decode_state *os,char **argv);
+extern void decode_image(image_buffer *im,decode_state *os,char *file_name);
 
-extern int parse_file(image_buffer *imd,decode_state *os,char **argv);
-extern int write_image_decompressed(char **argv,image_buffer *im);
+extern int parse_file(image_buffer *imd,decode_state *os,char *file_name);
+extern int write_image_decompressed(char *file_name,image_buffer *im);
 
 extern void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y);
 extern void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_stage,int Y);
