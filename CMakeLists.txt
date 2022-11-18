@@ -20,12 +20,14 @@ add_library(nhw_enc ${ENC_SOURCES})
 # decoder
 set(DEC_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/codec.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/decoder/nhw_decoder.h
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/tables.h
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/wavelets.h
 )
 set(DEC_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/compress_pixel.c
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/filters.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/decoder/nhw_decoder.c
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/wavelet_filterbank.c
 )
 add_library(nhw_dec ${DEC_SOURCES})
@@ -34,7 +36,7 @@ add_library(nhw_dec ${DEC_SOURCES})
 add_executable(nhw-dec
                ${DEC_HEADERS}
                ${DEC_SOURCES}
-               decoder/nhw_decoder.c)
+               decoder/nhw_decoder_cli.c)
 target_link_libraries(nhw-dec nhw_dec)
 if (UNIX)
     target_link_libraries(nhw-dec m)

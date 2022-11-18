@@ -1,15 +1,15 @@
 /***************************************************************************
 ****************************************************************************
-*  NHW Image Codec 													       *
-*  file: nhw_decoder.c  										           *
-*  version: 0.1.6 						     		     				   *
-*  last update: $ 02102019 nhw exp $							           *
-*																		   *
+*  NHW Image Codec                                                         *
+*  file: nhw_decoder.c                                                     *
+*  version: 0.1.6                                                          *
+*  last update: $ 18112022 nhw exp $                                       *
+*                                                                          *
 ****************************************************************************
 ****************************************************************************
 
 ****************************************************************************
-*  remark: -simple codec												   *
+*  remark: -simple codec                                                   *
 ***************************************************************************/
 
 /* Copyright (C) 2007-2019 NHW Project
@@ -51,216 +51,7 @@
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
-int main(int argc, char **argv)
-{
-	image_buffer im;
-	decode_state dec;
-	FILE *res_image;
-	int i,Y,U,V,R,G,B,len,m,t;
-	unsigned char *icolorY,*icolorU,*icolorV,*iNHW;
-	float Y_q_setting,Y_inv;
-	char OutputFile[200];
-	unsigned char bmp_header[54]={66,77,54,0,12,0,0,0,0,0,
-							  54,0,0,0,40,0,0,0,0,2,
-							  0,0,0,2,0,0,1,0,24,0,
-							  0,0,0,0,0,0,12,0,0,0,
-							  0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-
-
-	if (argv[1]==NULL || argv[1]==0)
-	{
-		printf("\n Copyright (C) 2007-2013 NHW Project (Raphael C.)\n");
-		printf("\n-> nhw_decoder.exe filename.nhw\n");
-		exit(-1);
-	}
-
-	/* Decode Image */
-	decode_image(&im,&dec,argv);
-
-	// here to work on Windows Vista
-    icolorY=(unsigned char*)im.im_bufferY;
-	icolorU=(unsigned char*)im.im_bufferU;
-	icolorV=(unsigned char*)im.im_bufferV;
-	im.im_buffer4=(unsigned char*)malloc(3*IM_SIZE*sizeof(char));
-	iNHW=(unsigned char*)im.im_buffer4;
-
-	// Create the Output Decompressed .BMP File
-	len=strlen(argv[1]);
-	memset(argv[1]+len-4,0,4);
-	sprintf(OutputFile,"%sDEC.bmp",argv[1]);
-
-	res_image = fopen(OutputFile,"wb");
-
-	if( NULL == res_image )
-	{
-		printf("Failed to open output decompressed .bmp file %s\n",OutputFile);
-	}
-
-	// WRITE DECODED DATA
-	fwrite(bmp_header,54,1,res_image);
-
-	if (im.setup->quality_setting>=NORM)
-	{
-		for (m=0;m<4;m++)
-		{
-			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
-			{
-				//Y = icolorY[i]*298;
-				Y = icolorY[i];
-				U = icolorU[i]-128;
-				V = icolorV[i]-128;
-
-				//Matrix  YCbCr (or YUV) to RGB
-				/*R = ((Y         + 409*V + R_COMP)>>8); 
-				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)(Y  + 1.402*V +0.5f);   
-				G = (int)(Y  -0.34414*U -0.71414*V +0.5f); 
-				B = (int)(Y  +1.772*U +0.5f);
-
-				//Clip RGB Values
-				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-				else iNHW[t]=R;
-
-				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-				else iNHW[t+1]=G;
-
-				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-				else iNHW[t+2]=B;
-			}
-
-			fwrite(iNHW,3*IM_SIZE,1,res_image);
-		}
-	}
-	else if (im.setup->quality_setting==LOW1 || im.setup->quality_setting==LOW2)
-	{
-		if (im.setup->quality_setting==LOW1) Y_inv=1.025641; // 1/0.975
-		else if (im.setup->quality_setting==LOW2) Y_inv=1.075269; // 1/0.93
-
-		for (m=0;m<4;m++)
-		{
-			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
-			{
-				//Y = icolorY[i]*298;
-				Y_q_setting =(float)(icolorY[i]*Y_inv);
-				U = icolorU[i]-128;
-				V = icolorV[i]-128;
-
-				//Matrix  YCbCr (or YUV) to RGB
-				/*R = ((Y         + 409*V + R_COMP)>>8); 
-				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)(Y_q_setting  + 1.402*V +0.5f);   
-				G = (int)(Y_q_setting  -0.34414*U -0.71414*V +0.5f); 
-				B = (int)(Y_q_setting  +1.772*U +0.5f);
-
-				//Clip RGB Values
-				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-				else iNHW[t]=R;
-
-				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-				else iNHW[t+1]=G;
-
-				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-				else iNHW[t+2]=B;
-			}
-
-			fwrite(iNHW,3*IM_SIZE,1,res_image);
-		}
-	}
-	else if (im.setup->quality_setting==LOW3) 
-	{
-		Y_inv=1.063830; // 1/0.94
-
-		for (m=0;m<4;m++)
-		{
-			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
-			{
-				//Y = icolorY[i]*298;
-				Y = icolorY[i];
-				U = icolorU[i]-128;
-				V = icolorV[i]-128;
-
-				//Matrix  YCbCr (or YUV) to RGB
-				/*R = ((Y         + 409*V + R_COMP)>>8); 
-				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
-				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)((Y + 1.402*V)*Y_inv +0.5f);   
-				G = (int)((Y -0.34414*U -0.71414*V)*Y_inv +0.5f); 
-				B = (int)((Y +1.772*U)*Y_inv +0.5f);
-
-				//Clip RGB Values
-				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-				else iNHW[t]=R;
-
-				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-				else iNHW[t+1]=G;
-
-				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-				else iNHW[t+2]=B;
-			}
-
-			fwrite(iNHW,3*IM_SIZE,1,res_image);
-		}
-	}
-	else if (im.setup->quality_setting<LOW3) 
-	{
-		if (im.setup->quality_setting==LOW4) Y_inv=1.012139; // 1/0.94
-		else if (im.setup->quality_setting==LOW5) Y_inv=1.048174; // 1/0.906
-		else if (im.setup->quality_setting==LOW6) Y_inv=1.138331; // 1/0.8
-		else if (im.setup->quality_setting==LOW7) Y_inv=1.186945; 
-		else if (im.setup->quality_setting==LOW8) Y_inv=1.177434;
-		else if (im.setup->quality_setting==LOW9) Y_inv=1.190611; 
-		else if (im.setup->quality_setting==LOW10) Y_inv=1.281502; 
-		else if (im.setup->quality_setting==LOW11) Y_inv=1.392014;
-		else if (im.setup->quality_setting==LOW12) Y_inv=1.521263;
-		else if (im.setup->quality_setting==LOW13) Y_inv=1.587597;
-		else if (im.setup->quality_setting==LOW14) Y_inv=1.665887;
-		else if (im.setup->quality_setting==LOW15) Y_inv=1.741126;
-		else if (im.setup->quality_setting==LOW16) Y_inv=1.820444;
-		else if (im.setup->quality_setting==LOW17) Y_inv=1.916257;
-		else if (im.setup->quality_setting==LOW18) Y_inv=1.985939;
-		else if (im.setup->quality_setting==LOW19) Y_inv=2.060881;
-
-
-		for (m=0;m<4;m++)
-		{
-			for (i=m*IM_SIZE,t=0;i<(m+1)*IM_SIZE;i++,t+=3)
-			{
-				Y = icolorY[i]*298;
-				U = icolorU[i];
-				V = icolorV[i];
-
-				//Matrix  YCbCr (or YUV) to RGB
-				R =(((int)((Y         + 409*V + R_COMP)*Y_inv +128.5f))>>8); 
-				G =(((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128.5f)) >>8);  
-				B = (((int)((Y + 516*U         + B_COMP)*Y_inv +128.5f)) >>8);
-
-				//Clip RGB Values
-				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
-				else iNHW[t]=R;
-
-				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
-				else iNHW[t+1]=G;
-
-				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
-				else iNHW[t+2]=B;
-			}
-
-			fwrite(iNHW,3*IM_SIZE,1,res_image);
-		}
-	}
-
-	fclose(res_image);
-	free(im.im_bufferY);
-	free(im.im_bufferU);
-	free(im.im_bufferV);
-	free(im.im_buffer4);
-	return 0;
-}
-
-void decode_image(image_buffer *im,decode_state *os,char **argv)
+void decode_image(image_buffer *im,decode_state *os,char *file_name)
 {
 	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,*res_decompr,exw1,res,nhw_selectII;
 	short *im_nhw,*im_nhw2;
@@ -270,7 +61,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 	unsigned int *nhwresH3I;
 	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres4I,*nhwres5,*nhwres6;
 
-	wavelet_order=parse_file(im,os,argv);
+	wavelet_order=parse_file(im,os,file_name);
 	retrieve_pixel_Y_comp(im,os,4*IM_SIZE,os->packet1,im->im_process);
 	free(os->packet1);
 	im->im_jpeg=(short*)malloc(4*IM_SIZE*sizeof(short));
@@ -1656,7 +1447,7 @@ void decode_image(image_buffer *im,decode_state *os,char **argv)
 
 }
 
-int parse_file(image_buffer *imd,decode_state *os,char** argv)
+int parse_file(image_buffer *imd,decode_state *os,char* file_name)
 {
 	FILE *compressed_file;
 	int i,j,ch,e,a=0,mem,run,nhw;
@@ -1664,11 +1455,11 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
 
-	compressed_file=fopen(argv[1],"rb");
+	compressed_file=fopen(file_name,"rb");
 
 	if (compressed_file==NULL)
 	{
-		printf("\nCould not open file");
+		printf("\nCould not open file\n");
 		exit(-1);
 	}
 
@@ -1677,7 +1468,8 @@ int parse_file(image_buffer *imd,decode_state *os,char** argv)
 
 	if (imd->setup->RES_HIGH>6)
 	{
-		printf("\nNot an .nhw file");exit(-1);
+		printf("\nNot an .nhw file");
+		exit(-1);
 	}
 
 	imd->setup->colorspace=YUV;
