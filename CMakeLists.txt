@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.0)
 
 project(NHWCodec C)
 
@@ -33,8 +33,12 @@ add_library(nhw_dec ${DEC_SOURCES})
 # executables
 add_executable(dec ${DEC_HEADERS} ${DEC_SOURCES} decoder/nhw_decoder.c)
 target_link_libraries(dec nhw_dec)
-install(TARGETS dec RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS dec
+        RUNTIME DESTINATION bin
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(enc ${ENC_HEADERS} ${ENC_SOURCES} encoder/nhw_encoder.c)
 target_link_libraries(enc nhw_enc)
-install(TARGETS enc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS enc
+        RUNTIME DESTINATION bin
+        DESTINATION ${CMAKE_INSTALL_BINDIR})
