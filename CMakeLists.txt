@@ -33,12 +33,18 @@ add_library(nhw_dec ${DEC_SOURCES})
 # executables
 add_executable(dec ${DEC_HEADERS} ${DEC_SOURCES} decoder/nhw_decoder.c)
 target_link_libraries(dec nhw_dec)
+if (UNIX)
+    target_link_libraries(dec m)
+endif (UNIX)
 install(TARGETS dec
         RUNTIME DESTINATION bin
         DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_executable(enc ${ENC_HEADERS} ${ENC_SOURCES} encoder/nhw_encoder.c)
 target_link_libraries(enc nhw_enc)
+if (UNIX)
+    target_link_libraries(enc m)
+endif (UNIX)
 install(TARGETS enc
         RUNTIME DESTINATION bin
         DESTINATION ${CMAKE_INSTALL_BINDIR})
