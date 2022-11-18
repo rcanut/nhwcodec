@@ -31,26 +31,26 @@ set(DEC_SOURCES
 add_library(nhw_dec ${DEC_SOURCES})
 
 # executables
-add_executable(dec
+add_executable(nhw-dec
                ${DEC_HEADERS}
                ${DEC_SOURCES}
                decoder/nhw_decoder.c)
-target_link_libraries(dec nhw_dec)
+target_link_libraries(nhw-dec nhw_dec)
 if (UNIX)
-    target_link_libraries(dec m)
+    target_link_libraries(nhw-dec m)
 endif (UNIX)
-install(TARGETS dec
+install(TARGETS nhw-dec
         RUNTIME DESTINATION bin
         DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-add_executable(enc
+add_executable(nhw-enc
                ${ENC_HEADERS}
                ${ENC_SOURCES}
                encoder/nhw_encoder.c)
-target_link_libraries(enc nhw_enc)
+target_link_libraries(nhw-enc nhw_enc)
 if (UNIX)
-    target_link_libraries(enc m)
+    target_link_libraries(nhw-enc m)
 endif (UNIX)
-install(TARGETS enc
+install(TARGETS nhw-enc
         RUNTIME DESTINATION bin
         DESTINATION ${CMAKE_INSTALL_BINDIR})
