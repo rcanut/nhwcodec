@@ -32,4 +32,4 @@ encoder options: quality settings: -h1..3 or -l1..19
 
 example: nhw_encoder.exe imagename.bmp -l3
                  
-To decode: nhw_decoder.exe imagename.nhw
+To decode: nhw_decoder.exe file.nhw file.bmp
