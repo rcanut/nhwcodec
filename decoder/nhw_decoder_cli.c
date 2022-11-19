@@ -50,6 +50,16 @@
 #include "codec.h"
 #include "nhw_decoder.h"
 
+void show_usage(char* prog)
+{
+	fprintf(stdout,
+	"Usage: %s <image.nhw> <image.bmp>\n"
+	"Convert image: nwh to bmp\n"
+	"    (with a bitmap color 512x512 image)\n"
+	"Copyright (C) 2007-2013 NHW Project (Raphael C.)\n",
+	prog);
+}
+
 int main(int argc, char **argv)
 {
 	image_buffer im;
@@ -68,9 +78,8 @@ int main(int argc, char **argv)
 
 	if (argc<3)
 	{
-		printf("\n Copyright (C) 2007-2013 NHW Project (Raphael C.)\n");
-		printf("\n%s <file.nhw> <file.bmp>\n", argv[0]);
-		exit(-1);
+		show_usage(argv[0]);
+		exit(1);
 	}
 	input_file_name = argv[1];
 	output_file_name = argv[2];

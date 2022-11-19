@@ -1,15 +1,15 @@
 /***************************************************************************
 ****************************************************************************
-*  NHW Image Codec 													       *
-*  file: nhw_encoder.c  										           *
-*  version: 0.2.7 						     		     				   *
-*  last update: $ 11152022 nhw exp $							           *
-*																		   *
+*  NHW Image Codec                                                         *
+*  file: nhw_encoder.c                                                     *
+*  version: 0.2.7                                                          *
+*  last update: $ 19112022 nhw exp $                                       *
+*                                                                          *
 ****************************************************************************
 ****************************************************************************
 
 ****************************************************************************
-*  remark: -simple codec												   *
+*  remark: -simple codec                                                   *
 ***************************************************************************/
 
 /* Copyright (C) 2007-2022 NHW Project
@@ -50,69 +50,6 @@
 #include "codec.h"
 
 char bmp_header[54];
-
-#define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
-
-int main(int argc, char **argv)
-{	
-	image_buffer im;
-	encode_state enc;
-	int select;
-	char *arg;
-
-	if (argv[1]==NULL || argv[1]==0)
-	{
-		printf("\n Copyright (C) 2007-2013 NHW Project (Raphael C.)\n");
-		printf("\n-> nhw_encoder.exe filename.bmp");
-		printf("\n  (with filename a bitmap color 512x512 image)\n");
-		exit(-1);
-	}
-
-	im.setup=(codec_setup*)malloc(sizeof(codec_setup));
-	im.setup->quality_setting=NORM;
-
-	if (argv[2]==NULL || argv[2]==0) select=8;
-	else
-	{
-		argv += 2;arg=*argv++;
-
-		if (strcmp(arg,"-h3")==0) im.setup->quality_setting=HIGH3;
-		else if (strcmp(arg,"-h2")==0) im.setup->quality_setting=HIGH2; 
-		else if (strcmp(arg,"-h1")==0) im.setup->quality_setting=HIGH1; 
-		else if (strcmp(arg,"-l1")==0) im.setup->quality_setting=LOW1; 
-		else if (strcmp(arg,"-l2")==0) im.setup->quality_setting=LOW2; 
-		else if (strcmp(arg,"-l3")==0) im.setup->quality_setting=LOW3; 
-		else if (strcmp(arg,"-l4")==0) im.setup->quality_setting=LOW4; 
-		else if (strcmp(arg,"-l5")==0) im.setup->quality_setting=LOW5; 
-		else if (strcmp(arg,"-l6")==0) im.setup->quality_setting=LOW6; 
-		else if (strcmp(arg,"-l7")==0) im.setup->quality_setting=LOW7; 
-		else if (strcmp(arg,"-l8")==0) im.setup->quality_setting=LOW8; 
-		else if (strcmp(arg,"-l9")==0) im.setup->quality_setting=LOW9;
-		else if (strcmp(arg,"-l10")==0) im.setup->quality_setting=LOW10;
-		else if (strcmp(arg,"-l11")==0) im.setup->quality_setting=LOW11;
-		else if (strcmp(arg,"-l12")==0) im.setup->quality_setting=LOW12;
-		else if (strcmp(arg,"-l13")==0) im.setup->quality_setting=LOW13;
-		else if (strcmp(arg,"-l14")==0) im.setup->quality_setting=LOW14;
-		else if (strcmp(arg,"-l15")==0) im.setup->quality_setting=LOW15;
-		else if (strcmp(arg,"-l16")==0) im.setup->quality_setting=LOW16;
-		else if (strcmp(arg,"-l17")==0) im.setup->quality_setting=LOW17;
-		else if (strcmp(arg,"-l18")==0) im.setup->quality_setting=LOW18;
-		else if (strcmp(arg,"-l19")==0) im.setup->quality_setting=LOW19;
-		argv -= 3;
-
-		select=8; //for now...
-	}
-
-	menu(argv,&im,&enc,select);
-
-	/* Encode Image */
-	encode_image(&im,&enc,select);
-
-
-	write_compressed_file(&im,&enc,argv);
-
-	return 0;
-}
 
 void encode_image(image_buffer *im,encode_state *enc, int ratio)
 {
@@ -2891,12 +2828,12 @@ L_W5:			res256[count]=14000;
 
 }
 
-int menu(char **argv,image_buffer *im,encode_state *os,int rate)
+int menu(char *file_name,image_buffer *im,encode_state *os,int rate)
 {
 	int i;
 	FILE *im256;
 	unsigned char *im4;
- 
+
 	// INITS & MEMORY ALLOCATION FOR ENCODING
 	//im->setup=(codec_setup*)malloc(sizeof(codec_setup));
 	im->setup->colorspace=YUV;
@@ -2907,9 +2844,9 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	im->im_buffer4=(unsigned char*)calloc(4*3*IM_SIZE,sizeof(char));
 
 	// OPEN IMAGE
-	if ((im256 = fopen(argv[1],"rb")) == NULL )
+	if ((im256 = fopen(file_name,"rb")) == NULL )
 	{
-		printf ("\n Could not open file \n");
+		printf ("menu(): Could not open file: %s\n", file_name);
 		exit(-1);
 	}
 
@@ -2925,20 +2862,15 @@ int menu(char **argv,image_buffer *im,encode_state *os,int rate)
 	return(0);
 }
 
-int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
+int write_compressed_file(image_buffer *im,encode_state *enc,char *file_name)
 {
 	FILE *compressed;
-	int len,i;
-	char OutputFile[200];
+//	int len,i;
 
-	len=strlen(argv[1]);
-	memset(argv[1]+len-4,0,4);
-	sprintf(OutputFile,"%s.nhw",argv[1]);
-
-	compressed = fopen(OutputFile,"wb");
+	compressed = fopen(file_name,"wb");
 	if( NULL == compressed )
 	{
-		printf("Failed to create compressed .nhw file %s\n",OutputFile);
+		printf("Failed to create file: %s\n",file_name);
 		return (-1);
 	}
 
@@ -3108,6 +3040,4 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char **argv)
 
 	return 0;
 }
-
-
 

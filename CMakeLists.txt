@@ -13,6 +13,7 @@ set(ENC_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/encoder/compress_pixel.c
     ${CMAKE_CURRENT_SOURCE_DIR}/encoder/filters.c
     ${CMAKE_CURRENT_SOURCE_DIR}/encoder/image_processing.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/encoder/nhw_encoder.c
     ${CMAKE_CURRENT_SOURCE_DIR}/encoder/wavelet_filterbank.c
 )
 add_library(nhw_enc ${ENC_SOURCES})
@@ -48,7 +49,7 @@ install(TARGETS nhw-dec
 add_executable(nhw-enc
                ${ENC_HEADERS}
                ${ENC_SOURCES}
-               encoder/nhw_encoder.c)
+               encoder/nhw_encoder_cli.c)
 target_link_libraries(nhw-enc nhw_enc)
 if (UNIX)
     target_link_libraries(nhw-enc m)
