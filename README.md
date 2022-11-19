@@ -13,24 +13,23 @@ Another advantage of the NHW codec is that it has a high speed, making it suitab
 How to compile?
 ============
 
-1) With mingw/gcc
+1) With gcc
 
-`$ cd decoder && gcc *.c -O3 -o nhw-dec`
-or
-`$ cd decoder && make -f GNUMakefile`
+For Windows: gcc *.c -O3 -o nhw_en/decoder.exe
+
+For Linux: gcc *.c -O3 -lm -o nhw_en/decoder.exe
 
 2) With CMake
 
-`mkdir build && cd build && cmake ../ && make`
+Using the CMake config file: mkdir build && cd build && cmake ../ && make
+
+
 
 
 To encode an image (512x512 bitmap color image for now): nhw_encoder.exe imagename.bmp
 
-encoder options: quality settings: -q[1..24] {default: 20}
+encoder options: quality settings: -h1..3 or -l1..19
 
-example:
-`$ nhw-enc image.bmp image.nhw`
-`$ nhw-enc -q 10 image.bmp image.nhw`
-
-To decode: 
-`$ nhw-dec image.nhw image.bmp`
+example: nhw_encoder.exe imagename.bmp -l3
+                 
+To decode: nhw_decoder.exe file.nhw file.bmp
