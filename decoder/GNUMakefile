@@ -1,0 +1,25 @@
+PROG = nhw-dec
+
+CC ?= gcc
+CFLAGS = -g -O2
+LD = $(CC)
+LFLAGS =
+LIBS =
+
+SRCS = compress_pixel.c filters.c nhw_decoder.c nhw_decoder_cli.c wavelet_filterbank.c
+OBJS = $(SRCS)
+OBJS := $(OBJS:.c=.o)
+
+.c.o:
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+
+TARGET = $(PROG)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(LD) $(LFLAGS) -o $@ $^ $(LIBS)
+
+clean:
+	@rm -f $(OBJS) $(TARGET)
