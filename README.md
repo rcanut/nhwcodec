@@ -29,7 +29,7 @@ encoder options: quality settings: -q[1..23] {default: 20}
 
 example:
 `$ nhw-enc image.bmp image.nhw`
-`$ nhw-enc -q 10 image.bmp image.nhw`
+`$ nhw-enc -q10 image.bmp image.nhw`
 
 To decode: 
 `$ nhw-dec image.nhw image.bmp`
