@@ -75,7 +75,8 @@ void show_usage()
 	"Options:\n"
 	"  -q#       image quality #:[1..23] {default: 20}\n"
 	"  -h        print this help\n"
-	"  -V        show version and legal information\n",
+	"  -V        show version and legal information\n\n"
+	"  example: nhw-enc -q15 image.bmp image.nhw\n",
 	PROGRAM);
 }
 
