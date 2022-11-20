@@ -23,7 +23,7 @@ How to compile?
 `$ mkdir build && cd build && cmake ../ && make`
 
 
-To encode an image (512x512 bitmap color image for now): nhw_encoder.exe imagename.bmp
+To encode an image (512x512 bitmap color image for now):
 
 encoder options: quality settings: -q[1..23] {default: 20}
 
