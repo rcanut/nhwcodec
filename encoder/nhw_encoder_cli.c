@@ -175,9 +175,7 @@ int main(int argc, char **argv)
 	im.setup->quality_setting=quality;
 	select = 8;
 
-	//menu(ifname,&im,&enc,select);
 	read_image_bmp(ifname, &enc, &im, select);
-	//int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate)
 	/* Encode Image */
 	encode_image(&im, &enc, select);
 
