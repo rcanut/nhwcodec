@@ -64,7 +64,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet,y_wavelet2;
 	unsigned char *highres,*ch_comp,*scan_run,*nhw_res1I_word,*nhw_res3I_word,*nhw_res5I_word;
 	unsigned char wvlt_thrx1,wvlt_thrx2,wvlt_thrx3,wvlt_thrx4,wvlt_thrx5,wvlt_thrx6,wvlt_thrx7;
-	short *res256,*resIII,*nhw_process,*nhw_process2;
+	short *res256,*resIII,*nhw_process;
 
 	im->im_process=(short*)malloc(4*IM_SIZE*sizeof(short));
 
@@ -2836,11 +2836,10 @@ L_W5:			res256[count]=14000;
 
 }
 
-int menu(char *file_name,image_buffer *im,encode_state *os,int rate)
+///int menu(char *file_name,image_buffer *im,encode_state *os,int rate)
+int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate)
 {
-	int i;
 	FILE *im256;
-	unsigned char *im4;
 
 	// INITS & MEMORY ALLOCATION FOR ENCODING
 	//im->setup=(codec_setup*)malloc(sizeof(codec_setup));
