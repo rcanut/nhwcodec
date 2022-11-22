@@ -93,9 +93,9 @@
 // COLORSPACE DEFINITION
 #define RGB 0
 #define YUV 1
-#define R_COMP (-56992-128) 
+#define R_COMP (-56992-128)
 #define G_COMP  (34784-128)
-#define B_COMP (-70688-128) 
+#define B_COMP (-70688-128)
 
 // WAVELET TYPE DEFINITION
 #define WVLTS_53 0
@@ -104,6 +104,17 @@
 #define WVLT_ENERGY_NHW 123
 
 // MAIN STRUCTURES
+typedef struct{
+	int width;
+	int height;
+	int bpp; // 24
+	int colorspace;
+	int wavelet_type;
+	int wvlts_order;
+	int quality;
+	char* image_data;
+} nhw_image_s;
+
 typedef struct{
 	unsigned char colorspace;
 	unsigned char wavelet_type;
@@ -187,7 +198,8 @@ typedef struct{
 extern void decode_image(image_buffer *im,decode_state *os,char *file_name);
 
 extern int parse_file(image_buffer *imd,decode_state *os,char *file_name);
-extern int write_image_decompressed(char *file_name,image_buffer *im);
+int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
+int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name);
 
 extern void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y);
 extern void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_stage,int Y);
