@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.0)
 
 project(NHWCodec C)
 
+
+if(CMAKE_COMPILER_IS_GNUCC
+    OR (CMAKE_C_COMPILER_ID STREQUAL AppleClang)
+    OR (CMAKE_C_COMPILER_ID STREQUAL Clang)
+    OR (CMAKE_C_COMPILER_ID STREQUAL Intel))
+    set(CMAKE_C_FLAGS "-O2 -Wall ${CMAKE_C_FLAGS}")
+endif()
+
 # encoder
 set(ENC_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/encoder/codec.h
@@ -28,8 +36,8 @@ set(DEC_HEADERS
 set(DEC_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/compress_pixel.c
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/filters.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/decoder/nhw_decoder.c
     ${CMAKE_CURRENT_SOURCE_DIR}/decoder/wavelet_filterbank.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/decoder/nhw_decoder.c
 )
 add_library(nhw_dec ${DEC_SOURCES})
 
