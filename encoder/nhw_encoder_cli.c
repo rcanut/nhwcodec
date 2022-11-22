@@ -52,7 +52,7 @@
 #define PROGRAM "nhw-enc"
 #define VERSION "0.2.8"
 
-#define NHW_QUALITY_MIN LOW19
+#define NHW_QUALITY_MIN LOW20
 #define NHW_QUALITY_MAX HIGH3
 
 extern char bmp_header[54];
@@ -60,7 +60,7 @@ extern char bmp_header[54];
 void show_usage()
 {
 	fprintf(stdout,
-	"Usage: %s [-hq] <image.bmp> <image.nhw>\n"
+	"Usage: %s [-hV][-q<quality>] <image.bmp> <image.nhw>\n"
 	"Convert image: bmp to nwh\n"
 	" (with a bitmap color 512x512 image)\n"
 	"Options:\n"
@@ -90,7 +90,6 @@ int main(int argc, char **argv)
 	encode_state enc;
 	char *ifname, *ofname;
 	int select, quality, ofoverwrite;
-	char *arg;
 
 	quality = NORM;
 
@@ -113,7 +112,7 @@ int main(int argc, char **argv)
 			;
 			break;
 		case 'q':
-			if ((argv[1][i+1]!='\0') && (argv[1][i+1]>'0') && (argv[1][i+1]<='9'))
+			if ((argv[1][i+1]!='\0') && (argv[1][i+1]>='0') && (argv[1][i+1]<='9'))
 			{
 				quality = atoi(&argv[1][i+1]);
 				if ((quality<NHW_QUALITY_MIN) || (quality>NHW_QUALITY_MAX))
@@ -150,8 +149,9 @@ int main(int argc, char **argv)
 
 	if (argc<3)
 	{
-		printf("Not enough arguments. Try `-h' for help.\n");
-		exit(1);
+		printf("Not enough arguments. Check help.\n");
+		show_usage();
+		return 0;
 	}
 	ifname = argv[1];
 	ofname = argv[2];
@@ -166,8 +166,8 @@ int main(int argc, char **argv)
 		if (fy)
 		{
 			fclose(fy);
-		fprintf(stderr, "File '%s' already exists. Try `-f' to overwrite.\n", ofname);
-		return 1;
+			fprintf(stderr, "File '%s' already exists. Try `-f' to overwrite.\n", ofname);
+			return 1;
 		}
 	}
 
@@ -175,12 +175,11 @@ int main(int argc, char **argv)
 	im.setup->quality_setting=quality;
 	select = 8;
 
-	menu(ifname,&im,&enc,select);
-
+	read_image_bmp(ifname, &enc, &im, select);
 	/* Encode Image */
-	encode_image(&im,&enc,select);
+	encode_image(&im, &enc, select);
 
-	write_compressed_file(&im,&enc,ofname);
+	write_compressed_file(&im, &enc, ofname);
 
 	return 0;
 }
