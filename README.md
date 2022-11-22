@@ -16,7 +16,9 @@ How to compile?
 1) With mingw/gcc
 
 `$ cd decoder && gcc *.c -O3 -o nhw-dec`
+
 `$ cd encoder && gcc *.c -O3 -o nhw-enc`
+
 
 2) With CMake
 
@@ -28,8 +30,11 @@ To encode an image (512x512 bitmap color image for now):
 encoder options: quality settings: -q[1..23] {default: 20}
 
 example:
+
 `$ nhw-enc image.bmp image.nhw`
+
 `$ nhw-enc -q10 image.bmp image.nhw`
 
-To decode: 
+To decode:
+
 `$ nhw-dec image.nhw image.bmp`
