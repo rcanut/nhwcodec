@@ -59,15 +59,6 @@ extern char bmp_header[54];
 
 void show_usage()
 {
-#if 0
-	fprintf(stdout,
-	"\n Copyright (C) 2007-2013 NHW Project (Raphael C.)\n"
-	"\n-> nhw_encoder.exe filename.bmp"
-	"\n  (with filename a bitmap color 512x512 image)\n"
-	);
-	exit(0);
-#endif
-	
 	fprintf(stdout,
 	"Usage: %s [-hq] <image.bmp> <image.nhw>\n"
 	"Convert image: bmp to nwh\n"
