@@ -2,7 +2,7 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_decoder_cli.c                                                 *
-*  version: 0.2.7                                                         *
+*  version: 0.2.7                                                          *
 *  last update: $ 18112022 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
@@ -26,8 +26,8 @@
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-   - Neither the name of NHW Codec, or NHW Project, nor the names of 
-   specific contributors, may be used to endorse or promote products 
+   - Neither the name of NHW Codec, or NHW Project, nor the names of
+   specific contributors, may be used to endorse or promote products
    derived from this software without specific prior written permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -142,11 +142,11 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 				V = icolorV[i]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
-				/*R = ((Y         + 409*V + R_COMP)>>8); 
-				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
+				/*R = ((Y         + 409*V + R_COMP)>>8);
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);
 				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)(Y  + 1.402*V +0.5f);   
-				G = (int)(Y  -0.34414*U -0.71414*V +0.5f); 
+				R = (int)(Y  + 1.402*V +0.5f);
+				G = (int)(Y  -0.34414*U -0.71414*V +0.5f);
 				B = (int)(Y  +1.772*U +0.5f);
 
 				//Clip RGB Values
@@ -178,11 +178,11 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 				V = icolorV[i]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
-				/*R = ((Y         + 409*V + R_COMP)>>8); 
-				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
+				/*R = ((Y         + 409*V + R_COMP)>>8);
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);
 				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)(Y_q_setting  + 1.402*V +0.5f);   
-				G = (int)(Y_q_setting  -0.34414*U -0.71414*V +0.5f); 
+				R = (int)(Y_q_setting  + 1.402*V +0.5f);
+				G = (int)(Y_q_setting  -0.34414*U -0.71414*V +0.5f);
 				B = (int)(Y_q_setting  +1.772*U +0.5f);
 
 				//Clip RGB Values
@@ -199,7 +199,7 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 			fwrite(iNHW,3*IM_SIZE,1,output_image_file);
 		}
 	}
-	else if (im->setup->quality_setting==LOW3) 
+	else if (im->setup->quality_setting==LOW3)
 	{
 		Y_inv=1.063830; // 1/0.94
 
@@ -213,11 +213,11 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 				V = icolorV[i]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
-				/*R = ((Y         + 409*V + R_COMP)>>8); 
-				G = ((Y - 100*U - 208*V + G_COMP)>>8);  
+				/*R = ((Y         + 409*V + R_COMP)>>8);
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);
 				B = ((Y + 516*U         + B_COMP)>>8);*/
-				R = (int)((Y + 1.402*V)*Y_inv +0.5f);   
-				G = (int)((Y -0.34414*U -0.71414*V)*Y_inv +0.5f); 
+				R = (int)((Y + 1.402*V)*Y_inv +0.5f);
+				G = (int)((Y -0.34414*U -0.71414*V)*Y_inv +0.5f);
 				B = (int)((Y +1.772*U)*Y_inv +0.5f);
 
 				//Clip RGB Values
@@ -234,15 +234,15 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 			fwrite(iNHW,3*IM_SIZE,1,output_image_file);
 		}
 	}
-	else if (im->setup->quality_setting<LOW3) 
+	else if (im->setup->quality_setting<LOW3)
 	{
 		if (im->setup->quality_setting==LOW4) Y_inv=1.012139; // 1/0.94
 		else if (im->setup->quality_setting==LOW5) Y_inv=1.048174; // 1/0.906
 		else if (im->setup->quality_setting==LOW6) Y_inv=1.138331; // 1/0.8
-		else if (im->setup->quality_setting==LOW7) Y_inv=1.186945; 
+		else if (im->setup->quality_setting==LOW7) Y_inv=1.186945;
 		else if (im->setup->quality_setting==LOW8) Y_inv=1.177434;
-		else if (im->setup->quality_setting==LOW9) Y_inv=1.190611; 
-		else if (im->setup->quality_setting==LOW10) Y_inv=1.281502; 
+		else if (im->setup->quality_setting==LOW9) Y_inv=1.190611;
+		else if (im->setup->quality_setting==LOW10) Y_inv=1.281502;
 		else if (im->setup->quality_setting==LOW11) Y_inv=1.392014;
 		else if (im->setup->quality_setting==LOW12) Y_inv=1.521263;
 		else if (im->setup->quality_setting==LOW13) Y_inv=1.587597;
@@ -263,9 +263,9 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 				V = icolorV[i];
 
 				//Matrix  YCbCr (or YUV) to RGB
-				R =(((int)((Y         + 409*V + R_COMP)*Y_inv +128.5f))>>8); 
-				G =(((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128.5f)) >>8);  
-				B = (((int)((Y + 516*U         + B_COMP)*Y_inv +128.5f)) >>8);
+				R = (((int)((Y         + 409*V + R_COMP)*Y_inv +128.5f))>>8);
+				G = (((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128.5f))>>8);
+				B = (((int)((Y + 516*U         + B_COMP)*Y_inv +128.5f))>>8);
 
 				//Clip RGB Values
 				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
