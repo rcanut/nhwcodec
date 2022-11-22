@@ -2836,7 +2836,6 @@ L_W5:			res256[count]=14000;
 
 }
 
-///int menu(char *file_name,image_buffer *im,encode_state *os,int rate)
 int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate)
 {
 	FILE *im256;
