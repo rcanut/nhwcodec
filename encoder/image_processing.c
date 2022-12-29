@@ -858,12 +858,12 @@ void pre_processing(image_buffer *im)
 						}
 						else if (j<((2*IM_DIM)-4) && abs(nhw_kernel[scan+1])>sharpness && abs(nhw_kernel[scan+1])<=(sharpness+20)) 
 						{
-							if ((count>0 && nhw_kernel[scan+1]>0) || (count<0 && nhw_kernel[scan+1]<0)) j--;scan--;
+							if ((count>0 && nhw_kernel[scan+1]>0) || (count<0 && nhw_kernel[scan+1]<0)) {j--;scan--;}
 						}
 					}
 					else if (j<((2*IM_DIM)-4) && abs(nhw_kernel[scan+1])>sharpness && abs(nhw_kernel[scan+1])<=(sharpness+20)) 
 					{
-						if ((count>0 && nhw_kernel[scan+1]>0) || (count<0 && nhw_kernel[scan+1]<0)) j--;scan--;
+						if ((count>0 && nhw_kernel[scan+1]>0) || (count<0 && nhw_kernel[scan+1]<0)) {j--;scan--;}
 					}
 				}
 				else if (abs(res)>(sharpness+56) && abs(count)>(sharpness+56))
