@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9 						     		     			       *
-*  last update: $ 12202022 nhw exp $							           *
+*  version: 0.2.9.1 						     		     			   *
+*  last update: $ 12292022 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -463,7 +463,6 @@ void pre_processing(image_buffer *im)
 		}
 	}
 						
-
 	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
@@ -546,13 +545,13 @@ void pre_processing(image_buffer *im)
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
 				{
-					if (res>0 && count>0) 
+					if (res>0 && count<0) 
 					{
-						if (res>=count) im->im_jpeg[scan-1]++;else im->im_jpeg[scan]++;
+						im->im_jpeg[scan-1]++;im->im_jpeg[scan]--;
 					}
-					else if (res<0 && count<0) 
+					else if (res<0 && count>0) 
 					{
-						if (res<=count) im->im_jpeg[scan-1]--;else im->im_jpeg[scan]--;
+						im->im_jpeg[scan-1]--;im->im_jpeg[scan]++;
 					}
 				}
 			}
@@ -833,16 +832,38 @@ void pre_processing(image_buffer *im)
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
 				{
-					if (!nhw_sharp_on[scan-1] && !nhw_sharp_on[scan]) 
+					if (!nhw_sharp_on[scan-1] && !nhw_sharp_on[scan])
 					{
-						if (res>0 && count<0) 
+						if (res>0 && count>0) 
 						{
-							im->im_jpeg[scan-1]++;im->im_jpeg[scan]--;
+							if (res>=count) 
+							{
+								im->im_jpeg[scan-1]++;
+							}
+							else 
+							{
+								im->im_jpeg[scan]++;
+							}
 						}
-						else if (res<0 && count>0) 
+						else if (res<0 && count<0) 
 						{
-							im->im_jpeg[scan-1]--;im->im_jpeg[scan]++;
+							if (res<=count) 
+							{
+								im->im_jpeg[scan-1]--;
+							}
+							else 
+							{
+								im->im_jpeg[scan]--;
+							}
 						}
+						else if (j<((2*IM_DIM)-4) && abs(nhw_kernel[scan+1])>sharpness && abs(nhw_kernel[scan+1])<=(sharpness+20)) 
+						{
+							if ((count>0 && nhw_kernel[scan+1]>0) || (count<0 && nhw_kernel[scan+1]<0)) j--;scan--;
+						}
+					}
+					else if (j<((2*IM_DIM)-4) && abs(nhw_kernel[scan+1])>sharpness && abs(nhw_kernel[scan+1])<=(sharpness+20)) 
+					{
+						if ((count>0 && nhw_kernel[scan+1]>0) || (count<0 && nhw_kernel[scan+1]<0)) j--;scan--;
 					}
 				}
 				else if (abs(res)>(sharpness+56) && abs(count)>(sharpness+56))
