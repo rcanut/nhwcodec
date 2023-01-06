@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.2 						     		     			   *
-*  last update: $ 01042023 nhw exp $							           *
+*  version: 0.2.9.3 						     		     			   *
+*  last update: $ 01062023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -184,7 +184,7 @@ L_OVER4N:	a = -a;
 
 void offsetY(image_buffer *im,encode_state *enc, int m1)
 {
-	int i,j,wavelet_order,exw,a,r,scan,t1=0;
+	int i,j,wavelet_order,exw,a,r,scan,t1=0,quant=0;
 	short *nhw_process;
 
 	nhw_process=(short*)im->im_process;
@@ -349,10 +349,32 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 			if (a==-7 && nhw_process[i+1]==8 && (i&511)<(2*IM_DIM-1)) {nhw_process[i]=-8;a=-8;}
 
 			a = -a;
-
-			if ((a&7)<7)
+			
+			if (im->setup->quality_setting<=LOW4) 
 			{
-				a&=504;
+				if ((a&7)==7)
+				{
+					if (!quant)
+					{
+						a&=504;quant=1;
+					}
+					else if (quant==1)
+					{
+						quant=2;
+					}
+					else if (quant==2)
+					{
+						quant=0;
+					}
+				}				
+				else a&=504;
+			}
+			else
+			{
+				if ((a&7)<7)
+				{
+					a&=504;
+				}
 			}
 
 			a = -a;
@@ -1110,7 +1132,7 @@ void block_variance_avg(image_buffer *im)
 
 void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 {
-	int i,j,wavelet_order,a,e,t;
+	int i,j,wavelet_order,a,e,t,quant=0;
 	short *nhw1,*highres_tmp;
 
 	nhw1=(short*)im->im_process;
@@ -1446,9 +1468,31 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				a = -a;
 
-				if ((a&7)<7)
+				if (im->setup->quality_setting<=LOW4) 
 				{
-					a&=65528;
+					if ((a&7)==7)
+					{
+						if (!quant)
+						{
+							a&=65528;quant=1;
+						}
+						else if (quant==1)
+						{
+							quant=2;
+						}
+						else if (quant==2)
+						{
+							quant=0;
+						}
+					}				
+					else a&=65528;
+				}
+				else
+				{
+					if ((a&7)<7)
+					{
+						a&=65528;
+					}
 				}
 
 				a = -a;
@@ -1504,9 +1548,31 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				a = -a;
 
-				if ((a&7)<7)
+				if (im->setup->quality_setting<=LOW4) 
 				{
-					a&=65528;
+					if ((a&7)==7)
+					{
+						if (!quant)
+						{
+							a&=65528;quant=1;
+						}
+						else if (quant==1)
+						{
+							quant=2;
+						}
+						else if (quant==2)
+						{
+							quant=0;
+						}
+					}				
+					else a&=65528;
+				}
+				else
+				{
+					if ((a&7)<7)
+					{
+						a&=65528;
+					}
 				}
 
 				a = -a;
