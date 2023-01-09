@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.3 						     		     			   *
-*  last update: $ 01062023 nhw exp $							           *
+*  version: 0.2.9.4 						     		     			   *
+*  last update: $ 01092023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -311,6 +311,8 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 
 	for (i=0;i<(4*IM_SIZE);i++)
 	{
+		if (!(i&511)) quant=0;
+		
 		a = nhw_process[i];
 
 		if (a>10000)
@@ -366,7 +368,7 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 					{
 						quant=0;
 					}
-				}				
+				}
 				else a&=504;
 			}
 			else
@@ -1441,7 +1443,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 	for (i=0;i<(IM_SIZE);i+=(2*IM_DIM))
 	{
-		for (j=(IM_DIM>>1);j<IM_DIM;j++) 
+		for (j=(IM_DIM>>1),quant=0;j<IM_DIM;j++) 
 		{
 			a = im->im_process[i+j];
 
@@ -1519,9 +1521,9 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 		}
 	}
 
-	for (i=(IM_SIZE);i<(4*IM_SIZE>>1);i+=(2*IM_DIM))
+	for (i=(IM_SIZE);i<((4*IM_SIZE)>>1);i+=(2*IM_DIM))
 	{
-		for (j=0;j<IM_DIM;j++) 
+		for (j=0,quant=0;j<IM_DIM;j++) 
 		{
 			a = im->im_process[i+j];
 
