@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.4 						     		     			   *
-*  last update: $ 01092023 nhw exp $							           *
+*  version: 0.2.9.5 						     		     			   *
+*  last update: $ 01112023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -354,7 +354,7 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 			
 			if (im->setup->quality_setting<=LOW4) 
 			{
-				if ((a&7)==7)
+				if ((a&7)==7 && a>8)
 				{
 					if (!quant)
 					{
@@ -365,6 +365,18 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 						quant=2;
 					}
 					else if (quant==2)
+					{
+						quant=3;
+					}
+					else if (quant==3)
+					{
+						quant=4;
+					}
+					else if (quant==4)
+					{
+						quant=5;
+					}
+					else if (quant==5)
 					{
 						quant=0;
 					}
@@ -1472,8 +1484,8 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				if (im->setup->quality_setting<=LOW4) 
 				{
-					if ((a&7)==7)
-					{
+					if ((a&7)==7 && a>8)
+					{	
 						if (!quant)
 						{
 							a&=65528;quant=1;
@@ -1483,6 +1495,18 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 							quant=2;
 						}
 						else if (quant==2)
+						{
+							quant=3;
+						}
+						else if (quant==3)
+						{
+							quant=4;
+						}
+						else if (quant==4)
+						{
+							quant=5;
+						}
+						else if (quant==5)
 						{
 							quant=0;
 						}
@@ -1552,7 +1576,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				if (im->setup->quality_setting<=LOW4) 
 				{
-					if ((a&7)==7)
+					if ((a&7)==7 && a>8)
 					{
 						if (!quant)
 						{
@@ -1563,6 +1587,18 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 							quant=2;
 						}
 						else if (quant==2)
+						{
+							quant=3;
+						}
+						else if (quant==3)
+						{
+							quant=4;
+						}
+						else if (quant==4)
+						{
+							quant=5;
+						}
+						else if (quant==5)
 						{
 							quant=0;
 						}
