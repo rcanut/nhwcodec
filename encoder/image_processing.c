@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.5 						     		     			   *
-*  last update: $ 01112023 nhw exp $							           *
+*  version: 0.2.9.6 						     		     			   *
+*  last update: $ 01182023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -184,7 +184,7 @@ L_OVER4N:	a = -a;
 
 void offsetY(image_buffer *im,encode_state *enc, int m1)
 {
-	int i,j,wavelet_order,exw,a,r,scan,t1=0,quant=0;
+	int i,j,wavelet_order,exw,a,r,scan,t1=0,quant=0,quant2,quant3,quant4=0;
 	short *nhw_process;
 
 	nhw_process=(short*)im->im_process;
@@ -398,7 +398,50 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 		{
 			if ((i&511)<(2*IM_DIM-1) && nhw_process[i+1]==7) nhw_process[i+1]=9;
 		}
-
+		
+		if (a>=14 && nhw_process[i+1]>=14 && im->setup->quality_setting<=LOW4)
+		{
+			if (i>=(2*IM_SIZE) || (i&511)>=IM_DIM) 
+			{
+				quant2 = (a&510);
+				quant3 = (nhw_process[i+1]&510);
+				
+				if(((quant2)&7)==6 && ((quant3)&7)==6 && ((a&1)==1 || (nhw_process[i+1]&1)==1))
+				{
+					if (!quant4)
+					{
+						if ((a&504)==(nhw_process[i+1]&504))
+						{
+							if (a>=nhw_process[i+1])
+							{
+								a+=2;nhw_process[i+1]-=2;
+							}
+							else nhw_process[i+1]+=2;
+						}
+						else if (a<=nhw_process[i+1])
+						{
+							a+=2;nhw_process[i+1]-=2;
+						}
+						else nhw_process[i+1]+=2;
+						
+						quant4=1;
+					}
+					else if (quant4==1)
+					{
+						quant4=2;
+					}
+					else if (quant4==2)
+					{
+						quant4=0;
+					}
+					/*else if (quant4==3)
+					{
+						quant4=0;
+					}*/
+				}
+			}
+		}
+		
 		if (a<m1 && a>-m1)  
 		{
 			nhw_process[i]=128;continue;
