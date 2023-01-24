@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.6 						     		     			   *
-*  last update: $ 01182023 nhw exp $							           *
+*  version: 0.2.9.7 						     		     			   *
+*  last update: $ 01242023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -184,7 +184,7 @@ L_OVER4N:	a = -a;
 
 void offsetY(image_buffer *im,encode_state *enc, int m1)
 {
-	int i,j,wavelet_order,exw,a,r,scan,t1=0,quant=0,quant2,quant3,quant4=0;
+	int i,j,wavelet_order,exw,a,r1=0,r2=0,scan,t1=0,quant=0,quant2,quant3,quant4=0,quant5=0;
 	short *nhw_process;
 
 	nhw_process=(short*)im->im_process;
@@ -352,13 +352,17 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 
 			a = -a;
 			
+			if (a>14 && (a&7)==7 && nhw_process[i+1]>0 && nhw_process[i+1]<8) a-=2;  
+			
 			if (im->setup->quality_setting<=LOW4) 
 			{
 				if ((a&7)==7 && a>8)
 				{
 					if (!quant)
 					{
-						a&=504;quant=1;
+						a&=504;
+						
+						quant=1;
 					}
 					else if (quant==1)
 					{
@@ -408,21 +412,61 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 				
 				if(((quant2)&7)==6 && ((quant3)&7)==6 && ((a&1)==1 || (nhw_process[i+1]&1)==1))
 				{
+					if ((i&511)>0 && (i&511)<((2*IM_DIM)-2))
+					{
+						if (nhw_process[i-1]<-2 && nhw_process[i-1]>-8)
+						{
+							r1=1;
+						}
+						else if (nhw_process[i-1]<-7 && ((-nhw_process[i-1])&7)<6)
+						{
+							r1=1;
+						}
+						else r1=0;
+					
+						if (nhw_process[i+2]<-2 && nhw_process[i+2]>-8)
+						{
+							r2=1;
+						}
+						else if (nhw_process[i+2]<-7 && ((-nhw_process[i+2])&7)<6)
+						{
+							r2=1;
+						}
+						else r2=0;
+					}
+					else 
+					{
+						r1=0;r2=0;
+					}
+				
 					if (!quant4)
 					{
 						if ((a&504)==(nhw_process[i+1]&504))
 						{
 							if (a>=nhw_process[i+1])
 							{
-								a+=2;nhw_process[i+1]-=2;
+								if (!r1) {a+=2;nhw_process[i+1]-=2;quant5=0;}
+								else quant5=1;
 							}
-							else nhw_process[i+1]+=2;
+							else 
+							{
+								if (!r2) {nhw_process[i+1]+=2;quant5=0;}
+								else quant5=1;
+							}
 						}
 						else if (a<=nhw_process[i+1])
 						{
-							a+=2;nhw_process[i+1]-=2;
+							if (!r1) {a+=2;nhw_process[i+1]-=2;quant5=0;}
+							else quant5=1;
 						}
-						else nhw_process[i+1]+=2;
+						else 
+						{
+							if (!r2) {nhw_process[i+1]+=2;quant5=0;}
+							else quant5=1;
+						}
+						
+						//if (!quant5) quant4=1;
+						//else quant4=2;
 						
 						quant4=1;
 					}
