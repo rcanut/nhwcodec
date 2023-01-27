@@ -3,7 +3,7 @@
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
 *  version: 0.2.9.7 						     		     			   *
-*  last update: $ 01242023 nhw exp $							           *
+*  last update: $ 01272023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -418,9 +418,10 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 						{
 							r1=1;
 						}
-						else if (nhw_process[i-1]<-7 && ((-nhw_process[i-1])&7)<6)
+						else if (nhw_process[i-1]<-7)
 						{
-							r1=1;
+							if (((-nhw_process[i-1])&7)<6) r1=0;
+							else r1=1;
 						}
 						else r1=0;
 					
@@ -428,9 +429,10 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 						{
 							r2=1;
 						}
-						else if (nhw_process[i+2]<-7 && ((-nhw_process[i+2])&7)<6)
+						else if (nhw_process[i+2]<-7)
 						{
-							r2=1;
+							if (((-nhw_process[i+2])&7)<6) r2=0;
+							else r2=1;
 						}
 						else r2=0;
 					}
