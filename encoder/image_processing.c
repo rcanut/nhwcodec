@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.7 						     		     			   *
-*  last update: $ 01272023 nhw exp $							           *
+*  version: 0.2.9.8 						     		     			   *
+*  last update: $ 02072023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -184,7 +184,7 @@ L_OVER4N:	a = -a;
 
 void offsetY(image_buffer *im,encode_state *enc, int m1)
 {
-	int i,j,wavelet_order,exw,a,r1=0,r2=0,scan,t1=0,quant=0,quant2,quant3,quant4=0,quant5=0;
+	int i,j,wavelet_order,exw,a,r1=0,r2=0,scan,t1=0,quant=0,quant2,quant3,quant4=0,quant5=0,quant6=0;
 	short *nhw_process;
 
 	nhw_process=(short*)im->im_process;
@@ -311,7 +311,7 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 
 	for (i=0;i<(4*IM_SIZE);i++)
 	{
-		if (!(i&511)) quant=0;
+		if (!(i&511)) {quant=0;quant6=0;}
 		
 		a = nhw_process[i];
 
@@ -356,7 +356,7 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 			
 			if (im->setup->quality_setting<=LOW4) 
 			{
-				if ((a&7)==7 && a>8)
+				if (a==15)
 				{
 					if (!quant)
 					{
@@ -383,6 +383,27 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 					else if (quant==5)
 					{
 						quant=0;
+					}
+				}
+				else if (a>22 && (a&7)==7)
+				{
+					if (!quant6)
+					{
+						a&=504;
+						
+						quant6=1;
+					}
+					else if (quant6==1)
+					{
+						quant6=2;
+					}
+					else if (quant6==2)
+					{
+						quant6=3;
+					}
+					else if (quant6==3)
+					{
+						quant6=0;
 					}
 				}
 				else a&=504;
@@ -1235,7 +1256,7 @@ void block_variance_avg(image_buffer *im)
 
 void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 {
-	int i,j,wavelet_order,a,e,t,quant=0;
+	int i,j,wavelet_order,a,e,t,quant=0,quant6=0;
 	short *nhw1,*highres_tmp;
 
 	nhw1=(short*)im->im_process;
@@ -1544,7 +1565,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 	for (i=0;i<(IM_SIZE);i+=(2*IM_DIM))
 	{
-		for (j=(IM_DIM>>1),quant=0;j<IM_DIM;j++) 
+		for (j=(IM_DIM>>1),quant=0,quant6=0;j<IM_DIM;j++) 
 		{
 			a = im->im_process[i+j];
 
@@ -1573,11 +1594,13 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				if (im->setup->quality_setting<=LOW4) 
 				{
-					if ((a&7)==7 && a>8)
-					{	
+					if (a==15)
+					{
 						if (!quant)
 						{
-							a&=65528;quant=1;
+							a&=65528;
+						
+							quant=1;
 						}
 						else if (quant==1)
 						{
@@ -1598,6 +1621,25 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 						else if (quant==5)
 						{
 							quant=0;
+						}
+					}
+					if (a>22 && (a&7)==7)
+					{	
+						if (!quant6)
+						{
+							a&=65528;quant6=1;
+						}
+						else if (quant6==1)
+						{
+							quant6=2;
+						}
+						else if (quant6==2)
+						{
+							quant6=3;
+						}
+						else if (quant6==3)
+						{
+							quant6=0;
 						}
 					}				
 					else a&=65528;
@@ -1636,7 +1678,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 	for (i=(IM_SIZE);i<((4*IM_SIZE)>>1);i+=(2*IM_DIM))
 	{
-		for (j=0,quant=0;j<IM_DIM;j++) 
+		for (j=0,quant=0,quant6=0;j<IM_DIM;j++) 
 		{
 			a = im->im_process[i+j];
 
@@ -1665,11 +1707,13 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 				if (im->setup->quality_setting<=LOW4) 
 				{
-					if ((a&7)==7 && a>8)
+					if (a==15)
 					{
 						if (!quant)
 						{
-							a&=65528;quant=1;
+							a&=65528;
+						
+							quant=1;
 						}
 						else if (quant==1)
 						{
@@ -1690,6 +1734,25 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 						else if (quant==5)
 						{
 							quant=0;
+						}
+					}
+					if (a>22 && (a&7)==7)
+					{	
+						if (!quant6)
+						{
+							a&=65528;quant6=1;
+						}
+						else if (quant6==1)
+						{
+							quant6=2;
+						}
+						else if (quant6==2)
+						{
+							quant6=3;
+						}
+						else if (quant6==3)
+						{
+							quant6=0;
 						}
 					}				
 					else a&=65528;
