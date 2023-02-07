@@ -1623,7 +1623,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 							quant=0;
 						}
 					}
-					if (a>22 && (a&7)==7)
+					else if (a>22 && (a&7)==7)
 					{	
 						if (!quant6)
 						{
@@ -1736,7 +1736,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 							quant=0;
 						}
 					}
-					if (a>22 && (a&7)==7)
+					else if (a>22 && (a&7)==7)
 					{	
 						if (!quant6)
 						{
