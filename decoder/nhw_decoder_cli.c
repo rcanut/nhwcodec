@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_decoder_cli.c                                                 *
-*  version: 0.2.7                                                          *
-*  last update: $ 18112022 nhw exp $                                       *
+*  version: 0.3.0-rc1                                                      *
+*  last update: $ 04182023 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -52,7 +52,7 @@
 #include "nhw_decoder.h"
 
 #define PROGRAM "nhw-dec"
-#define VERSION "0.2.8"
+#define VERSION "0.3.0-rc1"
 
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
 int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name);

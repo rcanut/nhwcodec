@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_decoder.c                                                     *
-*  version: 0.2.7                                                          *
-*  last update: $ 18112022 nhw exp $                                       *
+*  version: 0.3.0-rc1                                                      *
+*  last update: $ 04182023 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -657,26 +657,55 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 		im->im_jpeg[count]=scan;
 
 	}
-
-	for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	
+	if (im->setup->quality_setting<=LOW4)
 	{
-		for (scan=i+1,j=1;j<IM_DIM-1;j++,scan++) 
+		for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 		{
-			if (abs(im_nhw[scan])>8)
+			for (scan=i+1,j=1;j<IM_DIM-1;j++,scan++) 
 			{
-				if (abs(im_nhw[scan-(2*IM_DIM+1)])>8) continue;
-				if (abs(im_nhw[scan-(2*IM_DIM)])>8) continue;
-				if (abs(im_nhw[scan-(2*IM_DIM-1)])>8) continue;
-				if (abs(im_nhw[scan-1])>8) continue;
-				if (abs(im_nhw[scan+1])>8) continue;
-				if (abs(im_nhw[scan+(2*IM_DIM-1)])>8) continue;
-				if (abs(im_nhw[scan+(2*IM_DIM)])>8) continue;
-				if (abs(im_nhw[scan+(2*IM_DIM+1)])>8) continue;
-			
-				if (i>=IM_SIZE || j>=(IM_DIM>>1))
+				if (abs(im_nhw[scan])>8)
 				{
-					if (im_nhw[scan]>0) im_nhw[scan]--;
-					else im_nhw[scan]++;
+					if (abs(im_nhw[scan-(2*IM_DIM+1)])>16) continue;
+					if (abs(im_nhw[scan-(2*IM_DIM)])>8) continue;
+					if (abs(im_nhw[scan-(2*IM_DIM-1)])>16) continue;
+					if (abs(im_nhw[scan-1])>8) continue;
+					if (abs(im_nhw[scan+1])>8) continue;
+					if (abs(im_nhw[scan+(2*IM_DIM-1)])>16) continue;
+					if (abs(im_nhw[scan+(2*IM_DIM)])>8) continue;
+					if (abs(im_nhw[scan+(2*IM_DIM+1)])>16) continue;
+			
+					if (i>=IM_SIZE || j>=(IM_DIM>>1))
+					{
+						if (im_nhw[scan]>0) im_nhw[scan]--;
+						else im_nhw[scan]++;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+		{
+			for (scan=i+1,j=1;j<IM_DIM-1;j++,scan++) 
+			{
+				if (abs(im_nhw[scan])>8)
+				{
+					if (abs(im_nhw[scan-(2*IM_DIM+1)])>8) continue;
+					if (abs(im_nhw[scan-(2*IM_DIM)])>8) continue;
+					if (abs(im_nhw[scan-(2*IM_DIM-1)])>8) continue;
+					if (abs(im_nhw[scan-1])>8) continue;
+					if (abs(im_nhw[scan+1])>8) continue;
+					if (abs(im_nhw[scan+(2*IM_DIM-1)])>8) continue;
+					if (abs(im_nhw[scan+(2*IM_DIM)])>8) continue;
+					if (abs(im_nhw[scan+(2*IM_DIM+1)])>8) continue;
+			
+					if (i>=IM_SIZE || j>=(IM_DIM>>1))
+					{
+						if (im_nhw[scan]>0) im_nhw[scan]--;
+						else im_nhw[scan]++;
+					}
 				}
 			}
 		}

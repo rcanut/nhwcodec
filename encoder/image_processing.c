@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.2.9.8 						     		     			   *
-*  last update: $ 02072023 nhw exp $							           *
+*  version: 0.3.0-rc1 						     		     			   *
+*  last update: $ 04182023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -1791,25 +1791,54 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 	if (!part)
 	{
-		for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+		if (im->setup->quality_setting<=LOW4) 
 		{
-			for (e=i+1,j=1;j<IM_DIM-1;j++,e++) 
+			for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 			{
-				if (abs(im->im_jpeg[e])>=8)
+				for (e=i+1,j=1;j<IM_DIM-1;j++,e++) 
 				{
-					if (abs(im->im_jpeg[e-(2*IM_DIM+1)])>=8) continue;
-					if (abs(im->im_jpeg[e-(2*IM_DIM)])>=8) continue;
-					if (abs(im->im_jpeg[e-(2*IM_DIM-1)])>=8) continue;
-					if (abs(im->im_jpeg[e-1])>=8) continue;
-					if (abs(im->im_jpeg[e+1])>=8) continue;
-					if (abs(im->im_jpeg[e+(2*IM_DIM-1)])>=8) continue;
-					if (abs(im->im_jpeg[e+(2*IM_DIM)])>=8) continue;
-					if (abs(im->im_jpeg[e+(2*IM_DIM+1)])>=8) continue;
-
-					if (i>=IM_SIZE || j>=(IM_DIM>>1))
+					if (abs(im->im_jpeg[e])>=8)
 					{
-						if (im->im_jpeg[e]>0) im->im_jpeg[e]--;
-						else im->im_jpeg[e]++;
+						if (abs(im->im_jpeg[e-(2*IM_DIM+1)])>=16) continue;
+						if (abs(im->im_jpeg[e-(2*IM_DIM)])>=8) continue;
+						if (abs(im->im_jpeg[e-(2*IM_DIM-1)])>=16) continue;
+						if (abs(im->im_jpeg[e-1])>=8) continue;
+						if (abs(im->im_jpeg[e+1])>=8) continue;
+						if (abs(im->im_jpeg[e+(2*IM_DIM-1)])>=16) continue;
+						if (abs(im->im_jpeg[e+(2*IM_DIM)])>=8) continue;
+						if (abs(im->im_jpeg[e+(2*IM_DIM+1)])>=16) continue;
+
+						if (i>=IM_SIZE || j>=(IM_DIM>>1))
+						{
+							if (im->im_jpeg[e]>0) im->im_jpeg[e]--;
+							else im->im_jpeg[e]++;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			for (i=(2*IM_DIM);i<((2*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+			{
+				for (e=i+1,j=1;j<IM_DIM-1;j++,e++) 
+				{
+					if (abs(im->im_jpeg[e])>=8)
+					{
+						if (abs(im->im_jpeg[e-(2*IM_DIM+1)])>=8) continue;
+						if (abs(im->im_jpeg[e-(2*IM_DIM)])>=8) continue;
+						if (abs(im->im_jpeg[e-(2*IM_DIM-1)])>=8) continue;
+						if (abs(im->im_jpeg[e-1])>=8) continue;
+						if (abs(im->im_jpeg[e+1])>=8) continue;
+						if (abs(im->im_jpeg[e+(2*IM_DIM-1)])>=8) continue;
+						if (abs(im->im_jpeg[e+(2*IM_DIM)])>=8) continue;
+						if (abs(im->im_jpeg[e+(2*IM_DIM+1)])>=8) continue;
+
+						if (i>=IM_SIZE || j>=(IM_DIM>>1))
+						{
+							if (im->im_jpeg[e]>0) im->im_jpeg[e]--;
+							else im->im_jpeg[e]++;
+						}
 					}
 				}
 			}
