@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc1 						     		     			   *
-*  last update: $ 04182023 nhw exp $							           *
+*  version: 0.3.0-rc2 						     		     			   *
+*  last update: $ 09212023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -601,11 +601,30 @@ void pre_processing(image_buffer *im)
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-1);j++,scan++)
 		{   
-			nhw_kernel[scan]	=  (nhw_process[scan]<<3) -
+			res	=  (nhw_process[scan]<<3) -
 									nhw_process[scan-1]-nhw_process[scan+1]-
 									nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 									nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 									nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
+									
+			count = abs(nhw_process[scan]-nhw_process[scan-1]) +
+					abs(nhw_process[scan]-nhw_process[scan+1]) +
+					abs(nhw_process[scan]-nhw_process[scan-(2*IM_DIM)]) +
+					abs(nhw_process[scan]-nhw_process[scan+(2*IM_DIM)]) +
+					abs(nhw_process[scan]-nhw_process[scan-(2*IM_DIM-1)]) +
+					abs(nhw_process[scan]-nhw_process[scan-(2*IM_DIM+1)]) +
+					abs(nhw_process[scan]-nhw_process[scan+(2*IM_DIM-1)]) +
+					abs(nhw_process[scan]-nhw_process[scan+(2*IM_DIM+1)]);
+					
+			if (res<0) 
+			{
+				nhw_kernel[scan] = - (((15*abs(res))+count)>>4);
+			}
+			else if (res>0)
+			{
+				nhw_kernel[scan] = (((15*res)+count)>>4);
+			}
+			else nhw_kernel[scan]=0;
 		}
 	}
 	
