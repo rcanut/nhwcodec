@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc2 						     		     			   *
-*  last update: $ 09212023 nhw exp $							           *
+*  version: 0.3.0-rc3 						     		     			   *
+*  last update: $ 10122023 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -557,7 +557,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,res2,res3,count,e=0,f=0,a=0,sharpness,sharpn2,n1,t;
+	int i,j,scan,res,res2,res3,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on, *nhw_sharp_on;
 
@@ -597,15 +597,15 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW19) n1=60;
 	
 
-	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),res3=0,a=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-1);j++,scan++)
 		{   
 			res	=  (nhw_process[scan]<<3) -
-									nhw_process[scan-1]-nhw_process[scan+1]-
-									nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-									nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-									nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
+							nhw_process[scan-1]-nhw_process[scan+1]-
+							nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
+							nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
+							nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
 									
 			count = abs(nhw_process[scan]-nhw_process[scan-1]) +
 					abs(nhw_process[scan]-nhw_process[scan+1]) +
@@ -618,15 +618,53 @@ void pre_processing(image_buffer *im)
 					
 			if (res<0) 
 			{
-				nhw_kernel[scan] = - (((15*abs(res))+count)>>4);
+				res2 = - (((15*abs(res))+count)>>4);
+				
+				if (abs(res)<=sharpn2 && abs(res2)>sharpn2 && abs(res2)<=(sharpn2+20) && im->setup->quality_setting<=LOW4) 
+				{
+					if (!res3)
+					{
+						nhw_kernel[scan] = - (sharpn2+21);
+						
+						res3 = 1;
+					}
+					else 
+					{
+						nhw_kernel[scan] = res2;
+						
+						if (res3==1) res3 = 2;
+						else res3 = 0;
+					}
+				}
+				else nhw_kernel[scan] = res2;
 			}
 			else if (res>0)
 			{
-				nhw_kernel[scan] = (((15*res)+count)>>4);
+				res2 = (((15*res)+count)>>4);
+				
+				if (res<=sharpn2 && res2>sharpn2 && res2<=(sharpn2+20) && im->setup->quality_setting<=LOW4)
+				{
+					if (!a)
+					{
+						nhw_kernel[scan] = sharpn2+21;
+						
+						a = 1;
+					}
+					else 
+					{
+						nhw_kernel[scan] = res2;
+						
+						if (a==1) a = 2;
+						else a = 0;
+					}
+				}
+				else nhw_kernel[scan] = res2;
 			}
 			else nhw_kernel[scan]=0;
 		}
 	}
+	
+	a = 0;
 	
 	if (im->setup->quality_setting<=LOW4) nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
 						
