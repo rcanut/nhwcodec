@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc8 						     		     			   *
-*  last update: $ 01112024 nhw exp $							           *
+*  version: 0.3.0-rc9 						     		     			   *
+*  last update: $ 01192024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -693,6 +693,10 @@ void pre_processing(image_buffer *im)
 							else t5 = 0;
 						}
 					}
+					else if (j>1 && nhw_kernel[scan-1]==(sharpn2+22)) 
+					{
+						nhw_kernel[scan-1] = 7000;
+					}
 					
 					if (!a)
 					{
@@ -802,20 +806,12 @@ void pre_processing(image_buffer *im)
 			}
 			else
 			{
-				if (abs(res)>10000)
-				{
-					if (res==20000) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
-				}
-				else if (abs(res)>sharpness)
+				if (abs(res)>sharpness)
 				{
 					if (res>0) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
 				}
 				
-				if (abs(count)>10000)
-				{
-					if (count==20000) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
-				}
-				else if (abs(count)>sharpness)
+				if (abs(count)>sharpness)
 				{
 					if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
 				}
@@ -914,13 +910,17 @@ void pre_processing(image_buffer *im)
 			
 				count= nhw_kernel[scan];
 				
-				if (abs(res)>10000)
+				if (abs(res)>6000)
 				{
-					if (res==20000) nhw_kernel[scan-1]=sharpn2+21;else nhw_kernel[scan-1]= -(sharpn2+21);
+					if (res==20000) nhw_kernel[scan-1]=sharpn2+21;
+					else if (res== -20000) nhw_kernel[scan-1]= -(sharpn2+21);
+					else if (res==7000) nhw_kernel[scan-1]=sharpn2+22;
 					
 					if(!t2)
 					{
-						if (count==20000) nhw_kernel[scan]=sharpn2+21;else if (count== -20000) nhw_kernel[scan]= -(sharpn2+21);
+						if (count==20000) nhw_kernel[scan]=sharpn2+21;
+						else if (count== -20000) nhw_kernel[scan]= -(sharpn2+21);
+						else if (count==7000) nhw_kernel[scan]=sharpn2+22;
 						
 						t2 = 1;
 					}
@@ -934,9 +934,11 @@ void pre_processing(image_buffer *im)
 					}
 					else t1 = 0;
 				}
-				else if (abs(count)>10000)
+				else if (abs(count)>6000)
 				{
-					if (count==20000) nhw_kernel[scan]=sharpn2+21;else nhw_kernel[scan]= -(sharpn2+21);
+					if (count==20000) nhw_kernel[scan]=sharpn2+21;
+					else if (count== -20000) nhw_kernel[scan]= -(sharpn2+21);
+					else if (count==7000) nhw_kernel[scan]=sharpn2+22;
 					
 					continue;
 				}
