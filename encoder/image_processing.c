@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc10 						     		     			   *
-*  last update: $ 01242024 nhw exp $							           *
+*  version: 0.3.0-rc11 						     		     			   *
+*  last update: $ 02062024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -907,7 +907,7 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) 
 	{
-		for (i=(2*IM_DIM),t1=0,t2=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+		for (i=(2*IM_DIM),t1=0,t2=0,t3=0,t4=0,t5=0,t6=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 		{
 			for (scan=i+1,j=1,e=0,t=0,f=0;j<((2*IM_DIM)-3);j++,scan++)
 			{ 
@@ -919,14 +919,74 @@ void pre_processing(image_buffer *im)
 				
 				if (abs(res)>6000)
 				{
-					if (res==20000) nhw_kernel[scan-1]=sharpn2+21;
-					else if (res== -20000) nhw_kernel[scan-1]= -(sharpn2+21);
+					if (res==20000) 
+					{
+						if (!t3) 
+						{
+							nhw_kernel[scan-1]=0;
+							
+							t3 = 1;
+						}
+						else
+						{
+							nhw_kernel[scan-1]=sharpn2+21;
+							
+							if (t3==1) t3 = 2;
+							else t3 = 0;
+						}
+					}
+					else if (res== -20000)
+					{
+						if (!t4) 
+						{
+							nhw_kernel[scan-1]=0;
+							
+							t4 = 1;
+						}
+						else
+						{
+							nhw_kernel[scan-1]= -(sharpn2+21);
+							
+							if (t4==1) t4 = 2;
+							else t4 = 0;
+						}
+					}
 					else if (res==7000) nhw_kernel[scan-1]=sharpn2+22;
 					
 					if(!t2)
 					{
-						if (count==20000) nhw_kernel[scan]=sharpn2+21;
-						else if (count== -20000) nhw_kernel[scan]= -(sharpn2+21);
+						if (count==20000) 
+						{
+							if (!t5) 
+							{
+								nhw_kernel[scan]=0;
+							
+								t5 = 1;
+							}
+							else
+							{
+								nhw_kernel[scan]=sharpn2+21;
+							
+								if (t5==1) t5 = 2;
+								else t5 = 0;
+							}
+						}
+						else if (count== -20000)
+						{
+							if (!t6) 
+							{
+								nhw_kernel[scan]=0;
+							
+								t6 = 1;
+							}
+							else
+							{
+								nhw_kernel[scan]= -(sharpn2+21);
+							
+								if (t6==1) t6 = 2;
+								else t6 = 0;
+							}
+						}
 						else if (count==7000) nhw_kernel[scan]=sharpn2+22;
 						
 						t2 = 1;
@@ -943,8 +1003,38 @@ void pre_processing(image_buffer *im)
 				}
 				else if (abs(count)>6000)
 				{
-					if (count==20000) nhw_kernel[scan]=sharpn2+21;
-					else if (count== -20000) nhw_kernel[scan]= -(sharpn2+21);
+					if (count==20000)
+					{
+						if (!t5) 
+						{
+							nhw_kernel[scan]=0;
+							
+							t5 = 1;
+						}
+						else
+						{
+							nhw_kernel[scan]=sharpn2+21;
+							
+							if (t5==1) t5 = 2;
+							else t5 = 0;
+						}
+					}
+					else if (count== -20000) 
+					{
+						if (!t6) 
+						{
+							nhw_kernel[scan]=0;
+							
+							t6 = 1;
+						}
+						else
+						{
+							nhw_kernel[scan]= -(sharpn2+21);
+							
+							if (t6==1) t6 = 2;
+							else t6 = 0;
+						}
+					}
 					else if (count==7000) nhw_kernel[scan]=sharpn2+22;
 					
 					continue;
