@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc11 						     		     			   *
-*  last update: $ 02062024 nhw exp $							           *
+*  version: 0.3.0-rc12 						     		     			   *
+*  last update: $ 02172024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -929,7 +929,7 @@ void pre_processing(image_buffer *im)
 						}
 						else
 						{
-							nhw_kernel[scan-1]=sharpn2+21;
+							nhw_kernel[scan-1]= 5000; //sharpn2+21;
 							
 							if (t3==1) t3 = 2;
 							else t3 = 0;
@@ -945,7 +945,7 @@ void pre_processing(image_buffer *im)
 						}
 						else
 						{
-							nhw_kernel[scan-1]= -(sharpn2+21);
+							nhw_kernel[scan-1]= -5000; //-(sharpn2+21);
 							
 							if (t4==1) t4 = 2;
 							else t4 = 0;
@@ -965,7 +965,7 @@ void pre_processing(image_buffer *im)
 							}
 							else
 							{
-								nhw_kernel[scan]=sharpn2+21;
+								nhw_kernel[scan]= 5000; //sharpn2+21;
 							
 								if (t5==1) t5 = 2;
 								else t5 = 0;
@@ -981,7 +981,7 @@ void pre_processing(image_buffer *im)
 							}
 							else
 							{
-								nhw_kernel[scan]= -(sharpn2+21);
+								nhw_kernel[scan]= -5000; //-(sharpn2+21);
 							
 								if (t6==1) t6 = 2;
 								else t6 = 0;
@@ -1013,7 +1013,7 @@ void pre_processing(image_buffer *im)
 						}
 						else
 						{
-							nhw_kernel[scan]=sharpn2+21;
+							nhw_kernel[scan]= 5000; //sharpn2+21;
 							
 							if (t5==1) t5 = 2;
 							else t5 = 0;
@@ -1029,7 +1029,7 @@ void pre_processing(image_buffer *im)
 						}
 						else
 						{
-							nhw_kernel[scan]= -(sharpn2+21);
+							nhw_kernel[scan]= -5000; //-(sharpn2+21);
 							
 							if (t6==1) t6 = 2;
 							else t6 = 0;
@@ -1232,6 +1232,8 @@ void pre_processing(image_buffer *im)
 				j++;scan++;
 			
 				count= nhw_kernel[scan];
+				
+				if (abs(res)>4000 || abs(count)>4000) continue;
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
 				{
