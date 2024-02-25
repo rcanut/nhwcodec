@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc12 						     		     			   *
-*  last update: $ 02172024 nhw exp $							           *
+*  version: 0.3.0-rc13 						     		     			   *
+*  last update: $ 02252024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -557,7 +557,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,res2,res3,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6;
+	int i,j,scan,res,res2,res3,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on, *nhw_sharp_on;
 
@@ -597,7 +597,7 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW19) n1=60;
 	
 
-	for (i=(2*IM_DIM),res3=0,a=0,t1=0,t2=0,t3=0,t4=0,t5=0,t6=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),res3=0,a=0,t1=0,t2=0,t3=0,t4=0,t5=0,t6=0,t7=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-1);j++,scan++)
 		{   
@@ -619,6 +619,16 @@ void pre_processing(image_buffer *im)
 			if (res<0) 
 			{
 				res2 = - (((15*abs(res))+count)>>4);
+				
+				if (abs(res)<=sharpn2 && res2== -sharpn2 && im->setup->quality_setting<=LOW4)
+				{
+					if (t7<3)
+					{
+						res2 = -sharpn2-1;
+						
+						t7++;
+					}
+				}
 				
 				if (abs(res)<=sharpn2 && abs(res2)>sharpn2 && abs(res2)<=(sharpn2+20) && im->setup->quality_setting<=LOW4) 
 				{
