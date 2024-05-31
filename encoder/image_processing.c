@@ -620,7 +620,7 @@ void pre_processing(image_buffer *im)
 			{
 				res2 = - (((15*abs(res))+count)>>4);
 				
-				if (abs(res)<=sharpn2 && res2== -sharpn2 && im->setup->quality_setting<=LOW4)
+				if (res2==-sharpn2 && im->setup->quality_setting<=LOW4)
 				{
 					if (t7<3)
 					{
