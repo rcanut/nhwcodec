@@ -557,7 +557,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7;
+	int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7,nps;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on, *nhw_sharp_on;
 
@@ -600,27 +600,31 @@ void pre_processing(image_buffer *im)
 	for (i=(2*IM_DIM),res3=0,res4=0,a=0,t1=0,t2=0,t3=0,t4=0,t5=0,t6=0,t7=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-1);j++,scan++)
-		{   
-			res	=  (nhw_process[scan]<<3) -
+		{ 
+            nps = nhw_process[scan];
+            
+			res	=  (nps<<3) -
 							nhw_process[scan-1]-nhw_process[scan+1]-
 							nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
 							nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
 							nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
 									
-			count = abs(nhw_process[scan]-nhw_process[scan-1]) +
-					abs(nhw_process[scan]-nhw_process[scan+1]) +
-					abs(nhw_process[scan]-nhw_process[scan-(2*IM_DIM)]) +
-					abs(nhw_process[scan]-nhw_process[scan+(2*IM_DIM)]) +
-					abs(nhw_process[scan]-nhw_process[scan-(2*IM_DIM-1)]) +
-					abs(nhw_process[scan]-nhw_process[scan-(2*IM_DIM+1)]) +
-					abs(nhw_process[scan]-nhw_process[scan+(2*IM_DIM-1)]) +
-					abs(nhw_process[scan]-nhw_process[scan+(2*IM_DIM+1)]);
+			count = abs(nps-nhw_process[scan-1]) +
+					abs(nps-nhw_process[scan+1]) +
+					abs(nps-nhw_process[scan-(2*IM_DIM)]) +
+					abs(nps-nhw_process[scan+(2*IM_DIM)]) +
+					abs(nps-nhw_process[scan-(2*IM_DIM-1)]) +
+					abs(nps-nhw_process[scan-(2*IM_DIM+1)]) +
+					abs(nps-nhw_process[scan+(2*IM_DIM-1)]) +
+					abs(nps-nhw_process[scan+(2*IM_DIM+1)]);
 					
 			if (res<0) 
 			{
-				res2 = - (((15*abs(res))+count+((res4+2)>>2))>>4);
+                res4 = (15*abs(res))+count+((res4+2)>>2);
                 
-				res4 = ((15*abs(res))+count+((res4+2)>>2))&15;
+				res2 = - (res4>>4);
+                
+				res4 &= 15;
 				
 				if (res2==-sharpn2 && im->setup->quality_setting<=LOW4)
 				{
@@ -640,7 +644,7 @@ void pre_processing(image_buffer *im)
 					{
 						nhw_kernel[scan] = -20000; // - (sharpn2+21);
 						
-						res3 = 1;
+                        res3 = 1;
 					}
 					else 
 					{
@@ -668,9 +672,11 @@ void pre_processing(image_buffer *im)
 			}
 			else if (res>0)
 			{
-				res2 = (((15*res)+count+((res4+2)>>2))>>4);
+                res4 = (15*res)+count+((res4+2)>>2);
+                
+				res2 = res4>>4;
               
-			    res4 = ((15*res)+count+((res4+2)>>2))&15;
+			    res4 &= 15;
 				
 				if (res<=sharpn2 && res2>sharpn2 && res2<=(sharpn2+20) && im->setup->quality_setting<=LOW4)
 				{					
