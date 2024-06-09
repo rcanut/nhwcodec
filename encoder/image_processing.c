@@ -557,7 +557,8 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-	int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7,nps;
+    int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7;
+    int nps,w1,w2,w3,w4,w5,w6,w7,w8;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on, *nhw_sharp_on;
 
@@ -603,20 +604,18 @@ void pre_processing(image_buffer *im)
 		{ 
             nps = nhw_process[scan];
             
-			res	=  (nps<<3) -
-							nhw_process[scan-1]-nhw_process[scan+1]-
-							nhw_process[scan-(2*IM_DIM)]-nhw_process[scan+(2*IM_DIM)]-
-							nhw_process[scan-(2*IM_DIM+1)]-nhw_process[scan+(2*IM_DIM-1)]-
-							nhw_process[scan-(2*IM_DIM-1)]-nhw_process[scan+(2*IM_DIM+1)];
-									
-			count = abs(nps-nhw_process[scan-1]) +
-					abs(nps-nhw_process[scan+1]) +
-					abs(nps-nhw_process[scan-(2*IM_DIM)]) +
-					abs(nps-nhw_process[scan+(2*IM_DIM)]) +
-					abs(nps-nhw_process[scan-(2*IM_DIM-1)]) +
-					abs(nps-nhw_process[scan-(2*IM_DIM+1)]) +
-					abs(nps-nhw_process[scan+(2*IM_DIM-1)]) +
-					abs(nps-nhw_process[scan+(2*IM_DIM+1)]);
+            w1 = nps-nhw_process[scan-1];
+            w2 = nps-nhw_process[scan+1];
+            w3 = nps-nhw_process[scan-(2*IM_DIM)];
+            w4 = nps-nhw_process[scan+(2*IM_DIM)];
+            w5 = nps-nhw_process[scan-(2*IM_DIM-1)];
+            w6 = nps-nhw_process[scan-(2*IM_DIM+1)];
+            w7 = nps-nhw_process[scan+(2*IM_DIM-1)];
+            w8 = nps-nhw_process[scan+(2*IM_DIM+1)];
+            
+            res    =  w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8;
+            
+            count = abs(w1) + abs(w2) + abs(w3) + abs(w4) + abs(w5) + abs(w6) + abs(w7) + abs(w8);
 					
 			if (res<0) 
 			{
