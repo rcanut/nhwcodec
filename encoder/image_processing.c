@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc14 						     		     			   *
-*  last update: $ 06012024 nhw exp $							           *
+*  version: 0.3.0-rc15 						     		     			   *
+*  last update: $ 08042024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -619,9 +619,9 @@ void pre_processing(image_buffer *im)
 					
 			if (res<0) 
 			{
-                res4 = (15*abs(res))+count+((res4+2)>>2);
-                
-				res2 = - (res4>>4);
+				res4 = (15*abs(res))+count+((res4+2)>>2);
+				
+				res2 = -(res4>>4);
                 
 				res4 &= 15;
 				
@@ -671,7 +671,7 @@ void pre_processing(image_buffer *im)
 			}
 			else if (res>0)
 			{
-                res4 = (15*res)+count+((res4+2)>>2);
+				res4 = (15*res)+count+((res4+2)>>2);
                 
 				res2 = res4>>4;
               
@@ -767,7 +767,7 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
 						
-	for (i=(2*IM_DIM);i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),t1=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
 		{   
@@ -837,14 +837,45 @@ void pre_processing(image_buffer *im)
 			}
 			else
 			{
-				if (abs(res)>sharpness)
-				{
-					if (res>0) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
-				}
+				if (!t1)
+				{	
+					if (abs(res)>sharpness)
+					{
+						if (res>0) im->im_jpeg[scan-1]+=2;else im->im_jpeg[scan-1]-=2;
+						
+						nhw_kernel[scan-1]=0;
+					}
 				
-				if (abs(count)>sharpness)
+					if (abs(count)>sharpness)
+					{
+						if (count>0) im->im_jpeg[scan]+=2;else im->im_jpeg[scan]-=2;
+						
+						nhw_kernel[scan]=0;
+					}
+					
+					t1 = 1;
+				}
+				else
 				{
-					if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
+					if (abs(res)>sharpness)
+					{
+						if (res>0) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
+					}
+				
+					if (abs(count)>sharpness)
+					{
+						if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
+					}
+					
+					if (t1==1) t1 = 2;
+					else if (t1==2) t1 = 3;
+					else if (t1==3) t1 = 4;
+					else if (t1==4) t1 = 5;
+					else if (t1==5) t1 = 6;
+					else if (t1==6) t1 = 7;
+					else if (t1==7) t1 = 8;
+					else if (t1==8) t1 = 9;
+					else t1 = 0;
 				}
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
