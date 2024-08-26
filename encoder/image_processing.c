@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc17 						     		     			   *
-*  last update: $ 08182024 nhw exp $							           *
+*  version: 0.3.0-rc18 						     		     			   *
+*  last update: $ 08262024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -767,7 +767,7 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
 						
-	for (i=(2*IM_DIM),t1=0,t2=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),t1=0,t2=0,t3=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
 		{   
@@ -839,18 +839,44 @@ void pre_processing(image_buffer *im)
 			{
 				if (!t1)
 				{	
+                    t2 = 0;
+                    
 					if (abs(res)>sharpness)
 					{
 						if (res>0) im->im_jpeg[scan-1]+=2;else im->im_jpeg[scan-1]-=2;
 						
 						if (abs(count)>sharpn2) nhw_kernel[scan-1]=0;
+                        
+                        t2 = 1;
 					}
 					
 					if (abs(count)>sharpness)
 					{
-						if (count>0) im->im_jpeg[scan]+=2;else im->im_jpeg[scan]-=2;
-						
-						if (abs(res)>sharpn2) nhw_kernel[scan]=0;
+                        if (t2==1)
+                        {
+                            if (!t3)
+                            {
+                                if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
+                                
+                                t3 = 1;
+                            }
+                            else
+                            {
+                                if (count>0) im->im_jpeg[scan]+=2;else im->im_jpeg[scan]-=2;
+                                
+                                if (abs(res)>sharpn2) nhw_kernel[scan]=0;
+                                
+                                if (t3==1) t3 = 2;
+                                else if (t3==2) t3 = 3;
+                                else t3 = 0;
+                            }
+                        }
+						else
+						{
+                           if (count>0) im->im_jpeg[scan]+=2;else im->im_jpeg[scan]-=2;
+                           
+                           if (abs(res)>sharpn2) nhw_kernel[scan]=0;
+						}
 					}
 					
 					t1 = 1;
