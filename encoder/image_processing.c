@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc18 						     		     			   *
-*  last update: $ 08262024 nhw exp $							           *
+*  version: 0.3.0-rc19 						     		     			   *
+*  last update: $ 08292024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -856,8 +856,21 @@ void pre_processing(image_buffer *im)
                         {
                             if (!t3)
                             {
-                                if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
+								if (abs(res)<((abs(count))>>2))
+								{
+									if (res>0) im->im_jpeg[scan-1]--;else im->im_jpeg[scan-1]++;
+						
+									nhw_kernel[scan-1]=res;
+						
+									if (count>0) im->im_jpeg[scan]+=2;else im->im_jpeg[scan]-=2;
                                 
+									if (abs(res)>sharpn2) nhw_kernel[scan]=0;
+								}
+								else
+								{
+									if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
+                                }
+								
                                 t3 = 1;
                             }
                             else
@@ -897,7 +910,11 @@ void pre_processing(image_buffer *im)
 						t1++;
 					}
 					
-					if (t1==1) t1 = 2;
+					t1++;
+					
+					if (t1>15) t1 = 0;
+					
+					/*if (t1==1) t1 = 2;
 					else if (t1==2) t1 = 3;
 					else if (t1==3) t1 = 4;
 					else if (t1==4) t1 = 5;
@@ -911,7 +928,7 @@ void pre_processing(image_buffer *im)
 					else if (t1==12) t1 = 13;
 					else if (t1==13) t1 = 14;
 					else if (t1==14) t1 = 15;
-					else t1 = 0;
+					else t1 = 0;*/
 				}
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
