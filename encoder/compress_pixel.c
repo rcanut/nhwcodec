@@ -53,7 +53,7 @@
 int wavlts2packet(image_buffer *im,encode_state *enc)
 {
 	int i,j,k,e,a,b,c,select,tag,thresh,pos,pack,match,part,p1,p2;
-	unsigned int weight[354],weight2[354],l1,l2,huffman_word;
+	unsigned int weight[354],weight2[354],l1,l2;
 	unsigned short rle_tree[580];
 	unsigned char codebook[580],zone_entrance,color,pixel,*nhw_s1,*nhw_s2;
 	unsigned char *nhw_comp;
@@ -355,7 +355,7 @@ L_ZE:		if (pos>=110 && pos<174 && zone_entrance)
 			}
 		}
 
-L_TAG:	e=1;
+        e=1;
 		// check the tag, maybe can be elsewhere faster...
 		if (tag>0) {tag--;if (tag>0){i++;goto L_JUMP;}} 
 	}
@@ -877,7 +877,7 @@ L3:
 
 void highres_compression(image_buffer *im,encode_state *enc)
 {
-	int i,j,e,Y,a,res,scan,count;
+	int i,j,e,a,res,scan,count;
 	unsigned char *highres,*ch_comp;
 
 	highres=(unsigned char*)enc->tree1;

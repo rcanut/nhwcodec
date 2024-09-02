@@ -52,7 +52,7 @@
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
-void downsample_YUV420(image_buffer *im,encode_state *enc,int rate)
+void downsample_YUV420(image_buffer *im,int rate)
 {
 	int i,j,Y,U,V,Qtz;
 	short *colorsY;

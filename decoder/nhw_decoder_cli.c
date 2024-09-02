@@ -55,7 +55,7 @@
 #define VERSION "0.3.0-rc1"
 
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
-int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name);
+int write_image_bmp(image_buffer *im, char *file_name);
 void show_usage();
 
 unsigned char bmp_header[54]={66,77,54,0,12,0,0,0,0,0,
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 	im_ctx.height = 512;
 	im_ctx.bpp = 24;
 	setup_bmp_header((char*)bmp_header, &im_ctx);
-	write_image_bmp(&dec, &im, ofname);
+	write_image_bmp(&im, ofname);
 
 	return 0;
 } // main
@@ -105,10 +105,10 @@ void show_usage()
 }
 
 
-int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
+int write_image_bmp(image_buffer *im, char *file_name)
 {
 
-	int i,Y,U,V,R,G,B,len,m,t;
+	int i,Y,U,V,R,G,B,m,t;
 	unsigned char *icolorY,*icolorU,*icolorV,*iNHW;
 	float Y_q_setting,Y_inv;
 
@@ -292,8 +292,6 @@ int write_image_bmp(decode_state *dec, image_buffer *im, char *file_name)
 
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx)
 {
-	int img_w, img_h, img_bpp;
-	uint16_t tmpi16;
 	uint32_t tmpi32;
 	char* ptrx;
 	uint16_t BMP_SGN = (uint16_t)('B' | ('M' << 8));

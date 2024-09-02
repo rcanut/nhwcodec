@@ -2056,7 +2056,7 @@ L_W5:			res256[count]=14000;
 		}
 	}
 
-	offsetY(im,enc,ratio);
+	offsetY(im,ratio);
 
 	if (im->setup->quality_setting>HIGH1)
 	{
@@ -2495,7 +2495,7 @@ L_W5:			res256[count]=14000;
 		}
 	}
 
-	offsetUV(im,enc,ratio);
+	offsetUV(im,ratio);
 	//quantizationUV(im);
 
 	for (j=0,count=(4*IM_SIZE);j<(IM_DIM);)
@@ -2794,7 +2794,7 @@ L_W5:			res256[count]=14000;
 		free(ch_comp);
 	}
 
-	offsetUV(im,enc,ratio);
+	offsetUV(im,ratio);
 
 	for (j=0,count=(4*IM_SIZE+1);j<(IM_DIM);)
 	{
@@ -2863,7 +2863,7 @@ int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate
 	fread(im->im_buffer4,4*3*IM_SIZE,1,im256); 
 	fclose(im256);
 
-	downsample_YUV420(im,os,rate);
+	downsample_YUV420(im,rate);
 
 	return(0);
 }

@@ -105,9 +105,9 @@ void quantizationY(image_buffer *im)
 
 }
 
-void offsetUV(image_buffer *im,encode_state *enc,int m2)
+void offsetUV(image_buffer *im,int m2)
 {
-	int i,j,wavelet_order,exw,a;
+	int i,exw,a;
 
 	for (i=0;i<IM_SIZE;i++)
 	{
@@ -179,12 +179,12 @@ L_OVER4N:	a = -a;
 
 		im->im_process[i]=a&248;
 
-	}
+    }
 }
 
-void offsetY(image_buffer *im,encode_state *enc, int m1)
+void offsetY(image_buffer *im,int m1)
 {
-	int i,j,wavelet_order,exw,a,r1=0,r2=0,scan,t1=0,quant=0,quant2,quant3,quant4=0,quant5=0,quant6=0;
+	int i,j,wavelet_order,exw,a,r1=0,r2=0,quant=0,quant2,quant3,quant4=0,quant5=0,quant6=0;
 	short *nhw_process;
 
 	nhw_process=(short*)im->im_process;
@@ -522,7 +522,7 @@ void offsetY(image_buffer *im,encode_state *enc, int m1)
 
 void im_recons_wavelet_band(image_buffer *im)
 {
-	int i,j,a,r,scan,count;
+	int i,j,a,r,scan;
 
 	im->im_wavelet_band=(short*)calloc(IM_SIZE,sizeof(short));
 		
@@ -2213,7 +2213,7 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 
 void offsetUV_recons256(image_buffer *im, int m1, int comp)
 {
-	int i,j,wavelet_order,a,e=0;
+	int i,j,wavelet_order,a;
 
 	wavelet_order=im->setup->wvlts_order;
 

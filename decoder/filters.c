@@ -65,7 +65,7 @@ __inline void upfilter53_08(short *_X,int M,short *_RES)
 
 __inline void upfilter53(short *_X,int M,short *_RES)
 {	
-	short *E=_X,*_E1_=E+M-2,r,m=0,a;
+	short *E=_X,*_E1_=E+M-2,m=0,a;
 
 for (;;_X+=2,_RES+=4)
 	{
@@ -155,7 +155,7 @@ __inline void upfilter53I(short *_X,int M,short *_RES)
 
 __inline void upfilter53III(short *_X,int M,short *_RES)
 {	
-	short *E=_X,*_E2_=E+M-2,r;
+	short *E=_X,*_E2_=E+M-2;
 
 	_RES[0]-=(_X[0]<<2);_RES[1]+=(5*_X[0]-_X[1]);_RES+=2;
 

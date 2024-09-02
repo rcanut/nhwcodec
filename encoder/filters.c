@@ -345,7 +345,7 @@ W_SLII:	_X=start_line;
 
 __inline void downfilter53IV(short *_X,int N,int decalage,short *_RES)
 {
-	int r,e=0,m=0,a,w_end;
+	int e=0,m=0,w_end;
 	short *start_line=_X,*end_line=_X+N-2;
 
 	w_end=(N>>1)-1;
@@ -443,7 +443,7 @@ void downfilter97(short *_X,int N,int decalage,short *_RES)
 
 __inline void upfilter53(short *_X,int M,short *_RES)
 {	
-	short *E=_X,*_E1_=E+M-2,r=0,m=0,a;
+	short *E=_X,*_E1_=E+M-2,m=0,a;
 
 	for (;;_X+=2,_RES+=4)
 	{
@@ -533,7 +533,7 @@ __inline void upfilter53I(short *_X,int M,short *_RES)
 
 __inline void upfilter53III(short *_X,int M,short *_RES)
 {	
-	short *E=_X,*_E2_=E+M-2,r;
+	short *E=_X,*_E2_=E+M-2;
 
 	_RES[0]-=(_X[0]<<2);_RES[1]+=(5*_X[0]-_X[1]);_RES+=2;
 
@@ -548,7 +548,7 @@ __inline void upfilter53III(short *_X,int M,short *_RES)
 
 __inline void upfilter53VI(short *_X,int M,short *_RES)
 {	
-	short *E=_X,*_E2_=E+M-2,r;
+	short *E=_X,*_E2_=E+M-2;
 
 	_RES[0]-=(_X[0]<<2);_RES[1]+=5*_X[0]-_X[1];
 	if (_RES[0]>0) _RES[0]+=32;_RES[0]>>=6;
@@ -573,7 +573,7 @@ __inline void upfilter53VI(short *_X,int M,short *_RES)
 
 __inline void upfilter53VI_II(short *_X,int M,short *_RES)
 {	
-	short *E=_X,*_E2_=E+M-2,r,m;
+	short *E=_X,*_E2_=E+M-2;
 
 	_RES[0]-=(_X[0]<<2);_RES[1]+=5*_X[0]-_X[1];
 	if (_RES[0]>0) _RES[0]+=32;_RES[0]>>=6;
@@ -617,21 +617,6 @@ __inline void upfilter53II(short *_X,int M,short *_RES)
 	}
 
 	_X=E;_RES[0]-=((_X[M-1]+_X[M-2]+2)>>2);_RES[1]+=(5*_X[M-1]-_X[M-2]+4)>>3;
-}
-
-__inline void upfilter53IV(short *_X,int M,short *_RES)
-{	
-	short *E=_X,*_E2_=E+M-2;
-
-	/*_RES[0]-=((_X[0]+1)>>1);_RES[1]+=(5*_X[0]-_X[1]+4)>>3;_RES+=2;
-
-	for (;_X<_E2_;_X+=2,_RES+=4)
-	{
-		_RES[0]-=((_X[1]+_X[0]+2)>>2);_RES[1]+=(6*_X[1]-_X[2]-_X[0]+4)>>3;
-		_RES[2]-=((_X[2]+_X[1]+2)>>2);_RES[3]+=(6*_X[2]-_X[3]-_X[1]+4)>>3;
-	}
-
-	_X=E;_RES[0]-=((_X[M-1]+_X[M-2]+2)>>2);_RES[1]+=(5*_X[M-1]-_X[M-2]+4)>>3;*/
 }
 
 void upfilter97(short *_X,int M,int E,short *_RES)

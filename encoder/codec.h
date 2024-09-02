@@ -186,7 +186,7 @@ extern void encode_image(image_buffer *im,encode_state *enc, int ratio);
 extern int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate);
 extern int write_compressed_file(image_buffer *im,encode_state *enc,char *file_name);
 
-extern void downsample_YUV420(image_buffer *im,encode_state *enc,int rate);
+extern void downsample_YUV420(image_buffer *im, int rate);
 
 extern void wavelet_analysis(image_buffer *im,int norder,int last_stage,int Y);
 extern void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y);
@@ -200,18 +200,17 @@ extern void upfilter53I(short *x,int M,short *res);
 extern void upfilter53III(short *x,int M,short *res);
 extern void upfilter53VI(short *x,int M,short *res);
 extern void upfilter53II(short *_X,int M,short *_RES);
-extern void upfilter53IV(short *_X,int M,short *_RES);
 extern void upfilter97(short *_X,int M,int E,short *_RES);
 
 extern void pre_processing(image_buffer *im);
 extern void pre_processing_UV(image_buffer *im);
 extern void block_variance_avg(image_buffer *im);
-extern void offsetY(image_buffer *im,encode_state *enc,int m1);
+extern void offsetY(image_buffer *im,int m1);
 extern void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part);
 extern void im_recons_wavelet_band(image_buffer *im);
 extern void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc);
 extern void offsetUV_recons256(image_buffer *im, int m1, int comp);
-extern void offsetUV(image_buffer *im,encode_state *enc,int m2);
+extern void offsetUV(image_buffer *im,int m2);
 extern void quantizationY(image_buffer *im);
 extern void quantizationUV(image_buffer *im);
 

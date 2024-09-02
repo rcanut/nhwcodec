@@ -53,13 +53,12 @@
 
 void decode_image(image_buffer *im,decode_state *os,char *file_name)
 {
-	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,*res_decompr,exw1,res,nhw_selectII;
+	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,exw1,res,nhw_selectII;
 	short *im_nhw,*im_nhw2;
-	char *res256;
 	unsigned char *nhw_scale,*nhw_chr;
 	unsigned short *nhwresH1,*nhwresH2,*nhwresH1I;
 	unsigned int *nhwresH3I;
-	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres4I,*nhwres5,*nhwres6;
+	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres5,*nhwres6;
 
 	wavelet_order=parse_file(im,os,file_name);
 	retrieve_pixel_Y_comp(im,os,4*IM_SIZE,os->packet1,im->im_process);
