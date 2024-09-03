@@ -55,9 +55,53 @@
 #define NHW_QUALITY_MIN LOW19
 #define NHW_QUALITY_MAX HIGH3
 
-char bmp_header[54];
+
+#define BITMAPCOREHEADER_SIZE            12
+#define BITMAPINFOHEADER_SIZE            40
+#define BITMAPV2INFOHEADER_SIZE          52
+#define BITMAPV3INFOHEADER_SIZE          56
+#define BITMAPV4HEADER_SIZE             108
+#define BITMAPV5HEADER_SIZE             124
+
+#define HEADER_CHECK_MINIMAL_AMOUNT            34  /* this is the very minimal amount of bytes needed for a proper bitmap check */
+#define HEADER_CHECK_NO_ERROR                   0
+#define HEADER_CHECK_ERROR_NULL_POINTER       -10
+#define HEADER_CHECK_ERROR_FSEEK              -11
+#define HEADER_CHECK_ERROR_NO_DATA            -12
+#define HEADER_CHECK_ERROR_NO_VALID_SIG       -13
+#define HEADER_CHECK_ERROR_BIH_NOT_SUPPORTED  -14
+#define HEADER_CHECK_ERROR_MALF_PLANES        -15
+#define HEADER_CHECK_ERROR_WRONG_IMG_FORMAT   -16
+
+unsigned char bmp_header[HEADER_CHECK_MINIMAL_AMOUNT];
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
+
+/* copied from https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-WMF/%5bMS-WMF%5d.pdf */
+typedef enum
+{
+    BI_BITCOUNT_0 = 0x0000,
+    BI_BITCOUNT_1 = 0x0001,
+    BI_BITCOUNT_2 = 0x0004,
+    BI_BITCOUNT_3 = 0x0008,
+    BI_BITCOUNT_4 = 0x0010,
+    BI_BITCOUNT_5 = 0x0018,
+    BI_BITCOUNT_6 = 0x0020
+} BitCount;
+
+/* copied from https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-WMF/%5bMS-WMF%5d.pdf */
+typedef enum
+{
+    BI_RGB =       0x0000,
+    BI_RLE8 =      0x0001,
+    BI_RLE4 =      0x0002,
+    BI_BITFIELDS = 0x0003,
+    BI_JPEG =      0x0004,
+    BI_PNG =       0x0005,
+    BI_CMYK =      0x000B,
+    BI_CMYKRLE8 =  0x000C,
+    BI_CMYKRLE4 =  0x000D
+} Compression;
 
 void encode_image(image_buffer *im,encode_state *enc, int ratio)
 {
@@ -2836,9 +2880,178 @@ L_W5:			res256[count]=14000;
 
 }
 
+/*
+ * get_little_endian_uint
+ */
+unsigned int get_little_endian_uint(unsigned char *pbuff)
+{
+    return  (unsigned int)pbuff[0]     +
+           ((unsigned int)pbuff[1]<< 8)+
+           ((unsigned int)pbuff[2]<<16)+
+           ((unsigned int)pbuff[3]<<24);
+}
+
+/* copied and fixed... */
+unsigned short get_little_endian_ushort(unsigned char *pbuff)
+{
+    return  (unsigned short)pbuff[0]     +
+           ((unsigned short)pbuff[1]<< 8);
+}
+
+/*
+ * based on information from
+ * https://en.wikipedia.org/wiki/BMP_file_format
+ */
+int header_check(FILE *i_f, int *data_offset, int req_width, int req_height, char *flipd)
+{
+    int result, bih_size;
+
+    if (i_f == NULL || data_offset == NULL || flipd == NULL)
+    {
+        result = HEADER_CHECK_ERROR_NULL_POINTER;
+    }
+    else if (fseek(i_f, 0, SEEK_SET) != 0)
+    {
+        /* seek failure */
+        result = HEADER_CHECK_ERROR_FSEEK;
+    }
+    else if (fread(bmp_header, 1, HEADER_CHECK_MINIMAL_AMOUNT, i_f) < HEADER_CHECK_MINIMAL_AMOUNT)
+    {
+        result = HEADER_CHECK_ERROR_NO_DATA;
+    }
+    else
+    {
+        /* we have some actual data! */
+
+        /* check for bitmap correctness */
+        if (bmp_header[0] == 'B' && bmp_header[1] == 'M')
+        {
+            /* file header seems OK */
+
+            /* store the offset of real data */
+            *data_offset = (int)get_little_endian_uint(&bmp_header[10]);
+
+            /* more checks in the Bitmap Information Header */
+            bih_size = (int)get_little_endian_uint(&bmp_header[14]);
+
+            if (
+                bih_size == BITMAPCOREHEADER_SIZE
+                ||
+                bih_size == BITMAPINFOHEADER_SIZE
+                ||
+                bih_size == BITMAPV2INFOHEADER_SIZE
+                ||
+                bih_size == BITMAPV3INFOHEADER_SIZE
+                ||
+                bih_size == BITMAPV4HEADER_SIZE
+                ||
+                bih_size == BITMAPV5HEADER_SIZE
+               )
+            {
+                /* maybe we're dealing with a valid bih */
+                int width, height, compr;
+                short planes, bpp;
+
+                if (bih_size == BITMAPCOREHEADER_SIZE)
+                {
+                    /* this is a very ancient bih! however, let's parse it as well */
+                    width = (int)get_little_endian_ushort(&bmp_header[18]);
+                    height = (int)get_little_endian_ushort(&bmp_header[20]);
+                    planes = (short)get_little_endian_ushort(&bmp_header[22]);
+                    bpp = (short)get_little_endian_ushort(&bmp_header[24]);
+                    compr = BI_RGB; /* there was no compression field back then */
+                }
+                else
+                {
+                    /* this is a bih commonly used by modern apps */
+                    width = (int)get_little_endian_uint(&bmp_header[18]);
+                    height = (int)get_little_endian_uint(&bmp_header[22]);
+                    planes = (short)get_little_endian_ushort(&bmp_header[26]);
+                    bpp = (short)get_little_endian_ushort(&bmp_header[28]);
+                    compr = (int)get_little_endian_uint(&bmp_header[30]);
+                }
+
+                if (planes != 1)
+                {
+                    /* as planes MUST ALWAYS be 1, this means we're parsing a malformed bitmap file */
+                    result = HEADER_CHECK_ERROR_MALF_PLANES;
+                }
+                else
+                {
+                    /* now for sure, this is a VALID bitmap file */
+                    /* let's see the properties for application suitability */
+                    if (
+                        width == req_width
+                        &&
+                        (height == req_height || height == (-1*req_height))
+                        &&
+                        bpp == BI_BITCOUNT_5
+                        &&
+                        compr == BI_RGB
+                       )
+                    {
+                        /* image is OK */
+                        *flipd = (height < 0);
+                        result = HEADER_CHECK_NO_ERROR;
+                    }
+                    else
+                    {
+                        /* this image cannot be used by the application */
+                        result = HEADER_CHECK_ERROR_WRONG_IMG_FORMAT;
+                    }
+                }
+            }
+            else
+            {
+                result = HEADER_CHECK_ERROR_BIH_NOT_SUPPORTED;
+            }
+        }
+        else
+        {
+            /* probably not a bitmap image file */
+            result = HEADER_CHECK_ERROR_NO_VALID_SIG;
+        }
+    }
+
+    return result;
+}
+
+void swap_lines(unsigned char *buff, unsigned char *tbuff, int length, int line1, int line2)
+{
+    /* store line1 on temporary buffer */
+    memcpy(tbuff,               buff+(length*line1), length);
+    /* store line2 on line1 */
+    memcpy(buff+(length*line1), buff+(length*line2), length);
+    /* store temporary buffer on line2 */
+    memcpy(buff+(length*line2), tbuff,               length);
+}
+
+/* vertical flip a true color image */
+void image_vertical_flip(unsigned char *buff, int width, int height)
+{
+    int idx, fixed_length;
+    unsigned char *tbuff;
+
+    /* line length in bitmap files must be mod4 */
+    fixed_length=((24 * width + 31) / 32) * 4;
+    tbuff=(unsigned char*)calloc(fixed_length, sizeof(unsigned char));
+
+    if (tbuff != NULL)
+    {
+        /* we can swap lines only when the temporary buffer has been allocated */
+        for (idx=0; idx<height/2; idx++)
+        {
+            swap_lines(buff, tbuff, fixed_length, idx, height-1-idx);
+        }
+        free(tbuff);
+    }
+}
+
 int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate)
 {
 	FILE *im256;
+    char flag_flipped;
+    int hd_ck, data_offset;
 
 	// INITS & MEMORY ALLOCATION FOR ENCODING
 	//im->setup=(codec_setup*)malloc(sizeof(codec_setup));
@@ -2857,11 +3070,30 @@ int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate
 	}
 
 	// SKIP BMP HEADER 
-	fread(bmp_header,54,1,im256);
+    if ((hd_ck=header_check(im256, &data_offset, 512, 512, &flag_flipped)) != HEADER_CHECK_NO_ERROR)
+    {
+        /* something went wrong when parsing the bitmap file */
+        printf ("invalid image file.\n");
+        exit(hd_ck);
+    }
+
+    // reach the image data
+    if (fseek(im256, data_offset, SEEK_SET) != 0)
+    {
+        /* seek failure */
+        printf ("unable to seek to actual data.\n");
+        exit(-2);
+    }
 
 	// READ IMAGE DATA
 	fread(im->im_buffer4,4*3*IM_SIZE,1,im256); 
 	fclose(im256);
+
+    if (flag_flipped)
+    {
+        /* when image height is negative, the data is vertical flipped - that is, start of data encodes the left-top corner */
+        image_vertical_flip(im->im_buffer4, 512, 512);
+    }
 
 	downsample_YUV420(im,rate);
 
