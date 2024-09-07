@@ -913,22 +913,6 @@ void pre_processing(image_buffer *im)
 					t1++;
 					
 					if (t1>15) t1 = 0;
-					
-					/*if (t1==1) t1 = 2;
-					else if (t1==2) t1 = 3;
-					else if (t1==3) t1 = 4;
-					else if (t1==4) t1 = 5;
-					else if (t1==5) t1 = 6;
-					else if (t1==6) t1 = 7;
-					else if (t1==7) t1 = 8;
-					else if (t1==8) t1 = 9;
-					else if (t1==9) t1 = 10;
-					else if (t1==10) t1 = 11;
-					else if (t1==11) t1 = 12;
-					else if (t1==12) t1 = 13;
-					else if (t1==13) t1 = 14;
-					else if (t1==14) t1 = 15;
-					else t1 = 0;*/
 				}
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )

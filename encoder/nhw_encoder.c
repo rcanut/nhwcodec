@@ -3070,7 +3070,7 @@ int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate
 	}
 
 	// SKIP BMP HEADER 
-    if ((hd_ck=header_check(im256, &data_offset, 512, 512, &flag_flipped)) != HEADER_CHECK_NO_ERROR)
+    if ((hd_ck=header_check(im256, &data_offset, 2*IM_DIM, 2*IM_DIM, &flag_flipped)) != HEADER_CHECK_NO_ERROR)
     {
         /* something went wrong when parsing the bitmap file */
         printf ("invalid image file.\n");
@@ -3092,7 +3092,7 @@ int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate
     if (flag_flipped)
     {
         /* when image height is negative, the data is vertical flipped - that is, start of data encodes the left-top corner */
-        image_vertical_flip(im->im_buffer4, 512, 512);
+        image_vertical_flip(im->im_buffer4, 2*IM_DIM, 2*IM_DIM);
     }
 
 	downsample_YUV420(im,rate);
