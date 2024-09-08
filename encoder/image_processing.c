@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc19 						     		     			   *
-*  last update: $ 08292024 nhw exp $							           *
+*  version: 0.3.0-rc20 						     		     			   *
+*  last update: $ 09082024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -767,7 +767,7 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
 						
-	for (i=(2*IM_DIM),t1=0,t2=0,t3=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),t1=0,t2=0,t3=0,t4=0,t5=0,t6=8,t7=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
 		{   
@@ -896,23 +896,47 @@ void pre_processing(image_buffer *im)
 				}
 				else
 				{
+                    t5 = 0;
+                    
 					if (abs(res)>sharpness)
 					{
 						if (res>0) im->im_jpeg[scan-1]++;else im->im_jpeg[scan-1]--;
 						
-						t1++;
+                        t1++;t4++;t5++;
 					}
 				
 					if (abs(count)>sharpness)
 					{
 						if (count>0) im->im_jpeg[scan]++;else im->im_jpeg[scan]--;
 						
-						t1++;
+                        t1++;t4++;t5++;
 					}
 					
-					t1++;
+                    if (t4>9 && t5==2) 
+					{
+						if (!t6)
+						{
+							t6 = 1;
+							
+							t7++;
+						}
+						else 
+						{
+							t6++;
+							
+							t1++;
+							
+							if (t6>15 && t7<4) t6 = 0;
+						}
+						
+						t4 = 0;
+					}
+                    else t1++;
 					
-					if (t1>15) t1 = 0;
+					if (t1>15) 
+                    {
+                        t1 = 0;t4 = 0;
+                    }
 				}
 				
 				if (abs(res)>sharpness && abs(res)<=(sharpness+20) && abs(count)>sharpness && abs(count)<=(sharpness+20) )
