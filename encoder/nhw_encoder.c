@@ -49,9 +49,6 @@
 
 #include "codec.h"
 
-#define PROGRAM "nhw-enc"
-#define VERSION "0.2.8a"
-
 #define NHW_QUALITY_MIN LOW19
 #define NHW_QUALITY_MAX HIGH3
 
