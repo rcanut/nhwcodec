@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc27 						     		     			   *
-*  last update: $ 10022024 nhw exp $							           *
+*  version: 0.3.0-rc28 						     		     			   *
+*  last update: $ 10062024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -557,7 +557,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-    int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11;
+    int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12;
     int nps,w1,w2,w3,w4,w5,w6,w7,w8;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on, *nhw_sharp_on;
@@ -767,7 +767,7 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
 						
-	for (i=(2*IM_DIM),t1=0,t2=0,t3=0,t4=0,t5=0,t6=8,t7=0,t8=0,t9=0,t10=10,t11=15;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),t1=0,t2=0,t3=0,t4=0,t5=0,t6=8,t7=0,t8=0,t9=0,t10=10,t11=15,t12=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
 		{   
@@ -932,6 +932,8 @@ void pre_processing(image_buffer *im)
 						t8 = 0;
                         
                         t5 = 0;
+                        
+                        t12 = 0;
 						
 						if (t7==3)
 						{
@@ -999,6 +1001,8 @@ void pre_processing(image_buffer *im)
                             t8 = 0;
                             
                             t5 = 0;
+                            
+                            t12 = 0;
                         }
                         
                         t1++;
@@ -1009,8 +1013,21 @@ void pre_processing(image_buffer *im)
 					{
                         t5++;
                         
-						if (t5<35) t1 = 0;
-                        else if (t5>36) t5 = 0;
+                        if (!t12)
+                        {
+                            if (t5<35)
+                            {
+                                t1 = 0;
+                            }
+                            else if (t5>36)
+                            {
+                                t12 = 1;
+                            }
+                        }
+                        else
+                        {
+							t12 = 0;
+                        }
 					}
 					
 					if (t1>15)
