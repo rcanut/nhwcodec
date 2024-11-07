@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.0-rc35 						     		     			   *
-*  last update: $ 11012024 nhw exp $							           *
+*  version: 0.3.0-rc36 						     		     			   *
+*  last update: $ 11072024 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -853,7 +853,7 @@ void pre_processing(image_buffer *im)
 					if (abs(count)>sharpness)
 					{
                         if ((t2==1 || t12==1) && !t14)
-                        {
+                        {	
                             if (!t3 && t2==1)
                             {
 								if (abs(res)>3000)
@@ -903,6 +903,8 @@ void pre_processing(image_buffer *im)
                            if (abs(res)>sharpn2) nhw_kernel[scan]=0;
 						}
 					}
+					
+					if (abs(res)>sharpness || abs(count)>sharpness) t13 = 1;
                     
                     if (t14==1)
                     {
