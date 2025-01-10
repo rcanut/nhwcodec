@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_encoder_cli.c                                                 *
-*  version: 0.3.0-rc46                                                     *
-*  last update: $ 01032025 nhw exp $                                       *
+*  version: 0.3.0-rc47                                                     *
+*  last update: $ 01102025 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -simple codec                                                   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2024 NHW Project
+/* Copyright (C) 2007-2025 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@
 #include "codec.h"
 
 #define PROGRAM "nhw-enc"
-#define VERSION "0.3.0-rc46"
+#define VERSION "0.3.0-rc47"
 
 #define NHW_QUALITY_MIN LOW20
 #define NHW_QUALITY_MAX HIGH3
