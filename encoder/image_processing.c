@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.1+36 						     		     			   *
-*  last update: $ 12262025 nhw exp $							           *
+*  version: 0.3.1+37 						     		     			   *
+*  last update: $ 12292025 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -1423,11 +1423,11 @@ void pre_processing(image_buffer *im)
 										{
 											if (!t42) t37 -= 10000;
 											
-											if (t38==4) 
+											if (t38==1) 
 											{
 												t42++;
 												
-												if (t42>0 || (!t42 && t43>14 && t43<24)) 
+												if (t42>0 || (!t42 && t43>3)) 
 												{
 													t14 = 1;
 													
@@ -1489,15 +1489,15 @@ void pre_processing(image_buffer *im)
 												}
 											}
 											
-											if (t38==1) t14 = 5;
-											else if (t38==2) t14 = 2;
-											else if (t38==3) t14 = 2;
+											if (t38==1) t14 = 4;
+											else if (t38==2) t14 = 4;
+											else if (t38==3) t14 = 4;
 											else if (t38==4) t14 = 4;
-											else if (t38==5) t14 = 5;
-											else if (t38==6) t14 = 1;
-											else if (t38==7) t14 = 0;
-											else if (t38==8) t14 = 3;
-											else if (t38==9) t14 = 1;
+											else if (t38==5) t14 = 4;
+											else if (t38==6) t14 = 4;
+											else if (t38==7) t14 = 4;
+											else if (t38==8) t14 = 4;
+											else if (t38==9) t14 = 4;
 											else if (t38==10) t14 = 4;
 										}
 										else 
