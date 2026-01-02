@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.1+37 						     		     			   *
-*  last update: $ 12292025 nhw exp $							           *
+*  version: 0.3.1+38 						     		     			   *
+*  last update: $ 01022026 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -12,7 +12,7 @@
 *  remark: -image processing set										   *
 ***************************************************************************/
 
-/* Copyright (C) 2007-2025 NHW Project
+/* Copyright (C) 2007-2026 NHW Project
    Written by Raphael Canut - nhwcodec_at_gmail.com */
 /*
    Redistribution and use in source and binary forms, with or without
@@ -1423,13 +1423,19 @@ void pre_processing(image_buffer *im)
 										{
 											if (!t42) t37 -= 10000;
 											
-											if (t38==1) 
+											if (t38>0) 
 											{
 												t42++;
 												
 												if (t42>0 || (!t42 && t43>3)) 
 												{
-													t14 = 1;
+													if (!t42) 
+													{
+														if (t43==14) t14 = 3;
+														else if (t43==24) t14 = 4;
+														else t14 = 1;
+													}
+													else t14 = 1;
 													
 													t39 = 0;
 													
