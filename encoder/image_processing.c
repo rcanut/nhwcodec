@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.2+5    						     		     			   *
-*  last update: $ 04032026 nhw exp $							           *
+*  version: 0.3.2+6    						     		     			   *
+*  last update: $ 04072026 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -1067,6 +1067,11 @@ void pre_processing(image_buffer *im)
 							t6++;
 							
 							t1++;
+							
+							if (t4>900000 && t1==12)
+							{
+								t4 = 8;
+							}
                             
                             if (!t15)
                             {
@@ -1132,7 +1137,10 @@ void pre_processing(image_buffer *im)
 								
 								t9++;
 								
-								if (t9>=3) t9 = 0;
+								if (t9>=3) 
+								{
+									t9 = 0;
+								}
 							}
 						}
 						else if (t7==2)
@@ -1226,6 +1234,8 @@ void pre_processing(image_buffer *im)
 										 t16 = 1;
 										 
 										 t24 = 1;
+										 
+										 t4 = 1000000;
 									}
 									else if (t24==1)
 									{
@@ -1238,6 +1248,8 @@ void pre_processing(image_buffer *im)
 										 t16 = 1;
 										 
 										 t24 = 3;
+										 
+										 t4 = 1000000;
 									}
 									else if (t24==3)
 									{
@@ -1280,6 +1292,8 @@ void pre_processing(image_buffer *im)
 										 t16 = 8;
 										 
 										 t24 = 10;
+										 
+										 t4 = 1000000;
 									}
 									else if (t24==10)
 									{
@@ -1392,7 +1406,10 @@ void pre_processing(image_buffer *im)
 									}
 									else 
 									{
-										if (!t34) t34 = 1;
+										if (!t34) 
+										{
+											t34 = 1;
+										}
 										else
 										{
 											t14 = 5;
@@ -1402,13 +1419,19 @@ void pre_processing(image_buffer *im)
 									}
 								}
 								
-								if (!t32) t14 = 5;
+								if (!t32) 
+								{
+									t14 = 5;
+								}
 								
 								t32++;
 							}
 							else if (t32==4 || t32==5 || t32==7)
 							{
-								if (t37==4) t14 = 3;
+								if (t37==4) 
+								{
+									t14 = 3;
+								}
 								else if (t37==15)
 								{
 									t14 = 3;
@@ -1524,7 +1547,10 @@ void pre_processing(image_buffer *im)
 							{
 								if (t14==4 || t14==5 || t41==0 || t41>3) t36++;
 								
-								if (t41>3 && t36<8) t41 = 0;
+								if (t41>3 && t36<8) 
+								{
+									t41 = 0;
+								}
 								
 								if (t36==1) {t14 = 1;t41 = 0;}
 								else if (t36==2) {t14 = 2;t41 = 0;}
@@ -1648,6 +1674,8 @@ void pre_processing(image_buffer *im)
 									t15 = 0;
 									
 									t1 = 1;
+									
+									t4 = 8;
 									
 									t28++;
 								}
