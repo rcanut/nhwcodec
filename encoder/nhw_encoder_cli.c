@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_encoder_cli.c                                                 *
-*  version: 0.3.3-rc1                                                      *
-*  last update: $ 05292026 nhw exp $                                       *
+*  version: 0.3.3-rc2                                                      *
+*  last update: $ 06022026 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -51,7 +51,7 @@
 #include "codec.h"
 
 #define PROGRAM "nhw-enc"
-#define VERSION "0.3.3-rc1"
+#define VERSION "0.3.3-rc2"
 
 #define NHW_QUALITY_MIN LOW20
 #define NHW_QUALITY_MAX HIGH3
