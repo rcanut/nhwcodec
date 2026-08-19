@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.4-rc1   						     		     		   *
-*  last update: $ 08022026 nhw exp $							           *
+*  version: 0.3.4       						     		     		   *
+*  last update: $ 08192026 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -557,7 +557,7 @@ void im_recons_wavelet_band(image_buffer *im)
 
 void pre_processing(image_buffer *im)
 {
-    int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40,t41,t42,t43,t44,t45,t46,t47,t48,t49,t50;
+    int i,j,scan,res,res2,res3,res4,count,e=0,f=0,a=0,sharpness=0,sharpn2=0,n1,t,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23,t24,t25,t26,t27,t28,t29,t30,t31,t32,t33,t34,t35,t36,t37,t38,t39,t40,t41,t42,t43,t44,t45,t46,t47,t48,t49,t50,t51;
     int nps,w1,w2,w3,w4,w5,w6,w7,w8;
 	short *nhw_process, *nhw_kernel;
 	char lower_quality_setting_on, *nhw_sharp_on;
@@ -767,7 +767,7 @@ void pre_processing(image_buffer *im)
 	
 	if (im->setup->quality_setting<=LOW4) nhw_sharp_on=(char*)calloc(4*IM_SIZE,sizeof(char));
 						
-	for (i=(2*IM_DIM),t1=0,t2=0,t3=0,t4=0,t5=0,t6=8,t7=0,t8=0,t9=0,t10=10,t11=15,t12=0,t13=0,t14=0,t15=0,t16=0,t17=0,t18=8,t19=0,t20=0,t21=0,t22=0,t23=0,t24=0,t25=0,t26=0,t27=0,t28=0,t29=0,t30=0,t31=0,t32=0,t33=0,t34=0,t35=0,t36=0,t37=0,t38=0,t39=0,t40=0,t41=0,t42=0,t43=0,t44=2,t45=7,t46=5,t47=5,t48=5,t49=1,t50=8,w1=0,w2=0,w3=20,w4=0,w5=0,w6=0,w7=0,w8=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),t1=0,t2=0,t3=0,t4=0,t5=0,t6=8,t7=0,t8=0,t9=0,t10=10,t11=15,t12=0,t13=0,t14=0,t15=0,t16=0,t17=0,t18=8,t19=0,t20=0,t21=0,t22=0,t23=0,t24=0,t25=0,t26=0,t27=0,t28=0,t29=0,t30=0,t31=0,t32=0,t33=0,t34=0,t35=0,t36=0,t37=0,t38=0,t39=0,t40=0,t41=0,t42=0,t43=0,t44=2,t45=7,t46=5,t47=5,t48=5,t49=1,t50=8,t51=8,w1=0,w2=0,w3=20,w4=0,w5=0,w6=0,w7=0,w8=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-2);j++,scan++)
 		{   
@@ -1343,7 +1343,19 @@ void pre_processing(image_buffer *im)
 									
 									t16 = 8;
 									
-									t4 = 1000000;
+									if (t51<9)
+									{
+										if (t51==3) t4 = 1000002;
+										else t4 = 1000000;
+										
+										t51++;
+									}
+									else
+									{
+										t4 = 899997;
+										
+										t51 = 0;
+									}
 								}
 								else if (t16==8)
 								{
