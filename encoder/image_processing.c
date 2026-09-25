@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.4+3       						     		     		   *
-*  last update: $ 09162026 nhw exp $							           *
+*  version: 0.3.4+4       						     		     		   *
+*  last update: $ 09252026 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -627,19 +627,37 @@ void pre_processing(image_buffer *im)
 				
 				if (res2==-sharpn2 && im->setup->quality_setting<=LOW4)
 				{
-					if (t7<4)
+					if (t7<6)
 					{
 						t7++;
 						
-						if (t7>2) 
+						if (t7>2 && t7<5) 
 						{
 							res2--;
 						}
 						else
-						{
-							t1--;
+						{	
+							if (t7<3) 
+							{
+								t1--;
 							
-							goto L_RES3_SKIP;
+								goto L_RES3_SKIP;
+							}
+							else 
+							{
+								if (t7==5) 
+								{
+									res3 = 1;
+									
+									t1++;
+								}
+								else 
+								{
+									res3 = 0;
+								}
+								
+								goto L_RES3;
+							}
 						}
 					}
 				}
@@ -648,7 +666,7 @@ void pre_processing(image_buffer *im)
 				{
 					if (j>1 && abs(nhw_kernel[scan-1])<=(sharpness>>1)) res3 = 0;
 					
-					if (!res3)
+L_RES3:				if (!res3)
 					{
 						nhw_kernel[scan] = -20000; // - (sharpn2+21);
 						
