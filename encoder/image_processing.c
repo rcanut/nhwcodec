@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.4+4       						     		     		   *
-*  last update: $ 09252026 nhw exp $							           *
+*  version: 0.3.4+5       						     		     		   *
+*  last update: $ 10062026 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -613,7 +613,7 @@ void pre_processing(image_buffer *im)
             w7 = nps-nhw_process[scan+(2*IM_DIM-1)];
             w8 = nps-nhw_process[scan+(2*IM_DIM+1)];
             
-            res    =  w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8;
+            res  =  w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8;
             
             count = abs(w1) + abs(w2) + abs(w3) + abs(w4) + abs(w5) + abs(w6) + abs(w7) + abs(w8);
 					
@@ -625,9 +625,9 @@ void pre_processing(image_buffer *im)
                 
 				res4 &= 15;
 				
-				if (res2==-sharpn2 && im->setup->quality_setting<=LOW4)
+				if (((res2==-sharpn2 && t7<6) || (res==-sharpn2 && t7>5)) && im->setup->quality_setting<=LOW4)
 				{
-					if (t7<6)
+					if (t7<2000000)
 					{
 						t7++;
 						
@@ -650,13 +650,27 @@ void pre_processing(image_buffer *im)
 									res3 = 1;
 									
 									t1++;
+									
+									goto L_RES3;
 								}
-								else 
+								else if (t7==6) 
 								{
 									res3 = 0;
+									
+									goto L_RES3;
 								}
-								
-								goto L_RES3;
+								else if (res==-sharpn2 && i>=IM_SIZE) 
+								{
+									t7 = 3000000;
+									
+									nhw_kernel[scan] = -20000; 
+									
+									res3 = 2;
+									
+									t1++;
+									
+									continue;
+								}									
 							}
 						}
 					}
