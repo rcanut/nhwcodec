@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec 													       *
 *  file: image_processing.c  										       *
-*  version: 0.3.4+5       						     		     		   *
-*  last update: $ 10062026 nhw exp $							           *
+*  version: 0.3.4+6       						     		     		   *
+*  last update: $ 10142026 nhw exp $							           *
 *																		   *
 ****************************************************************************
 ****************************************************************************
@@ -598,7 +598,7 @@ void pre_processing(image_buffer *im)
 	else if (im->setup->quality_setting==LOW19) n1=60;
 	
 
-	for (i=(2*IM_DIM),res3=0,res4=0,a=0,t1=0,t2=0,t3=0,t4=0,t5=0,t6=0,t7=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
+	for (i=(2*IM_DIM),res3=0,res4=0,a=0,t1=0,t2=0,t3=0,t4=0,t5=0,t6=0,t7=0,t8=0;i<((4*IM_SIZE)-(2*IM_DIM));i+=(2*IM_DIM))
 	{
 		for (scan=i+1,j=1;j<((2*IM_DIM)-1);j++,scan++)
 		{ 
@@ -661,15 +661,24 @@ void pre_processing(image_buffer *im)
 								}
 								else if (res==-sharpn2 && i>=IM_SIZE) 
 								{
-									t7 = 3000000;
+									t8++;
 									
-									nhw_kernel[scan] = -20000; 
+									if (t8>=2) t7 = 3000000;
 									
-									res3 = 2;
+									if (t8==1)
+									{
+										nhw_kernel[scan] = -20000; 
 									
-									t1++;
+										res3 = 2;
 									
-									continue;
+										t1++;
+										
+										continue;
+									}
+									else if (t8==2) 
+									{
+										t1 -= 2;
+									}
 								}									
 							}
 						}
