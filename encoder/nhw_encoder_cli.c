@@ -44,16 +44,23 @@
 */
 
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "codec.h"
 
 #define PROGRAM "nhw-enc"
 #define VERSION "0.3.4+7"
 
-#define NHW_QUALITY_MIN LOW20
+/* tiled container: magic, uint32 width, uint32 height, then per tile uint32 length + legacy stream */
+#define NHWT_MAGIC "NHWT"
+
+#define NHW_QUALITY_MIN LOW19
 #define NHW_QUALITY_MAX HIGH3
 
 extern char bmp_header[54];
@@ -63,7 +70,7 @@ void show_usage()
 	fprintf(stdout,
 	"Usage: %s [-hV][-q<quality>] <image.bmp> <image.nhw>\n"
 	"Convert image: bmp to nwh\n"
-	" (with a bitmap color 512x512 image)\n"
+	" (with a 24-bit bitmap color image of any size)\n"
 	"Options:\n"
 	"  -q#       image quality #:[1..23] {default: 20}\n"
 	"  -h        print this help\n"
@@ -90,7 +97,10 @@ int main(int argc, char **argv)
 	image_buffer im;
 	encode_state enc;
 	char *ifname, *ofname;
-	int select, quality, ofoverwrite;
+	int select, quality, ofoverwrite = 0;
+	int width, height, stride;
+	unsigned char *image;
+	FILE *compressed;
 
 	quality = NORM;
 
@@ -176,11 +186,90 @@ int main(int argc, char **argv)
 	im.setup->quality_setting=quality;
 	select = 8;
 
-	read_image_bmp(ifname, &enc, &im, select);
-	/* Encode Image */
-	encode_image(&im, &enc, select);
+	image = read_image_bmp(ifname, &width, &height, &stride);
 
-	write_compressed_file(&im, &enc, ofname);
+	compressed = fopen(ofname, "wb");
+	if (compressed == NULL)
+	{
+		printf("Failed to create file: %s\n", ofname);
+		return 0;
+	}
+
+	if (width == 2*IM_DIM && height == 2*IM_DIM)
+	{
+		/* exact 512x512: legacy single-tile stream */
+		load_tile(&im, image, stride, 0, 0, select);
+		/* Encode Image */
+		encode_image(&im, &enc, select);
+		write_compressed_file(&im, &enc, compressed);
+	}
+	else
+	{
+		/* any other size: pad to whole 512x512 tiles, write "NHWT" container */
+		int tiles_x=(width+2*IM_DIM-1)/(2*IM_DIM), tiles_y=(height+2*IM_DIM-1)/(2*IM_DIM);
+		int pstride=tiles_x*3*2*IM_DIM, ntiles=tiles_x*tiles_y, batch=1;
+		uint32_t dim;
+		unsigned char *padded;
+		image_buffer *tim;
+		encode_state *tenc;
+
+		padded = pad_image(image, width, height, stride, tiles_x*2*IM_DIM, tiles_y*2*IM_DIM);
+		free(image);
+		image = padded;
+
+		fwrite(NHWT_MAGIC,4,1,compressed);
+		dim=width;  fwrite(&dim,4,1,compressed);
+		dim=height; fwrite(&dim,4,1,compressed);
+
+		/* tiles are encoded in parallel batches (when built with OpenMP), then written in order */
+#ifdef _OPENMP
+		batch=4*omp_get_max_threads();
+#endif
+		if (batch>ntiles) batch=ntiles;
+		tim=(image_buffer*)calloc(batch,sizeof(image_buffer));
+		tenc=(encode_state*)calloc(batch,sizeof(encode_state));
+		for (int b=0; b<batch; b++)
+		{
+			tim[b].setup=(codec_setup*)malloc(sizeof(codec_setup));
+			tim[b].setup->quality_setting=quality;
+		}
+
+		/* tiles in bottom-up raster order, each prefixed with its length */
+		for (int first=0; first<ntiles; first+=batch)
+		{
+			int n=(ntiles-first<batch) ? ntiles-first : batch;
+
+			#pragma omp parallel for schedule(dynamic)
+			for (int b=0; b<n; b++)
+			{
+				memset(&tenc[b], 0, sizeof(encode_state));
+				load_tile(&tim[b], image, pstride, (first+b)%tiles_x, (first+b)/tiles_x, select);
+				encode_image(&tim[b], &tenc[b], select);
+			}
+
+			for (int b=0; b<n; b++)
+			{
+				long start, end;
+				uint32_t len = 0;
+
+				start = ftell(compressed);
+				fwrite(&len,4,1,compressed);
+				write_compressed_file(&tim[b], &tenc[b], compressed);
+				end = ftell(compressed);
+				len = (uint32_t)(end-start-4);
+				fseek(compressed, start, SEEK_SET);
+				fwrite(&len,4,1,compressed);
+				fseek(compressed, end, SEEK_SET);
+			}
+		}
+
+		for (int b=0; b<batch; b++) free(tim[b].setup);
+		free(tim);
+		free(tenc);
+	}
+
+	fclose(compressed);
+	free(image);
 
 	return 0;
 }

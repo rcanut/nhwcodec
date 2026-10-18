@@ -566,7 +566,8 @@ void wavelet_synthesis_high_quality_settings(image_buffer *im,encode_state *enc)
 	}
 
 	highres=(unsigned char*)malloc((count+(2*IM_DIM))*sizeof(char));
-	nhw_res6I_word=(unsigned char*)malloc(count*sizeof(char));
+	/* +8: the bit packing below reads up to 8 entries past the last one */
+	nhw_res6I_word=(unsigned char*)calloc(count+8,sizeof(char));
 
 	enc->nhw_char_res1=(unsigned short*)malloc(256*sizeof(short));
 

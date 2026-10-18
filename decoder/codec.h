@@ -195,11 +195,12 @@ typedef struct{
 }decode_state;
 
 
-extern void decode_image(image_buffer *im,decode_state *os,char *file_name);
+extern void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file);
 
-extern int parse_file(image_buffer *imd,decode_state *os,char *file_name);
+extern int parse_file(image_buffer *imd,decode_state *os,FILE *compressed_file);
+void nhw_srand(unsigned int seed);
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
-int write_image_bmp(image_buffer *im, char *file_name);
+int write_image_bmp(unsigned char *image, nhw_image_s *im_ctx, int stride, char *file_name);
 
 extern void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y);
 extern void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_stage,int Y);

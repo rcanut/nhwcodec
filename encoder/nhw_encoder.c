@@ -105,7 +105,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet,y_wavelet2;
 	unsigned char *highres,*ch_comp,*scan_run,*nhw_res1I_word,*nhw_res3I_word,*nhw_res5I_word;
 	unsigned char wvlt_thrx1,wvlt_thrx2,wvlt_thrx3,wvlt_thrx4,wvlt_thrx5,wvlt_thrx6,wvlt_thrx7;
-	short *res256,*resIII,*nhw_process;
+	short *res256,*res256_base,*resIII,*nhw_process;
 
 	im->im_process=(short*)malloc(4*IM_SIZE*sizeof(short));
 
@@ -124,7 +124,9 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	wavelet_analysis(im,(2*IM_DIM),end_transform++,1);
 
-	res256=(short*)malloc(IM_SIZE*sizeof(short));
+	/* padded: the neighbor checks below read up to IM_DIM before and IM_DIM+1 past the band */
+	res256_base=(short*)calloc(IM_SIZE+(2*IM_DIM)+2,sizeof(short));
+	res256=res256_base+IM_DIM;
 
 	for (i=0,count=0;i<(4*IM_SIZE>>1);i+=(2*IM_DIM))
 	{
@@ -630,7 +632,8 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 		}
 	}
 
-	enc->tree1=(unsigned char*)malloc(((96*IM_DIM)+1)*sizeof(char));
+	/* zeroed: Y_highres_compression looks ahead past the Y entries before U/V are written */
+	enc->tree1=(unsigned char*)calloc((96*IM_DIM)+1,sizeof(char));
 	enc->exw_Y=(unsigned char*)malloc(32*IM_DIM*sizeof(short));
 	
 	if (im->setup->quality_setting>LOW3)
@@ -1498,7 +1501,8 @@ L_W5:			res256[count]=14000;
 	if (im->setup->quality_setting>LOW8)
 	{
 		
-	nhw_res1I_word=(unsigned char*)malloc(enc->nhw_res1_word_len*sizeof(char));
+	/* +8: the bit packing below reads up to 8 entries past the last one */
+	nhw_res1I_word=(unsigned char*)calloc(enc->nhw_res1_word_len+8,sizeof(char));
 	
 	for (i=0,count=0,res=0,e=0;i<IM_SIZE;i+=IM_DIM)
 	{
@@ -1641,7 +1645,8 @@ L_W5:			res256[count]=14000;
 	if (im->setup->quality_setting>=LOW1)
 	{
 
-	nhw_res3I_word=(unsigned char*)malloc(enc->nhw_res3_word_len*sizeof(char));
+	/* +8: the bit packing below reads up to 8 entries past the last one */
+	nhw_res3I_word=(unsigned char*)calloc(enc->nhw_res3_word_len+8,sizeof(char));
 
 	for (i=0,count=0,res=0,e=0;i<IM_SIZE;i+=IM_DIM)
 	{
@@ -1772,7 +1777,8 @@ L_W5:			res256[count]=14000;
 	if (im->setup->quality_setting>=HIGH1)
 	{
 
-	nhw_res5I_word=(unsigned char*)malloc(enc->nhw_res5_word_len*sizeof(char));
+	/* +8: the bit packing below reads up to 8 entries past the last one */
+	nhw_res5I_word=(unsigned char*)calloc(enc->nhw_res5_word_len+8,sizeof(char));
 
 	for (i=0,count=0,res=0,e=0;i<IM_SIZE;i+=IM_DIM)
 	{
@@ -1888,7 +1894,7 @@ L_W5:			res256[count]=14000;
 
 
 	free(highres);
-	free(res256);
+	free(res256_base);
 
 	for (i=0,count=0,stage=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 	{
@@ -2899,7 +2905,7 @@ unsigned short get_little_endian_ushort(unsigned char *pbuff)
  * based on information from
  * https://en.wikipedia.org/wiki/BMP_file_format
  */
-int header_check(FILE *i_f, int *data_offset, int req_width, int req_height, char *flipd)
+int header_check(FILE *i_f, int *data_offset, int *img_width, int *img_height, char *flipd)
 {
     int result, bih_size;
 
@@ -2978,9 +2984,9 @@ int header_check(FILE *i_f, int *data_offset, int req_width, int req_height, cha
                     /* now for sure, this is a VALID bitmap file */
                     /* let's see the properties for application suitability */
                     if (
-                        width == req_width
+                        width > 0
                         &&
-                        (height == req_height || height == (-1*req_height))
+                        height != 0
                         &&
                         bpp == BI_BITCOUNT_5
                         &&
@@ -2989,6 +2995,8 @@ int header_check(FILE *i_f, int *data_offset, int req_width, int req_height, cha
                     {
                         /* image is OK */
                         *flipd = (height < 0);
+                        *img_width = width;
+                        *img_height = abs(height);
                         result = HEADER_CHECK_NO_ERROR;
                     }
                     else
@@ -3044,20 +3052,12 @@ void image_vertical_flip(unsigned char *buff, int width, int height)
     }
 }
 
-int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate)
+unsigned char *read_image_bmp(char *file_name, int *width, int *height, int *stride)
 {
 	FILE *im256;
     char flag_flipped;
     int hd_ck, data_offset;
-
-	// INITS & MEMORY ALLOCATION FOR ENCODING
-	//im->setup=(codec_setup*)malloc(sizeof(codec_setup));
-	im->setup->colorspace=YUV;
-	im->setup->wavelet_type=WVLTS_53;
-	im->setup->RES_HIGH=0;
-	im->setup->RES_LOW=3;
-	im->setup->wvlts_order=2;
-	im->im_buffer4=(unsigned char*)calloc(4*3*IM_SIZE,sizeof(char));
+	unsigned char *image;
 
 	// OPEN IMAGE
 	if ((im256 = fopen(file_name,"rb")) == NULL )
@@ -3067,7 +3067,7 @@ int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate
 	}
 
 	// SKIP BMP HEADER 
-    if ((hd_ck=header_check(im256, &data_offset, 2*IM_DIM, 2*IM_DIM, &flag_flipped)) != HEADER_CHECK_NO_ERROR)
+    if ((hd_ck=header_check(im256, &data_offset, width, height, &flag_flipped)) != HEADER_CHECK_NO_ERROR)
     {
         /* something went wrong when parsing the bitmap file */
         printf ("invalid image file.\n");
@@ -3082,33 +3082,103 @@ int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate
         exit(-2);
     }
 
+	/* line length in bitmap files must be mod4 */
+	*stride=((24 * (*width) + 31) / 32) * 4;
+	image=(unsigned char*)calloc((size_t)(*stride)*(*height),sizeof(char));
+	if (image == NULL)
+	{
+		printf ("not enough memory for image.\n");
+		exit(-3);
+	}
+
 	// READ IMAGE DATA
-	fread(im->im_buffer4,4*3*IM_SIZE,1,im256); 
+	fread(image,(size_t)(*stride)*(*height),1,im256);
 	fclose(im256);
 
     if (flag_flipped)
     {
         /* when image height is negative, the data is vertical flipped - that is, start of data encodes the left-top corner */
-        image_vertical_flip(im->im_buffer4, 2*IM_DIM, 2*IM_DIM);
+        image_vertical_flip(image, *width, *height);
     }
 
-	downsample_YUV420(im,rate);
-
-	return(0);
+	return(image);
 }
 
-int write_compressed_file(image_buffer *im,encode_state *enc,char *file_name)
-{
-	FILE *compressed;
-//	int len,i;
+#define PAD_KEEP 1	/* padding pixels that repeat the edge */
+#define PAD_FADE 8	/* then pixels blending to one flat color, which costs almost no bits */
 
-	compressed = fopen(file_name,"wb");
-	if( NULL == compressed )
+/* blend weight toward the flat color, 0..PAD_FADE, at distance d (1..) beyond the last real pixel */
+static int pad_fade(int d)
+{
+	d-=PAD_KEEP;
+	return (d<0) ? 0 : ((d>PAD_FADE) ? PAD_FADE : d);
+}
+
+/* copy a bottom-up BGR image into a pwidth x pheight buffer (stride 3*pwidth); the padding repeats the
+   last column and row for a few pixels, then fades to the mean color of that column and row */
+unsigned char *pad_image(unsigned char *image, int width, int height, int stride, int pwidth, int pheight)
+{
+	unsigned char *padded,*row,*edge,flat[3];
+	int x,y,c,k,pstride=3*pwidth;
+	long sum[3]={0,0,0};
+
+	padded=(unsigned char*)malloc((size_t)pstride*pheight);
+	if (padded == NULL)
 	{
-		printf("Failed to create file: %s\n",file_name);
-		return (-1);
+		printf ("not enough memory for image.\n");
+		exit(-3);
 	}
 
+	/* flat color: mean of the last real column and the last real row */
+	for (y=0;y<height;y++) for (c=0;c<3;c++) sum[c]+=image[(size_t)y*stride+3*(width-1)+c];
+	for (x=0;x<width;x++) for (c=0;c<3;c++) sum[c]+=image[(size_t)(height-1)*stride+3*x+c];
+	for (c=0;c<3;c++) flat[c]=(unsigned char)((sum[c]+(width+height)/2)/(width+height));
+
+	for (y=0;y<height;y++)
+	{
+		row=padded+(size_t)y*pstride;
+		memcpy(row,image+(size_t)y*stride,3*width);
+		for (x=width;x<pwidth;x++)
+		{
+			k=pad_fade(x-width+1);
+			for (c=0;c<3;c++) row[3*x+c]=(row[3*(width-1)+c]*(PAD_FADE-k)+flat[c]*k+PAD_FADE/2)/PAD_FADE;
+		}
+	}
+
+	edge=padded+(size_t)(height-1)*pstride;
+	for (y=height;y<pheight;y++)
+	{
+		row=padded+(size_t)y*pstride;
+		k=pad_fade(y-height+1);
+		for (x=0;x<3*pwidth;x++) row[x]=(edge[x]*(PAD_FADE-k)+flat[x%3]*k+PAD_FADE/2)/PAD_FADE;
+	}
+
+	return(padded);
+}
+
+void load_tile(image_buffer *im, unsigned char *image, int stride, int tile_x, int tile_y, int rate)
+{
+	int y;
+
+	// INITS & MEMORY ALLOCATION FOR ENCODING
+	im->setup->colorspace=YUV;
+	im->setup->wavelet_type=WVLTS_53;
+	im->setup->RES_HIGH=0;
+	im->setup->RES_LOW=3;
+	im->setup->wvlts_order=2;
+	im->im_buffer4=(unsigned char*)calloc(4*3*IM_SIZE,sizeof(char));
+
+	// COPY TILE (BOTTOM-UP BGR ROWS)
+	for (y=0;y<(2*IM_DIM);y++)
+	{
+		memcpy(im->im_buffer4+y*(3*2*IM_DIM),image+(size_t)(tile_y*2*IM_DIM+y)*stride+tile_x*(3*2*IM_DIM),3*2*IM_DIM);
+	}
+
+	downsample_YUV420(im,rate);
+}
+
+int write_compressed_file(image_buffer *im,encode_state *enc,FILE *compressed)
+{
 	im->setup->RES_HIGH+=im->setup->wavelet_type;
 
 	fwrite(&im->setup->RES_HIGH,1,1,compressed);
@@ -3216,8 +3286,6 @@ int write_compressed_file(image_buffer *im,encode_state *enc,char *file_name)
 	
 	fwrite(enc->ch_res,enc->end_ch_res,1,compressed);
 	fwrite(enc->encode,enc->size_data2*4,1,compressed);
-
-	fclose(compressed);
 
 	free(enc->encode);
 	

@@ -183,8 +183,10 @@ typedef struct{
 
 extern void encode_image(image_buffer *im,encode_state *enc, int ratio);
 
-extern int read_image_bmp(char *file_name, encode_state *os, image_buffer *im, int rate);
-extern int write_compressed_file(image_buffer *im,encode_state *enc,char *file_name);
+extern unsigned char *read_image_bmp(char *file_name, int *width, int *height, int *stride);
+extern unsigned char *pad_image(unsigned char *image, int width, int height, int stride, int pwidth, int pheight);
+extern void load_tile(image_buffer *im, unsigned char *image, int stride, int tile_x, int tile_y, int rate);
+extern int write_compressed_file(image_buffer *im,encode_state *enc,FILE *compressed);
 
 extern void downsample_YUV420(image_buffer *im, int rate);
 

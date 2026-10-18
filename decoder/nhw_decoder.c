@@ -51,7 +51,7 @@
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
-void decode_image(image_buffer *im,decode_state *os,char *file_name)
+void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 {
 	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,exw1,res,nhw_selectII;
 	short *im_nhw,*im_nhw2;
@@ -60,10 +60,11 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 	unsigned int *nhwresH3I;
 	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres5,*nhwres6;
 
-	wavelet_order=parse_file(im,os,file_name);
+	wavelet_order=parse_file(im,os,compressed_file);
 	retrieve_pixel_Y_comp(im,os,4*IM_SIZE,os->packet1,im->im_process);
 	free(os->packet1);
-	im->im_jpeg=(short*)malloc(4*IM_SIZE*sizeof(short));
+	/* +2*IM_DIM zeroed: the neighbor checks on the last row read one row past the end */
+	im->im_jpeg=(short*)calloc(4*IM_SIZE+2*IM_DIM,sizeof(short));
 	im_nhw=(short*)im->im_jpeg;
 	im_nhw2=(short*)im->im_process;
 
@@ -124,7 +125,7 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 			if (os->nhw_res1[i]==127) count++;
 			else
 			{
-				if (((os->nhw_res1[i]<<1)<(nhwres1I[stage-1]&255)) && (os->nhw_res1[i-1]!=127)) count++;
+				if ((os->nhw_res1[i-1]!=127) && ((os->nhw_res1[i]<<1)<(nhwres1I[stage-1]&255))) count++;
 
 				nhwres1I[stage++]=(os->nhw_res1[i]<<1)+(count<<8);
 			}
@@ -219,7 +220,7 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 			if (os->nhw_res5[i]==127) count++;
 			else
 			{
-				if (((os->nhw_res5[i]<<1)<(nhwresH1I[stage-1]&255)) && (os->nhw_res5[i-1]!=127)) count++;
+				if ((os->nhw_res5[i-1]!=127) && ((os->nhw_res5[i]<<1)<(nhwresH1I[stage-1]&255))) count++;
 
 				nhwresH1I[stage++]=(os->nhw_res5[i]<<1)+(count<<8);
 			}
@@ -314,7 +315,7 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 			if (os->nhw_res6[i]==127) count+=IM_DIM;
 			else
 			{
-				if (((os->nhw_res6[i]<<1)<(nhwresH3I[stage-1]&255)) && (os->nhw_res6[i-1]!=127)) count+=IM_DIM;
+				if ((os->nhw_res6[i-1]!=127) && ((os->nhw_res6[i]<<1)<(nhwresH3I[stage-1]&255))) count+=IM_DIM;
 
 				nhwresH3I[stage++]=(os->nhw_res6[i]<<1)+count;
 			}
@@ -425,7 +426,7 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 			if (os->nhw_res3[i]==127) count++;
 			else
 			{
-				if (((os->nhw_res3[i]<<1)<(nhwres3I[stage-1]&255)) && (os->nhw_res3[i-1]!=127)) count++;
+				if ((os->nhw_res3[i-1]!=127) && ((os->nhw_res3[i]<<1)<(nhwres3I[stage-1]&255))) count++;
 
 				nhwres3I[stage++]=(os->nhw_res3[i]<<1)+(count<<8);
 			}
@@ -1133,19 +1134,20 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 
 	}*/
 
-	// faster version
+	// faster version, row by row (same results as column by column, cache-friendly)
+	for (count=0,stage=0;count<(IM_SIZE-IM_DIM);count+=IM_DIM,stage+=(2*IM_DIM))
+	{
+		for (j=0;j<IM_DIM;j++)
+		{
+			nhw_scale[stage+j]=(im_nhw[count+j]);
+			nhw_scale[stage+IM_DIM+j]=((im_nhw[count+j]+im_nhw[count+IM_DIM+j]+1)>>1);
+		}
+	}
+
 	for (j=0;j<IM_DIM;j++)
 	{
-		stage=j;count=j;
-		for (;count<(IM_SIZE-IM_DIM);count+=IM_DIM,stage+=(2*IM_DIM)) 
-		{
-			nhw_scale[stage]=(im_nhw[count]);
-			nhw_scale[stage+IM_DIM]=((im_nhw[count]+im_nhw[count+IM_DIM]+1)>>1);
-		}
-
 		nhw_scale[j+(2*IM_SIZE-2*IM_DIM)]=im_nhw[j+(IM_SIZE-IM_DIM)];
 		nhw_scale[j+(2*IM_SIZE-IM_DIM)]=im_nhw[j+(IM_SIZE-IM_DIM)];
-
 	}
 
 	free(im->im_process);
@@ -1424,19 +1426,20 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 		im->scale[j+(2*IM_SIZE-IM_DIM)]=im->im_process[j+(IM_SIZE-IM_DIM)];
 
 	}*/
-	// faster version
+	// faster version, row by row (same results as column by column, cache-friendly)
+	for (count=0,stage=0;count<(IM_SIZE-IM_DIM);count+=IM_DIM,stage+=(2*IM_DIM))
+	{
+		for (j=0;j<IM_DIM;j++)
+		{
+			nhw_scale[stage+j]=(im_nhw[count+j]);
+			nhw_scale[stage+IM_DIM+j]=((im_nhw[count+j]+im_nhw[count+IM_DIM+j]+1)>>1);
+		}
+	}
+
 	for (j=0;j<IM_DIM;j++)
 	{
-		stage=j;count=j;
-		for (;count<(IM_SIZE-IM_DIM);count+=IM_DIM,stage+=(2*IM_DIM)) 
-		{
-			nhw_scale[stage]=(im_nhw[count]);
-			nhw_scale[stage+IM_DIM]=((im_nhw[count]+im_nhw[count+IM_DIM]+1)>>1);
-		}
-
 		nhw_scale[j+(2*IM_SIZE-2*IM_DIM)]=im_nhw[j+(IM_SIZE-IM_DIM)];
 		nhw_scale[j+(2*IM_SIZE-IM_DIM)]=im_nhw[j+(IM_SIZE-IM_DIM)];
-
 	}
 
 	free(im->im_process);
@@ -1475,21 +1478,12 @@ void decode_image(image_buffer *im,decode_state *os,char *file_name)
 
 }
 
-int parse_file(image_buffer *imd,decode_state *os,char* file_name)
+int parse_file(image_buffer *imd,decode_state *os,FILE *compressed_file)
 {
-	FILE *compressed_file;
 	int i,j,ch,e,a=0,mem,run,nhw;
 	char uv_small_dc_offset[8][2]={{0,4},{0,-4},{4,0},{-4,0},{4,4},{4,-4},{-4,4},{-4,-4}};
 
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
-
-	compressed_file=fopen(file_name,"rb");
-
-	if (compressed_file==NULL)
-	{
-		printf("\nCould not open file\n");
-		exit(-1);
-	}
 
 	fread(&imd->setup->RES_HIGH,1,1,compressed_file);
 	fread(&imd->setup->quality_setting,1,1,compressed_file);
@@ -1599,8 +1593,9 @@ int parse_file(image_buffer *imd,decode_state *os,char* file_name)
 
 	
 	os->res_ch=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
-	os->packet1=(unsigned int*)malloc(os->d_size_data1*sizeof(int));
-	os->packet2=(unsigned int*)malloc((os->d_size_data2-os->d_size_data1)*sizeof(int));
+	/* +1 zeroed word: the bitstream reader peeks one word past the end */
+	os->packet1=(unsigned int*)calloc(os->d_size_data1+1,sizeof(int));
+	os->packet2=(unsigned int*)calloc((os->d_size_data2-os->d_size_data1)+1,sizeof(int));
 
 	// COMPRESSED FILE DATA
 	fread(os->d_tree1,os->d_size_tree1,1,compressed_file);
@@ -1659,8 +1654,6 @@ int parse_file(image_buffer *imd,decode_state *os,char* file_name)
 	fread(os->res_ch,os->end_ch_res,1,compressed_file);
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
-
-	fclose(compressed_file);
 
 	os->res_comp[0]=os->res_ch[0];
 

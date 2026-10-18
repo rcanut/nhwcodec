@@ -273,8 +273,9 @@ L_RATIO:
 	if (select==4 && b==1) zone_entrance=1;else zone_entrance=0;
 	if (part==1) zone_entrance=0;
 
-	nhw_s1=(unsigned char*)malloc(enc->nhw_select1*sizeof(char));
-	nhw_s2=(unsigned char*)malloc(enc->nhw_select2*sizeof(char));
+	/* +8: the bit packing below reads up to 8 entries past the last one */
+	nhw_s1=(unsigned char*)calloc(enc->nhw_select1+8,sizeof(char));
+	nhw_s2=(unsigned char*)calloc(enc->nhw_select2+8,sizeof(char));
 
 	e=1;match=0;pack=0;tag=0;c=0,j=0;
 	for (i=p1;i<p2-1;i++)   

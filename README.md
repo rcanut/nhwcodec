@@ -3,7 +3,11 @@ NHW Image Codec
 
 A Next-Generation Free Open-Source Image Compression Codec
 
-The NHW codec is an experimental codec that compresses for now 512x512 bitmap 24bit color images using notably a wavelet transform.
+The NHW codec is an experimental codec that compresses 24bit bitmap color images using notably a wavelet transform.
+
+To work with any image resolution, it uses 512x512 tiling of a NHW core.
+
+-Compression is not optimal for now.-
 
 The NHW codec presents some innovations and a unique approach: more image neatness/sharpness, and aims to be competitive with current codecs like for example x265 (HEVC), Google WebP,...
 

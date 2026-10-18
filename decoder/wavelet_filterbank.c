@@ -49,6 +49,27 @@
 
 #include "codec.h"
 
+/* res[i*stride+j]=data[j*stride+i] for i,j<norder, in small blocks so both sides stay in cache;
+   same result as the plain loop */
+#define TBLOCK 32
+static void transpose(short *res,short *data,int norder,int stride)
+{
+	int i0,j0,i,j,ie,je;
+
+	for (i0=0;i0<norder;i0+=TBLOCK)
+	{
+		ie=(i0+TBLOCK<norder) ? i0+TBLOCK : norder;
+		for (j0=0;j0<norder;j0+=TBLOCK)
+		{
+			je=(j0+TBLOCK<norder) ? j0+TBLOCK : norder;
+			for (i=i0;i<ie;i++)
+			{
+				for (j=j0;j<je;j++) res[i*stride+j]=data[j*stride+i];
+			}
+		}
+	}
+}
+
 void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 {
 	short *data,*res,*data2;
@@ -109,12 +130,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 	}*/
 
 	//faster version
-	res=im->im_jpeg;data=im->im_process;
-	for (i=0;i<norder;i++,res+=(2*IM_DIM))
-	{
-		a=i;
-		for (j=0;j<norder;j++,a+=(2*IM_DIM)) res[j]=data[a];
-	}
+	transpose(im->im_jpeg,im->im_process,norder,2*IM_DIM);
 	}
 	
 	if (Y==1 || Y==3)
@@ -192,12 +208,7 @@ void wavelet_synthesis(image_buffer *im,int norder,int last_stage,int Y)
 		for (j=0;j<norder;j++) im->im_jpeg[i*(IM_SYNTH)+j]=im->im_process[i+j*(IM_SYNTH)];
 	}*/
 	//faster version
-	res=im->im_jpeg;data=im->im_process;
-	for (i=0;i<norder;i++,res+=(IM_DIM))
-	{
-		a=i;
-		for (j=0;j<norder;j++,a+=(IM_DIM)) res[j]=data[a];
-	}
+	transpose(im->im_jpeg,im->im_process,norder,IM_DIM);
 
 	data=im->im_jpeg;
 	res=im->im_process;
@@ -348,12 +359,7 @@ void wavelet_synthesis2(image_buffer *im,decode_state *os,int norder,int last_st
 	}
 
 	//faster version
-	res=im->im_jpeg;data=im->im_process;
-	for (i=0;i<norder;i++,res+=(2*IM_DIM))
-	{
-		a=i;
-		for (j=0;j<norder;j++,a+=(2*IM_DIM)) res[j]=data[a];
-	}
+	transpose(im->im_jpeg,im->im_process,norder,2*IM_DIM);
 }
 
 

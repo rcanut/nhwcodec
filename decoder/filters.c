@@ -51,6 +51,24 @@
 #include "codec.h"
 #include "wavelets.h"
 
+/* dither generator replacing rand(): the msvcrt formula (so Windows output is unchanged), the same on
+   every platform, with per-thread state that is reset for each tile by nhw_srand() */
+static unsigned int nhw_rand_state=1;
+#ifdef _OPENMP
+#pragma omp threadprivate(nhw_rand_state)
+#endif
+
+void nhw_srand(unsigned int seed)
+{
+	nhw_rand_state=seed;
+}
+
+int nhw_rand(void)
+{
+	nhw_rand_state=nhw_rand_state*214013u+2531011u;
+	return (int)((nhw_rand_state>>16)&0x7fff);
+}
+
 __inline void upfilter53_08(short *_X,int M,short *_RES)
 {	
 	short *E=_X,*_E1_=E+M-1;
@@ -201,8 +219,8 @@ __inline void upfilter53I_I(short *_X,int M,short *_RES)
 	{ 
 		if (_X[0]==_X[1])
 		{
-			//_RES[-1]+=(rand()%4)-2;
-			_RES[0]=_X[0]+(rand()%2)-1;_RES[1]=((_X[1]+_RES[0]+1)>>1)+(rand()%1);
+			//_RES[-1]+=(nhw_rand()%4)-2;
+			_RES[0]=_X[0]+(nhw_rand()%2)-1;_RES[1]=((_X[1]+_RES[0]+1)>>1)+(nhw_rand()%1);
 		}
 		else
 		{
@@ -239,30 +257,30 @@ __inline void upfilter53V(short *_X,int M,short *_RES)
 {	
 	short *E=_X,*_E2_=E+M-2;
 
-	_RES[0]-=(((_X[0]+1)>>1)+((rand()%2))-1);_RES[1]+=(((5*_X[0]-_X[1]+4)>>3)+(rand()%2)-1);_RES+=2;
+	_RES[0]-=(((_X[0]+1)>>1)+((nhw_rand()%2))-1);_RES[1]+=(((5*_X[0]-_X[1]+4)>>3)+(nhw_rand()%2)-1);_RES+=2;
 
 	for (;_X<_E2_;_X+=2,_RES+=4)
 	{
-		_RES[0]-=(((_X[1]+_X[0]+2)>>2)+(rand()%2)-1);_RES[1]+=(((6*_X[1]-_X[2]-_X[0]+4)>>3)+(rand()%2)-1);
-		_RES[2]-=(((_X[2]+_X[1]+2)>>2)+((rand()%2)-1));_RES[3]+=(((6*_X[2]-_X[3]-_X[1]+4)>>3)+(rand()%2)-1);
+		_RES[0]-=(((_X[1]+_X[0]+2)>>2)+(nhw_rand()%2)-1);_RES[1]+=(((6*_X[1]-_X[2]-_X[0]+4)>>3)+(nhw_rand()%2)-1);
+		_RES[2]-=(((_X[2]+_X[1]+2)>>2)+((nhw_rand()%2)-1));_RES[3]+=(((6*_X[2]-_X[3]-_X[1]+4)>>3)+(nhw_rand()%2)-1);
 	}
 
-	_X=E;_RES[0]-=(((_X[M-1]+_X[M-2]+2)>>2)+((rand()%2))-1);_RES[1]+=(((5*_X[M-1]-_X[M-2]+4)>>3)+(rand()%2)-1);
+	_X=E;_RES[0]-=(((_X[M-1]+_X[M-2]+2)>>2)+((nhw_rand()%2))-1);_RES[1]+=(((5*_X[M-1]-_X[M-2]+4)>>3)+(nhw_rand()%2)-1);
 }
 
 __inline void upfilter53IV(short *_X,int M,short *_RES)
 {	
 	short *E=_X,*_E2_=E+M-2;
 
-	_RES[0]-=(((_X[0]+1)>>1)+((rand()%3)-1));_RES[1]+=(((5*_X[0]-_X[1]+4)>>3));_RES+=2;
+	_RES[0]-=(((_X[0]+1)>>1)+((nhw_rand()%3)-1));_RES[1]+=(((5*_X[0]-_X[1]+4)>>3));_RES+=2;
 
 	for (;_X<_E2_;_X+=2,_RES+=4)
 	{
-		_RES[0]-=(((_X[1]+_X[0]+2)>>2));_RES[1]+=(((6*_X[1]-_X[2]-_X[0]+4)>>3)+((rand()%3)-1));
-		_RES[2]-=(((_X[2]+_X[1]+2)>>2)+((rand()%3)-1));_RES[3]+=(((6*_X[2]-_X[3]-_X[1]+4)>>3));
+		_RES[0]-=(((_X[1]+_X[0]+2)>>2));_RES[1]+=(((6*_X[1]-_X[2]-_X[0]+4)>>3)+((nhw_rand()%3)-1));
+		_RES[2]-=(((_X[2]+_X[1]+2)>>2)+((nhw_rand()%3)-1));_RES[3]+=(((6*_X[2]-_X[3]-_X[1]+4)>>3));
 	}
 
-	_X=E;_RES[0]-=(((_X[M-1]+_X[M-2]+2)>>2));_RES[1]+=(((5*_X[M-1]-_X[M-2]+4)>>3)+((rand()%3)-1));
+	_X=E;_RES[0]-=(((_X[M-1]+_X[M-2]+2)>>2));_RES[1]+=(((5*_X[M-1]-_X[M-2]+4)>>3)+((nhw_rand()%3)-1));
 }
 
 void upfilter97(short *_X,int M,int E,short *_RES)
