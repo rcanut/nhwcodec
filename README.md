@@ -23,6 +23,7 @@ How to compile?
 
 `$ cd encoder && gcc *.c -O3 -o nhw-enc`
 
+To enable multithreading (OpenMP), add the compiler flag: `$ -fopenmp` (gcc/clang) or `$ /openmp` (MSVC)
 
 2) With CMake
 
