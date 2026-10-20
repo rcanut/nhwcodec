@@ -9,7 +9,7 @@ To work with any image resolution, it uses 512x512 tiling of a NHW core.
 
 -Compression is not optimal for now.-
 
-The NHW codec presents some innovations and a unique approach: more image neatness/sharpness, and aims to be competitive with current codecs like for example x265 (HEVC), Google WebP,...
+The NHW codec presents some innovations and a unique approach: more image neatness/sharpness, and aims to be competitive with current codecs like for example AVIF.
 
 Another advantage of the NHW codec is that it has a high speed, making it suitable for mobile, embedded devices.
 
@@ -23,7 +23,7 @@ How to compile?
 
 `$ cd encoder && gcc *.c -O3 -o nhw-enc`
 
-To enable multithreading (OpenMP), add the compiler flag: `$ -fopenmp` (gcc/clang) or `$ /openmp` (MSVC)
+To enable multithreading (OpenMP), add the compiler flag:  `-fopenmp` (gcc/clang) or `/openmp` (MSVC)
 
 2) With CMake
 
