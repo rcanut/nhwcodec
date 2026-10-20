@@ -1135,12 +1135,15 @@ void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 	}*/
 
 	// faster version, row by row (same results as column by column, cache-friendly)
-	for (count=0,stage=0;count<(IM_SIZE-IM_DIM);count+=IM_DIM,stage+=(2*IM_DIM))
+	for (count=0,stage=0;count<(IM_SIZE-IM_DIM);stage+=(IM_DIM))
 	{
 		for (j=0;j<IM_DIM;j++)
 		{
-			nhw_scale[stage+j]=(im_nhw[count+j]);
-			nhw_scale[stage+IM_DIM+j]=((im_nhw[count+j]+im_nhw[count+IM_DIM+j]+1)>>1);
+			nhw_scale[stage]=(im_nhw[count]);
+			nhw_scale[stage+IM_DIM]=((im_nhw[count]+im_nhw[count+IM_DIM]+1)>>1);
+			
+			stage++; 
+			count++;
 		}
 	}
 
@@ -1427,12 +1430,15 @@ void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 
 	}*/
 	// faster version, row by row (same results as column by column, cache-friendly)
-	for (count=0,stage=0;count<(IM_SIZE-IM_DIM);count+=IM_DIM,stage+=(2*IM_DIM))
+	for (count=0,stage=0;count<(IM_SIZE-IM_DIM);stage+=(IM_DIM))
 	{
 		for (j=0;j<IM_DIM;j++)
 		{
-			nhw_scale[stage+j]=(im_nhw[count+j]);
-			nhw_scale[stage+IM_DIM+j]=((im_nhw[count+j]+im_nhw[count+IM_DIM+j]+1)>>1);
+			nhw_scale[stage]=(im_nhw[count]);
+			nhw_scale[stage+IM_DIM]=((im_nhw[count]+im_nhw[count+IM_DIM]+1)>>1);
+			
+			stage++; 
+			count++;
 		}
 	}
 
