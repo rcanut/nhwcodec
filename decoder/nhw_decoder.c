@@ -490,6 +490,9 @@ void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 	free(os->nhw_res3_word);
 
 	}
+	
+	if (im->setup->quality_setting>LOW8)
+	{
 
 	for (i=0;i<(2*IM_SIZE);i+=(2*IM_DIM))
 	{
@@ -605,6 +608,37 @@ void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 				}
 			}
 		}
+	}
+	
+	}
+	else
+	{
+	
+	for (i=(2*IM_SIZE);i<(4*IM_SIZE);i+=(2*IM_DIM))
+	{
+		for (scan=i+IM_DIM,j=IM_DIM;j<(2*IM_DIM);j++,scan++)
+		{
+			if (abs(im_nhw[scan])>8 && abs(im_nhw[scan])<16 && im->setup->quality_setting<HIGH3)
+			{
+				if (j>IM_DIM && j<((2*IM_DIM)-1))
+				{
+					if (abs(im_nhw[scan-1])<8) count++;
+					if (abs(im_nhw[scan+1])<8) count++;
+					if (abs(im_nhw[scan-(2*IM_DIM)])<8) count++;
+					if (abs(im_nhw[scan+(2*IM_DIM)])<8) count++;
+
+					if (count>=2)
+					{
+						if (im_nhw[scan]>0) im_nhw[scan]++;
+						else im_nhw[scan]--;
+					}
+
+					count=0;
+				}
+			}
+		}
+	}
+	
 	}
 
 	nhw=0;
