@@ -3152,7 +3152,7 @@ unsigned char *pad_image(unsigned char *image, int width, int height, int stride
 		k=pad_fade(y-height+1);
 		for (x=0;x<3*pwidth;x++) row[x]=(edge[x]*(PAD_FADE-k)+flat[x%3]*k+PAD_FADE/2)/PAD_FADE;
 	}
-
+	
 	return(padded);
 }
 
@@ -3330,7 +3330,9 @@ int write_compressed_file(image_buffer *im,encode_state *enc,FILE *compressed)
 	{
 		free(enc->high_qsetting3);
 	}
-
+	
+	free(enc->tree1);
+	free(enc->tree2);
 	free(enc->exw_Y);
 	free(enc->ch_res);
 
