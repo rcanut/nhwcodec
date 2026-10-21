@@ -427,8 +427,10 @@ L_INVQ:					if (word>0x80) im3[e++]=(word-INV_QUANT1);
 					}
 				}
 
-L_SCAN_END:	  		if (e>=(p1-1)) goto L4;
+L_SCAN_END:	  	if (e>=(p1-1)) goto L4;
 				tr=0;size=0;if (path) {path=0;ntree=nhw_table1;} zone=zone_number;
+				
+				continue;
 			}
 
 L_TREE:		tr <<=1;
