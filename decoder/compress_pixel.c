@@ -632,6 +632,8 @@ L_INVQUV:				if (word>0x80)
 				}
 L_END_UV:		if (e>=(p1-1)) goto L4UV;
 				tr=0;size=0;path=0;ntree=nhw_table1;
+				
+				continue;
 			}
 
 L_TREEUV:		tr <<=1;
