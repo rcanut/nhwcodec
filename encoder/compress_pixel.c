@@ -479,8 +479,6 @@ void Y_highres_compression(image_buffer *im,encode_state *enc)
 
 	highres=(unsigned char*)enc->tree1;
 
-	enc->highres_word=(unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
-
 	//for (i=0;i<300;i++) printf("%d %d\n",i,highres[i]);
 
 	for (i=1,e=0,Y=0,a=0;i<(IM_SIZE>>2);i++)
@@ -502,7 +500,13 @@ L15:	e=0;
 
 	enc->highres_mem_len=0;
 	enc->highres_comp=(unsigned char*)calloc((IM_SIZE>>1),sizeof(char));
-	enc->highres_mem=(unsigned short*)malloc((IM_SIZE>>2)*sizeof(short));
+	
+	if (im->setup->quality_setting>LOW5)
+	{
+		enc->highres_word=(unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+		enc->highres_mem=(unsigned short*)malloc((IM_SIZE>>2)*sizeof(short));
+	}
+	
 	ch_comp=(unsigned char*)enc->highres_comp;
 
 	ch_comp[0]=highres[0];
