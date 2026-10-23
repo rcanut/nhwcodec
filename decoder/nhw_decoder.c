@@ -1527,14 +1527,9 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
 
 	fread(&imd->setup->RES_HIGH,1,1,compressed_file);
+	fread(&imd->setup->RES_LOW,1,1,compressed_file);
 	fread(&imd->setup->quality_setting,1,1,compressed_file);
 	fread(&nt1->tile_number,1,1,compressed_file);
-
-	if (imd->setup->RES_HIGH>6)
-	{
-		printf("\nNot an .nhw file");
-		exit(-1);
-	}
 
 	imd->setup->colorspace=YUV;
 	imd->setup->wavelet_type=WVLTS_53;
@@ -1957,6 +1952,10 @@ L7:	//printf("j= %d size = %d\n",j,size);
 	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 
 	if (imd->setup->quality_setting>LOW5) free(os->highres_comp);
+	
+	//printf("%d\n",imd->setup->RES_HIGH);
+	
+	if (imd->setup->RES_LOW>60) goto L18;
 
 	for (j=((IM_SIZE>>2)+1);j<((IM_SIZE>>2)+(IM_SIZE>>3));i++)
 	{
@@ -2052,11 +2051,44 @@ L7:	//printf("j= %d size = %d\n",j,size);
 				ch <<=2;
 				os->res_comp[j]= (ch-16)+ os->res_comp[j-1];
 				j++;
-				//if (os->res_ch[i]&1) { os->res_comp[j]=os->res_comp[j-1];j++;}
 			}
 		}
 	}
+	
+	goto L19;
+	
+L18:
+		for (j=((IM_SIZE>>2)+1);j<((IM_SIZE>>2)+(IM_SIZE>>3));i++)
+		{
+			if (os->res_ch[i]>=192)
+			{
+				os->res_comp[j++]=(os->res_ch[i]-192)<<2;
+			}
+			else if (os->res_ch[i]>=128)
+			{
+				os->res_ch[i] -= 128;
+				
+				ch = (os->res_ch[i])>>3;
+				ch <<=2;
+				os->res_comp[j]= (ch-16)+ os->res_comp[j-1];
+				j++;
 
+				ch = ((os->res_ch[i])&7);
+				ch <<=2;
+				os->res_comp[j]= (ch-16)+ os->res_comp[j-1];
+				j++;
+			}
+			else
+			{
+				nhw=os->res_comp[j-1];
+				
+				run= os->res_ch[i]+2;
+				for (e=0;e<run;e++) os->res_comp[j++]=nhw;
+			}
+			
+		}
+
+L19:
 	free(os->res_ch);
 
 	if (imd->setup->quality_setting>LOW5)

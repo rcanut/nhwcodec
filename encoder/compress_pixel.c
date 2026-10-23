@@ -953,8 +953,29 @@ void highres_compression(image_buffer *im,encode_state *enc)
 	im->setup->RES_HIGH=im->setup->RES_LOW;
 
 	j=enc->Y_res_comp;
-
+	
+	for (i=(IM_SIZE>>2)+1,e=0,a=0;i<(IM_SIZE>>2)+(IM_SIZE>>3);i++)
+	{
+L12:	if (i<((IM_SIZE>>2)+(IM_SIZE>>3)) && highres[i]==highres[i-1])
+		{
+			e++;
+			
+			if (e<40) 
+			{
+				i++;
+				goto L12;
+			}
+			else {a++;goto L16;}
+		}
+		
+L16:	e=0;
+	}
+	
 	ch_comp[j++]=highres[(IM_SIZE>>2)];
+	
+	if (a>60) {im->setup->RES_LOW=128;goto L20;} 
+	else im->setup->RES_LOW=0;
+	
 
 	for (i=(IM_SIZE>>2)+1,a=0,e=0,res=0;i<(IM_SIZE>>2)+(IM_SIZE>>3);i++)
 	{
@@ -963,7 +984,7 @@ void highres_compression(image_buffer *im,encode_state *enc)
 
 		if (scan==0 && count==0)
 		{
-RES_COMPR3:	if (highres[i+a+2]==highres[i+a+1])
+RES_COMPR3:	if ((i+a+2)<((IM_SIZE>>2)+(IM_SIZE>>3)) && highres[i+a+2]==highres[i+a+1])
 			{
 				a++;
 				if (a<7) goto RES_COMPR3;
@@ -1055,30 +1076,66 @@ END_RES3:
 			if (scan==32 || count==32) 
 			{
 				ch_comp[j++]=(1<<7)+(highres[i]>>2);
-				//if (highres[i+1]==128) {ch_comp[j-1]+=(1<<6);i++;}
-				//else {ch_comp[j++]=(1<<7)+(highres[i+1]>>2);i++;}
 			}
-			/*else if (((highres[i+2]-highres[i+1])==0 && !e)|| ((highres[i+2]-highres[i+1])==4 && e==1))
-			{
-				ch_comp[j++]=128 + 64 + (scan<<1) + (count>>2);i+=2;
-			}*/
 			else 
 			{
 				ch_comp[j++]= (scan<<1) + (count>>2);
-				//if (highres[i+2]==highres[i+1] && i<12286) { ch_comp[j-1]+=1;i+=2;}
-				//else i++;
+				
 				i++;
 			}
 		}
 		else
 		{
-			ch_comp[j++]=(1<<7)+(highres[i]>>2);
-			//if (highres[i+1]==128) {ch_comp[j-1]+=(1<<6);i++;}
-			//else {ch_comp[j++]=(1<<7)+(highres[i+1]>>2);i++;}
+			ch_comp[j++]=128+(highres[i]>>2);
+		}
+	}
+	
+	goto L22;
+	
+L20:
+	for (i=(IM_SIZE>>2)+1,a=0,e=0,res=0;i<(IM_SIZE>>2)+(IM_SIZE>>3);i++)
+	{
+		scan=highres[i]-highres[i-1];
+		count=highres[i+1]-highres[i];
 
+		if (scan==0 && count==0)
+		{
+RES_COMPR7:	if ((i+a+2)<((IM_SIZE>>2)+(IM_SIZE>>3)) && highres[i+a+2]==highres[i+a+1])
+			{
+				a++;
+				if (a<127) goto RES_COMPR7;
+				else goto END_RES7;
+			}
+END_RES7:	
+			i+=(a+1);
+			
+			ch_comp[j] = a;
+
+			a = 0;
+			j++;
+		}
+		else if (abs(scan)<=16 && abs(count)<=16)
+		{
+			scan+=16;count+=16;
+			
+			if (scan==32 || count==32) 
+			{
+				ch_comp[j++]=128 + 64 + (highres[i]>>2);
+			}
+			else 
+			{
+				ch_comp[j++]= 128 + (scan<<1) + (count>>2);
+				
+				i++;
+			}
+		}
+		else
+		{
+			ch_comp[j++]=128 + 64 +(highres[i]>>2);
 		}
 	}
 
+L22:
 	free(enc->tree1);
 
 	enc->ch_res=(unsigned char*)malloc(j*sizeof(char));

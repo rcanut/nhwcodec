@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_decoder_cli.c                                                 *
-*  version: 0.3.0-rc1                                                      *
-*  last update: $ 04182023 nhw exp $                                       *
+*  version: 0.3.4+8                                                      *
+*  last update: $ 10232026 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -52,7 +52,7 @@
 #include "nhw_decoder.h"
 
 #define PROGRAM "nhw-dec"
-#define VERSION "0.3.0-rc1"
+#define VERSION "0.3.4+8"
 
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
 void convert_tile_rgb(image_buffer *im, unsigned char *iNHW);

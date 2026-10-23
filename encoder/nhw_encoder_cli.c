@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_encoder_cli.c                                                 *
-*  version: 0.3.4+7                                                        *
-*  last update: $ 10172026 nhw exp $                                       *
+*  version: 0.3.4+8                                                        *
+*  last update: $ 10232026 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -55,7 +55,7 @@
 #include "codec.h"
 
 #define PROGRAM "nhw-enc"
-#define VERSION "0.3.4+7"
+#define VERSION "0.3.4+8"
 
 /* tiled container: magic, uint32 width, uint32 height, then per tile uint32 length + legacy stream */
 #define NHWT_MAGIC "NHWT"

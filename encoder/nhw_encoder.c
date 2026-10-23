@@ -3180,8 +3180,11 @@ void load_tile(image_buffer *im, unsigned char *image, int stride, int tile_x, i
 int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *compressed)
 {
 	im->setup->RES_HIGH+=im->setup->wavelet_type;
+	
+	//printf("%d\n",im->setup->RES_HIGH);
 
 	fwrite(&im->setup->RES_HIGH,1,1,compressed);
+	fwrite(&im->setup->RES_LOW,1,1,compressed);
 	fwrite(&im->setup->quality_setting,1,1,compressed);
 	fwrite(&nt1->tile_number,1,1,compressed);
 	fwrite(&enc->size_tree1,2,1,compressed);
