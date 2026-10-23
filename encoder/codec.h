@@ -110,6 +110,12 @@ typedef struct{
 }codec_setup;
 
 typedef struct{
+	unsigned char tile_number;
+	int width;
+	int height;
+}ntile;
+
+typedef struct{
 	short *im_process;
 	short *im_jpeg;
 	unsigned char *im_bufferU;
@@ -119,6 +125,7 @@ typedef struct{
 	short *im_wavelet_first_order;
 	short *im_quality_setting;
 	short *im_wavelet_band;
+	unsigned char tile_number;
 	codec_setup *setup;
 }image_buffer;
 
@@ -181,12 +188,12 @@ typedef struct{
 }encode_state;
 
 
-extern void encode_image(image_buffer *im,encode_state *enc, int ratio);
+extern void encode_image(image_buffer *im,encode_state *enc, ntile *nt1, int ratio);
 
 extern unsigned char *read_image_bmp(char *file_name, int *width, int *height, int *stride);
 extern unsigned char *pad_image(unsigned char *image, int width, int height, int stride, int pwidth, int pheight);
 extern void load_tile(image_buffer *im, unsigned char *image, int stride, int tile_x, int tile_y, int rate);
-extern int write_compressed_file(image_buffer *im,encode_state *enc,FILE *compressed);
+extern int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *compressed);
 
 extern void downsample_YUV420(image_buffer *im, int rate);
 
@@ -216,7 +223,7 @@ extern void offsetUV(image_buffer *im,int m2);
 extern void quantizationY(image_buffer *im);
 extern void quantizationUV(image_buffer *im);
 
-extern void Y_highres_compression(image_buffer *im,encode_state *enc);
+extern void Y_highres_compression(image_buffer *im,encode_state *enc,ntile *nt1);
 extern void highres_compression(image_buffer *im,encode_state *enc);
 extern int wavlts2packet(image_buffer *im,encode_state *enc);
 

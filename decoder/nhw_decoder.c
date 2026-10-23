@@ -51,7 +51,7 @@
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
-void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
+void decode_image(image_buffer *im,decode_state *os,ntile *nt1,FILE *compressed_file)
 {
 	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,exw1,res,nhw_selectII;
 	short *im_nhw,*im_nhw2;
@@ -60,7 +60,7 @@ void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 	unsigned int *nhwresH3I;
 	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres5,*nhwres6;
 
-	wavelet_order=parse_file(im,os,compressed_file);
+	wavelet_order=parse_file(im,os,nt1,compressed_file);
 	retrieve_pixel_Y_comp(im,os,4*IM_SIZE,os->packet1,im->im_process);
 	free(os->packet1);
 	/* +2*IM_DIM zeroed: the neighbor checks on the last row read one row past the end */
@@ -1518,15 +1518,17 @@ void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file)
 
 }
 
-int parse_file(image_buffer *imd,decode_state *os,FILE *compressed_file)
+int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_file)
 {
-	int i,j,ch,e,a=0,mem,run,nhw;
+	int i,j,ch,e,a=0,mem,run,nhw,size,size2,t1,t2,t3;
 	char uv_small_dc_offset[8][2]={{0,4},{0,-4},{4,0},{-4,0},{4,4},{4,-4},{-4,4},{-4,-4}};
+	unsigned char *Y_comp;
 
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
 
 	fread(&imd->setup->RES_HIGH,1,1,compressed_file);
 	fread(&imd->setup->quality_setting,1,1,compressed_file);
+	fread(&nt1->tile_number,1,1,compressed_file);
 
 	if (imd->setup->RES_HIGH>6)
 	{
@@ -1694,13 +1696,34 @@ int parse_file(image_buffer *imd,decode_state *os,FILE *compressed_file)
 	fread(os->res_ch,os->end_ch_res,1,compressed_file);
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
+	
+	//printf("%d\n",nt1->tile_number);
+	
+	size = (IM_SIZE>>2);
+	
+	if (nt1->tile_number==1 || nt1->tile_number==3)
+	{
+		t1 = (nt1->width>>9);
+		
+		t1 = (t1<<9);
+		
+		t2 = nt1->width - t1;
+		
+		t3 = (t2>>2)+2;
+		
+		size = (t3*(IM_DIM>>1));
+		
+		if (size>(IM_SIZE>>2)) size = (IM_SIZE>>2);
+		
+		//printf("t2 = %d  t3 = %d\n", t2,t3);
+	}
 
 	os->res_comp[0]=os->res_ch[0];
 
 	if ((imd->setup->RES_HIGH&3)==1) goto L6; 
 	if ((imd->setup->RES_HIGH&3)==2) goto L8;
 
-	for (j=1,i=1,a=0,mem=0;j<(IM_SIZE>>2);i++)
+	for (j=1,i=1,a=0,mem=0;j<size;i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
@@ -1809,7 +1832,7 @@ int parse_file(image_buffer *imd,decode_state *os,FILE *compressed_file)
 
 	goto L7;
 
-L6: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
+L6: for (j=1,i=1,a=0;j<size;i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
@@ -1867,7 +1890,7 @@ L6: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
 
 	goto L7;
 
-L8: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
+L8: for (j=1,i=1,a=0;j<size;i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
@@ -1906,11 +1929,34 @@ L8: for (j=1,i=1,a=0;j<(IM_SIZE>>2);i++)
 		}
 	}
 
-L7:	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
+L7:	//printf("j= %d size = %d\n",j,size);
+	//printf("i= %d\n",i);
+
+	if (j<(IM_SIZE>>2))
+	{	
+		for (;j<(IM_SIZE>>2);j++) os->res_comp[j] = 128;
+	}
+	
+	Y_comp = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+	
+	for (a=0;a<(IM_SIZE>>2);a++) 
+	{
+		Y_comp[a] = os->res_comp[a];
+	}
+	
+	for (a=(IM_DIM>>1);a<(IM_SIZE>>2);a+=(IM_DIM))
+	{
+		for (j=(IM_DIM>>1)-1,e=0;j>=0;j--,e++)
+		{
+			os->res_comp[a+j] = Y_comp[a+e];
+		}
+	}
+	
+	free(Y_comp);
+
+	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 
 	if (imd->setup->quality_setting>LOW5) free(os->highres_comp);
-
-	//for (i=0;i<1200;i+=4) printf("%d %d %d %d\n",os->res_comp[i],os->res_comp[i+1],os->res_comp[i+2],os->res_comp[i+3]);
 
 	for (j=((IM_SIZE>>2)+1);j<((IM_SIZE>>2)+(IM_SIZE>>3));i++)
 	{

@@ -472,16 +472,74 @@ L_COD2:	if (codebook[i]==128)
 	return 0;
 }
 
-void Y_highres_compression(image_buffer *im,encode_state *enc)
+void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 {
-	int i,j,e,Y,a,res,scan,count,mem;
-	unsigned char *highres,*ch_comp,*comp_tmp;
-
+	int i,j,e,Y,a,res,scan,count,mem,t1,t2,t3,size,size2;
+	unsigned char *highres,*ch_comp,*comp_tmp,*Y_comp;
+	
 	highres=(unsigned char*)enc->tree1;
+	
+	Y_comp = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+	
+	for (i=0;i<(IM_SIZE>>2);i++) 
+	{
+		Y_comp[i] =  highres[i];
+	}
+	
+	//printf("%d\n",nt1->tile_number);
+	
+	size = (IM_SIZE>>2);
+	
+	if (nt1->tile_number==1 || nt1->tile_number==3)
+	{
+		t1 = (nt1->width>>9);
+		
+		t1 = (t1<<9);
+		
+		t2 = nt1->width - t1;
+		
+		t3 = (t2>>2)+2;
+		
+		size = (t3*(IM_DIM>>1));
+		
+		if (size>(IM_SIZE>>2)) size = (IM_SIZE>>2);
+		
+		//printf("size = %d\n", size);
+	}
+	
+	//size = (IM_SIZE>>2);
+	
+	if (size<(IM_SIZE>>2))
+	{
+		if ((t3&1)==1) size2 = (t3-1)*(IM_DIM>>1);
+		else size2 = size;
+	}
+	else size2 = size;
+	
+	for (i=(IM_DIM>>1);i<size2;i+=(IM_DIM))
+	{		
+		for (j=(IM_DIM>>1)-1,e=0;j>=0;j--,e++)
+		{
+			highres[i+e] = Y_comp[i+j];
+		}
+	}
+	
+	for (i=0;i<(IM_SIZE>>2);i++) 
+	{
+		Y_comp[i] = enc->ch_res[i];
+	}
+	
+	for (i=(IM_DIM>>1);i<size2;i+=(IM_DIM))
+	{		
+		for (j=(IM_DIM>>1)-1,e=0;j>=0;j--,e++)
+		{
+			enc->ch_res[i+e] = Y_comp[i+j];
+		}
+	}
+	
+	free(Y_comp);
 
-	//for (i=0;i<300;i++) printf("%d %d\n",i,highres[i]);
-
-	for (i=1,e=0,Y=0,a=0;i<(IM_SIZE>>2);i++)
+	for (i=1,e=0,Y=0,a=0;i<size;i++)
 	{
 L11:	if (highres[i]==highres[i-1])
 		{
@@ -511,11 +569,11 @@ L15:	e=0;
 
 	ch_comp[0]=highres[0];
 
-	if (Y>299) {im->setup->RES_LOW=2;goto L4;}
-	else if (a>179) {im->setup->RES_LOW=1;goto L2;} 
+	if (Y>(299*size/16384)) {im->setup->RES_LOW=2;goto L4;}
+	else if (a>(179*size/16384)) {im->setup->RES_LOW=1;goto L2;} 
 	else im->setup->RES_LOW=0;
 
-	for (i=1,j=1,a=0,res=0,mem=0;i<(IM_SIZE>>2);i++)
+	for (i=1,j=1,a=0,res=0,mem=0;i<size;i++)
 	{
 		scan=highres[i]-highres[i-1];
 		count=highres[i+1]-highres[i];
@@ -563,7 +621,7 @@ L15:	e=0;
 			scan+=6;count+=8;
 			if (scan==12 || count==16) 
 			{
-				if (abs(highres[i+2]-highres[i+1])<=32 && i<16382) 
+				if (abs(highres[i+2]-highres[i+1])<=32 && i<(size-2)) 
 				{
 					e=highres[i+2]-highres[i+1]+32;scan+=26;count+=8;goto COMP3;
 				}
@@ -603,7 +661,7 @@ L15:	e=0;
 				i++;
 			}
 		}
-		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<16382)
+		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<(size-2))
 		{
 			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
 COMP3:		if (scan==64 || count==32 || e==64) 
@@ -654,7 +712,7 @@ COMP3:		if (scan==64 || count==32 || e==64)
 
 	goto L3;
 
-L2:	for (i=1,j=1,a=0,mem=0;i<(IM_SIZE>>2);i++)
+L2:	for (i=1,j=1,a=0,mem=0;i<size;i++)
 	{
 		scan=highres[i]-highres[i-1];
 		count=highres[i+1]-highres[i];
@@ -690,7 +748,7 @@ END_RES4:
 			scan+=4;count+=8;
 			if (scan==8 || count==16) 
 			{
-				if (abs(highres[i+2]-highres[i+1])<=32 && i<16382) 
+				if (abs(highres[i+2]-highres[i+1])<=32 && i<(size-2)) 
 				{
 					e=highres[i+2]-highres[i+1]+32;scan+=28;count+=8;goto COMP4;
 				}
@@ -720,7 +778,7 @@ END_RES4:
 				i++;
 			}
 		}
-		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<16382)
+		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<(size-2))
 		{
 			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
 COMP4:		if (scan==64 || count==32 || e==64) 
@@ -771,7 +829,7 @@ COMP4:		if (scan==64 || count==32 || e==64)
 
 	goto L3;
 
-L4:	for (i=1,j=1,a=0,mem=0;i<(IM_SIZE>>2);i++)
+L4:	for (i=1,j=1,a=0,mem=0;i<size;i++)
 	{
 		scan=highres[i]-highres[i-1];
 		count=highres[i+1]-highres[i];
@@ -789,7 +847,7 @@ END_RES5:
 			ch_comp[j++]=a;
 			a=0;
 		}
-		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<16382)
+		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<(size-2))
 		{
 			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
 		if (scan==64 || count==32 || e==64) 
@@ -879,7 +937,7 @@ L3:
 
 	enc->Y_res_comp=e;
 	
-	//printf("%d\n",enc->Y_res_comp);
+	//printf("res_comp = %d\n",enc->Y_res_comp);
 
 }
 

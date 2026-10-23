@@ -125,6 +125,12 @@ typedef struct{
 }codec_setup;
 
 typedef struct{
+	unsigned char tile_number;
+	int width;
+	int height;
+}ntile;
+
+typedef struct{
 	short *im_process;
 	short *im_jpeg;
 	unsigned char *im_bufferY;
@@ -195,9 +201,9 @@ typedef struct{
 }decode_state;
 
 
-extern void decode_image(image_buffer *im,decode_state *os,FILE *compressed_file);
+extern void decode_image(image_buffer *im,decode_state *os, ntile *nt1, FILE *compressed_file);
 
-extern int parse_file(image_buffer *imd,decode_state *os,FILE *compressed_file);
+extern int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_file);
 void nhw_srand(unsigned int seed);
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
 int write_image_bmp(unsigned char *image, nhw_image_s *im_ctx, int stride, char *file_name);

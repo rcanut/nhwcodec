@@ -96,9 +96,10 @@ int main(int argc, char **argv)
 {	
 	image_buffer im;
 	encode_state enc;
+	ntile nt1;
 	char *ifname, *ofname;
 	int select, quality, ofoverwrite = 0;
-	int width, height, stride;
+	int width, height, stride, t1, t2;
 	unsigned char *image;
 	FILE *compressed;
 
@@ -194,14 +195,34 @@ int main(int argc, char **argv)
 		printf("Failed to create file: %s\n", ofname);
 		return 0;
 	}
+	
+	nt1.width = width;
+	
+	nt1.height = height;
+	
+	t1 = width>>9;
+		
+	t1 = t1<<9;
+		
+	if ((width-t1)!=0) t1 = (width>>9)+1; 
+	else t1 = 0;
+		
+	t2 = height>>9;
+		
+	t2 = t2<<9;
+	
+	if ((height-t2)!=0) t2 = (height>>9)+1; 
+	else t2 = 0;
 
 	if (width == 2*IM_DIM && height == 2*IM_DIM)
 	{
 		/* exact 512x512: legacy single-tile stream */
 		load_tile(&im, image, stride, 0, 0, select);
 		/* Encode Image */
-		encode_image(&im, &enc, select);
-		write_compressed_file(&im, &enc, compressed);
+		nt1.tile_number = 0;
+		
+		encode_image(&im, &enc, &nt1 ,select);
+		write_compressed_file(&im, &enc, &nt1, compressed);
 	}
 	else
 	{
@@ -215,6 +236,7 @@ int main(int argc, char **argv)
 
 		padded = pad_image(image, width, height, stride, tiles_x*2*IM_DIM, tiles_y*2*IM_DIM);
 		free(image);
+		
 		image = padded;
 
 		fwrite(NHWT_MAGIC,4,1,compressed);
@@ -233,7 +255,7 @@ int main(int argc, char **argv)
 			tim[b].setup=(codec_setup*)malloc(sizeof(codec_setup));
 			tim[b].setup->quality_setting=quality;
 		}
-
+			
 		/* tiles in bottom-up raster order, each prefixed with its length */
 		for (int first=0; first<ntiles; first+=batch)
 		{
@@ -244,7 +266,29 @@ int main(int argc, char **argv)
 			{
 				memset(&tenc[b], 0, sizeof(encode_state));
 				load_tile(&tim[b], image, pstride, (first+b)%tiles_x, (first+b)/tiles_x, select);
-				encode_image(&tim[b], &tenc[b], select);
+				
+				nt1.tile_number = 0;
+				
+				if (t1>0)
+				{
+					if ((((first+b)%tiles_x)+1)<t1) nt1.tile_number = 0;
+					else nt1.tile_number = 1;
+				}
+				
+				if (t2>0)
+				{
+					if ((((first+b)/tiles_x)+1)<t2)
+					{
+						if (nt1.tile_number==0) nt1.tile_number = 0;
+					}
+					else nt1.tile_number = 2;
+				}
+				
+				if ((((first+b)%tiles_x)+1)==t1 && (((first+b)/tiles_x)+1)==t2) nt1.tile_number = 3;
+					
+				encode_image(&tim[b], &tenc[b], &nt1, select);
+				
+				//printf("%d %d %d\n",(first+b)%tiles_x,(first+b)/tiles_x,nt1.tile_number);
 			}
 
 			for (int b=0; b<n; b++)
@@ -254,7 +298,7 @@ int main(int argc, char **argv)
 
 				start = ftell(compressed);
 				fwrite(&len,4,1,compressed);
-				write_compressed_file(&tim[b], &tenc[b], compressed);
+				write_compressed_file(&tim[b], &tenc[b], &nt1, compressed);
 				end = ftell(compressed);
 				len = (uint32_t)(end-start-4);
 				fseek(compressed, start, SEEK_SET);

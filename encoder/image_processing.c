@@ -2908,12 +2908,21 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 	{
 		if (!part)
 		{
-			for (i=0;i<enc->highres_mem_len;i++)
+			for (i=0,t=0;i<enc->highres_mem_len;i++)
 			{
 				j=(enc->highres_mem[i]>>7);
 				a=enc->highres_mem[i]&127;
+				
+				if ((j&1)==1)
+				{
+					a = 127 - a;
+				}
+				
+				t = (j<<7) + a;
 
-				im->im_jpeg[(j<<9)+a]=highres_tmp[enc->highres_mem[i]];
+				//im->im_jpeg[(j<<9)+a]=highres_tmp[enc->highres_mem[i]];
+				
+				im->im_jpeg[(j<<9)+a]=highres_tmp[t];
 			}
 
 			free(highres_tmp);

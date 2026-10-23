@@ -100,7 +100,7 @@ typedef enum
     BI_CMYKRLE4 =  0x000D
 } Compression;
 
-void encode_image(image_buffer *im,encode_state *enc, int ratio)
+void encode_image(image_buffer *im,encode_state *enc, ntile *nt1, int ratio)
 {
 	int stage,wavelet_order,end_transform,i,j,e=0,a=0,Y,count,scan,res,res_setting,res_uv,y_wavelet,y_wavelet2;
 	unsigned char *highres,*ch_comp,*scan_run,*nhw_res1I_word,*nhw_res3I_word,*nhw_res5I_word;
@@ -745,7 +745,7 @@ void encode_image(image_buffer *im,encode_state *enc, int ratio)
 
 	enc->exw_Y_end=e;
 
-	Y_highres_compression(im,enc);
+	Y_highres_compression(im,enc,nt1);
 
 	free(enc->ch_res);
 
@@ -3177,12 +3177,13 @@ void load_tile(image_buffer *im, unsigned char *image, int stride, int tile_x, i
 	downsample_YUV420(im,rate);
 }
 
-int write_compressed_file(image_buffer *im,encode_state *enc,FILE *compressed)
+int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *compressed)
 {
 	im->setup->RES_HIGH+=im->setup->wavelet_type;
 
 	fwrite(&im->setup->RES_HIGH,1,1,compressed);
 	fwrite(&im->setup->quality_setting,1,1,compressed);
+	fwrite(&nt1->tile_number,1,1,compressed);
 	fwrite(&enc->size_tree1,2,1,compressed);
 	fwrite(&enc->size_tree2,2,1,compressed);
 	fwrite(&enc->size_data1,4,1,compressed);

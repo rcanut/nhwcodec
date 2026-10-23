@@ -73,6 +73,7 @@ int main(int argc, char **argv)
 {
 	image_buffer im;
 	decode_state dec;
+	ntile nt1;
 	nhw_image_s im_ctx;
 	char *ifname, *ofname;
 	FILE *compressed_file;
@@ -108,6 +109,10 @@ int main(int argc, char **argv)
 			printf("\nInvalid tiled .nhw header\n");
 			exit(-1);
 		}
+		
+		nt1.width = width;
+		nt1.height = height;
+		
 		tiles_x=(width+2*IM_DIM-1)/(2*IM_DIM);
 		tiles_y=(height+2*IM_DIM-1)/(2*IM_DIM);
 		ntiles=tiles_x*tiles_y;
@@ -155,7 +160,7 @@ int main(int argc, char **argv)
 			memset(&tdec,0,sizeof(tdec));
 			fseek(tile_file, offset[t], SEEK_SET);
 			nhw_srand(1);
-			decode_image(&tim, &tdec, tile_file);
+			decode_image(&tim, &tdec, &nt1, tile_file);
 			fclose(tile_file);
 			convert_tile_rgb(&tim, tile);
 			free(tim.setup);
@@ -179,7 +184,7 @@ int main(int argc, char **argv)
 	rewind(compressed_file);
 
 	/* Decode Image */
-	decode_image(&im, &dec, compressed_file); // todo: setup image context
+	decode_image(&im, &dec, &nt1, compressed_file); // todo: setup image context
 	fclose(compressed_file);
 
 	image=(unsigned char*)malloc(3*4*IM_SIZE*sizeof(char));
