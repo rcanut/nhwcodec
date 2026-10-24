@@ -178,7 +178,7 @@ void encode_image(image_buffer *im,encode_state *enc, ntile *nt1, int ratio)
 		}
 	}
 
-	offsetY_recons256(im,enc,ratio,1);
+	offsetY_recons256(im,enc,nt1,ratio,1);
 
 	wavelet_synthesis(im,(2*IM_DIM)>>1,end_transform-1,1);
 
@@ -762,7 +762,7 @@ void encode_image(image_buffer *im,encode_state *enc, ntile *nt1, int ratio)
 	if (im->setup->quality_setting>LOW8)
 	{
 
-	offsetY_recons256(im,enc,ratio,0);
+	offsetY_recons256(im,enc,nt1,ratio,0);
 
 	wavelet_synthesis(im,(2*IM_DIM)>>1,end_transform-1,1);
 

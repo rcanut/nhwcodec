@@ -475,7 +475,7 @@ L_COD2:	if (codebook[i]==128)
 void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 {
 	int i,j,e,Y,a,res,scan,count,mem,t1,t2,t3,size,size2;
-	unsigned char *highres,*ch_comp,*comp_tmp,*Y_comp;
+	unsigned char *highres,*ch_comp,*comp_tmp,*Y_comp,*Y_comp2;
 	
 	highres=(unsigned char*)enc->tree1;
 	
@@ -486,11 +486,38 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 		Y_comp[i] =  highres[i];
 	}
 	
-	//printf("%d\n",nt1->tile_number);
-	
 	size = (IM_SIZE>>2);
 	
-	if (nt1->tile_number==1 || nt1->tile_number==3)
+	if (nt1->tile_number==2)
+	{
+		Y_comp2 = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+		
+		for (i=0;i<(IM_DIM>>1);i++)
+		{
+			for (j=0;j<(IM_DIM>>1);j++)
+			{
+				Y_comp2[i*(IM_DIM>>1) + j] = highres[j*(IM_DIM>>1) + i];
+			}
+		}
+		
+		for (i=0;i<(IM_SIZE>>2);i++) 
+		{
+			highres[i] =  Y_comp2[i];
+		}
+			
+		t1 = (nt1->height>>9);
+		
+		t1 = (t1<<9);
+		
+		t2 = nt1->height - t1;
+		
+		t3 = (t2>>2)+2;
+		
+		size = (t3*(IM_DIM>>1));
+		
+		if (size>(IM_SIZE>>2)) size = (IM_SIZE>>2);
+	}
+	else if (nt1->tile_number==1 || nt1->tile_number==3)
 	{
 		t1 = (nt1->width>>9);
 		
@@ -507,8 +534,6 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 		//printf("size = %d\n", size);
 	}
 	
-	//size = (IM_SIZE>>2);
-	
 	if (size<(IM_SIZE>>2))
 	{
 		if ((t3&1)==1) size2 = (t3-1)*(IM_DIM>>1);
@@ -520,13 +545,42 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 	{		
 		for (j=(IM_DIM>>1)-1,e=0;j>=0;j--,e++)
 		{
-			highres[i+e] = Y_comp[i+j];
+			if (nt1->tile_number==2)
+			{
+				highres[i+e] = Y_comp2[i+j];
+			}
+			else highres[i+e] = Y_comp[i+j];
 		}
 	}
 	
-	for (i=0;i<(IM_SIZE>>2);i++) 
+	if (nt1->tile_number==2)
 	{
-		Y_comp[i] = enc->ch_res[i];
+		free(Y_comp2);
+		
+		for (i=0;i<(IM_SIZE>>2);i++) 
+		{
+			Y_comp[i] = enc->ch_res[i];
+		}
+		
+		for (i=0;i<(IM_DIM>>1);i++) 
+		{
+			for (j=0;j<(IM_DIM>>1);j++)
+			{
+				enc->ch_res[i*(IM_DIM>>1) + j] = Y_comp[i + j*(IM_DIM>>1)];
+			}
+		}
+		
+		for (i=0;i<(IM_SIZE>>2);i++) 
+		{
+			Y_comp[i] = enc->ch_res[i];
+		}
+	}
+	else
+	{
+		for (i=0;i<(IM_SIZE>>2);i++) 
+		{
+			Y_comp[i] = enc->ch_res[i];
+		}
 	}
 	
 	for (i=(IM_DIM>>1);i<size2;i+=(IM_DIM))

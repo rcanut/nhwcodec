@@ -1712,6 +1712,22 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 		
 		//printf("t2 = %d  t3 = %d\n", t2,t3);
 	}
+	else if (nt1->tile_number==2)
+	{
+		t1 = (nt1->height>>9);
+		
+		t1 = (t1<<9);
+		
+		t2 = nt1->height - t1;
+		
+		t3 = (t2>>2)+2;
+		
+		size = (t3*(IM_DIM>>1));
+		
+		if (size>(IM_SIZE>>2)) size = (IM_SIZE>>2);
+		
+		//printf("t2 = %d  t3 = %d\n", t2,t3);
+	}
 
 	os->res_comp[0]=os->res_ch[0];
 
@@ -1944,6 +1960,19 @@ L7:	//printf("j= %d size = %d\n",j,size);
 		for (j=(IM_DIM>>1)-1,e=0;j>=0;j--,e++)
 		{
 			os->res_comp[a+j] = Y_comp[a+e];
+		}
+	}
+	
+	if (nt1->tile_number==2)
+	{
+		for (ch=0;ch<(IM_SIZE>>2);ch++) Y_comp[ch] = os->res_comp[ch];
+	
+		for (ch=0;ch<(IM_DIM>>1);ch++)
+		{
+			for (j=0;j<(IM_DIM>>1);j++)
+			{
+				os->res_comp[ch*(IM_DIM>>1) + j] = Y_comp[j*(IM_DIM>>1) + ch];
+			}
 		}
 	}
 	

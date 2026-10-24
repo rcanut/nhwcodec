@@ -2782,9 +2782,9 @@ void block_variance_avg(image_buffer *im)
 	free(block_var);
 }
 
-void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
+void offsetY_recons256(image_buffer *im, encode_state *enc, ntile *nt1, int m1, int part)
 {
-	int i,j,wavelet_order,a,e,t,quant=0,quant6=0;
+	int i,j,wavelet_order,a,e,t,t2,quant=0,quant6=0;
 	short *nhw1,*highres_tmp;
 
 	nhw1=(short*)im->im_process;
@@ -2919,10 +2919,17 @@ void offsetY_recons256(image_buffer *im, encode_state *enc, int m1, int part)
 				}
 				
 				t = (j<<7) + a;
-
-				//im->im_jpeg[(j<<9)+a]=highres_tmp[enc->highres_mem[i]];
 				
-				im->im_jpeg[(j<<9)+a]=highres_tmp[t];
+				t2 = (j<<9) + a;
+
+				if (nt1->tile_number==2)
+				{
+					t = (a<<7) + j;
+					
+					t2 = (a<<9) + j;
+				}
+				
+				im->im_jpeg[t2]=highres_tmp[t];
 			}
 
 			free(highres_tmp);
