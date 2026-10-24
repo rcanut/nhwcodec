@@ -148,6 +148,7 @@ int main(int argc, char **argv)
 		{
 			image_buffer tim;
 			decode_state tdec;
+			ntile nt2;
 			unsigned char *tile=(unsigned char*)malloc(3*4*IM_SIZE*sizeof(char));
 			FILE *tile_file=fopen(ifname,"rb");
 
@@ -156,11 +157,17 @@ int main(int argc, char **argv)
 				printf("\nCould not decode tile\n");
 				exit(-1);
 			}
+		
 			memset(&tim,0,sizeof(tim));
 			memset(&tdec,0,sizeof(tdec));
+			memset(&nt2,0,sizeof(nt2));
 			fseek(tile_file, offset[t], SEEK_SET);
 			nhw_srand(1);
-			decode_image(&tim, &tdec, &nt1, tile_file);
+			
+			nt2.width = width;
+			nt2.height = height;
+			
+			decode_image(&tim, &tdec, &nt2, tile_file);
 			fclose(tile_file);
 			convert_tile_rgb(&tim, tile);
 			free(tim.setup);
