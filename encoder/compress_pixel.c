@@ -75,7 +75,7 @@ L1:	if (part==0) select=4; else select=3;
 	i=p2-2;
 	e=0;
 
-	while (i>=p1 && nhw_comp[i]==128 && nhw_comp[i]==nhw_comp[i-1])
+	while (i>p1 && nhw_comp[i]==128 && nhw_comp[i]==nhw_comp[i-1])
 	{
 		e++;
 		i--;
