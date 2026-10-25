@@ -134,7 +134,7 @@ void offsetUV(image_buffer *im,int m2)
 		else if (a<-127) 
 		{
 			exw = (((-a)&0xfff8)-128)>>3;
-			if (exw>18) exw=18;
+			if (exw>17) exw=17;
 			im->im_process[i]=extra_words2[exw];
 			continue;
 		}
@@ -336,7 +336,7 @@ void offsetY(image_buffer *im,int m1)
 		else if (a<-127) 
 		{
 			exw = (((-a)&0xfff8)-128)>>3;
-			if (exw>18) exw=18;
+			if (exw>17) exw=17;
 			nhw_process[i]=extra_words2[exw];
 			continue;
 		}

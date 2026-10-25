@@ -72,6 +72,20 @@ L1:	if (part==0) select=4; else select=3;
 	memset(rle_buf,0,256*sizeof(int));
 	memset(rle_128,0,256*sizeof(int));
 	
+	i=p2-2;
+	e=0;
+
+	while (i>=p1 && nhw_comp[i]==128 && nhw_comp[i]==nhw_comp[i-1])
+	{
+		e++;
+		i--;
+	}
+	
+	if (e>100) 
+	{
+		nhw_comp[i+1] = 108;
+	}
+	
 	/////// FIRST STAGE ////////
 
 	e=0;b=0;c=0;
@@ -362,6 +376,8 @@ L_ZE:		if (pos>=110 && pos<174 && zone_entrance)
         e=1;
 		// check the tag, maybe can be elsewhere faster...
 		if (tag>0) {tag--;if (tag>0){i++;goto L_JUMP;}} 
+		
+		if (pixel==108) break;
 	}
 
 	

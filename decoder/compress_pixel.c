@@ -410,6 +410,8 @@ SKIP_ZONE: 			word=(unsigned char)nhw_book[dec];
 
 					if (word<ZONE1)
 					{
+						if (word==108) goto L4;
+						
 						if (!extra_table[word]) goto L_INVQ;
 						else if (extra_table[word]>0) 
 						{
@@ -603,6 +605,8 @@ L_STREAMUV: 	word=(unsigned char)os->book[(dec&MSW)];
 				{
 					if (word<ZONE1)
 					{
+						if (word==108) goto L4UV;
+						
 						if (!extra_table[word]) goto L_INVQUV;
 						else if (extra_table[word]>0) 
 						{
