@@ -2,8 +2,8 @@
 ****************************************************************************
 *  NHW Image Codec                                                         *
 *  file: nhw_encoder_cli.c                                                 *
-*  version: 0.3.4+8                                                        *
-*  last update: $ 10232026 nhw exp $                                       *
+*  version: 0.3.5                                                          *
+*  last update: $ 10252026 nhw exp $                                       *
 *                                                                          *
 ****************************************************************************
 ****************************************************************************
@@ -55,7 +55,7 @@
 #include "codec.h"
 
 #define PROGRAM "nhw-enc"
-#define VERSION "0.3.4+8"
+#define VERSION "0.3.5"
 
 /* tiled container: magic, uint32 width, uint32 height, then per tile uint32 length + legacy stream */
 #define NHWT_MAGIC "NHWT"
@@ -315,6 +315,7 @@ int main(int argc, char **argv)
 		for (int b=0; b<batch; b++) free(tim[b].setup);
 		free(tim);
 		free(tenc);
+		free(nt1);
 	}
 
 	fclose(compressed);
