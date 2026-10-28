@@ -147,10 +147,10 @@ int main(int argc, char **argv)
 			image_buffer tim;
 			decode_state tdec;
 			ntile nt2;
-			unsigned char *tile=(unsigned char*)malloc(3*4*IM_SIZE*sizeof(char));
+			unsigned char *tile;
 			FILE *tile_file=fopen(ifname,"rb");
 
-			if (tile==NULL || tile_file==NULL)
+			if (tile_file==NULL)
 			{
 				printf("\nCould not decode tile\n");
 				exit(-1);
@@ -168,6 +168,15 @@ int main(int argc, char **argv)
 			
 			decode_image(&tim, &tdec, &nt2, tile_file);
 			fclose(tile_file);
+			
+			tile=(unsigned char*)malloc(3*4*IM_SIZE*sizeof(char));
+			
+			if (tile==NULL)
+			{
+				printf("\nCould not decode tile\n");
+				exit(-1);
+			}
+			
 			convert_tile_rgb(&tim, tile);
 			free(tim.setup);
 			for (int y=0; y<2*IM_DIM; y++)
