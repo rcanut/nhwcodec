@@ -72,7 +72,6 @@ int main(int argc, char **argv)
 	image_buffer im;
 	decode_state dec;
 	ntile nt1;
-	int ft;
 	nhw_image_s im_ctx;
 	char *ifname, *ofname;
 	FILE *compressed_file;
@@ -143,7 +142,7 @@ int main(int argc, char **argv)
 
 		/* decode the tiles in parallel (when built with OpenMP), each from its own file handle */
 		#pragma omp parallel for schedule(dynamic)
-		for (int t=0,ft=0; t<ntiles; t++,ft++)
+		for (int t=0; t<ntiles; t++)
 		{
 			image_buffer tim;
 			decode_state tdec;
@@ -165,7 +164,7 @@ int main(int argc, char **argv)
 			
 			nt2.width = width;
 			nt2.height = height;
-			nt2.first_tile = ft;
+			nt2.first_tile = t;
 			
 			decode_image(&tim, &tdec, &nt2, tile_file);
 			fclose(tile_file);
