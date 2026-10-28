@@ -126,6 +126,7 @@ typedef struct{
 
 typedef struct{
 	unsigned char tile_number;
+	unsigned char first_tile;
 	int width;
 	int height;
 }ntile;
@@ -205,6 +206,7 @@ extern void decode_image(image_buffer *im,decode_state *os, ntile *nt1, FILE *co
 
 extern int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_file);
 void nhw_srand(unsigned int seed);
+extern void convert_tile_rgb(image_buffer *im, unsigned char *iNHW);
 int setup_bmp_header(char* bmp_header, nhw_image_s* im_ctx);
 int write_image_bmp(unsigned char *image, nhw_image_s *im_ctx, int stride, char *file_name);
 

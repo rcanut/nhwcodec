@@ -51,6 +51,191 @@
 
 #define CLIP(x) ( (x<0) ? 0 : ((x>255) ? 255 : x) );
 
+/* Lookup tables for the NORM conversion below. With Y an integer, (int)(Y + x + 0.5f) equals
+   Y + (int)(255 + x + 0.5f) - 255 except when x + 0.5 is exactly an integer (a tie), where the
+   double rounding can depend on Y; those G entries hold G_TIE and use the original formula.
+   Checked against the formula for all 2^24 Y,U,V inputs: identical. */
+
+#define G_TIE (-32768)
+static int r_ofs[256], b_ofs[256];
+static short g_ofs[256*256];
+static unsigned char clip_tab[1024];
+
+static int is_tie(double x)
+{
+	double t=x+1000.5, f=t-(int)t;
+	return f<1e-6 || f>1-1e-6;
+}
+
+void init_color_tables()
+{
+	int i,U,V;
+
+	for (i=0;i<1024;i++) clip_tab[i]=(i<512) ? 0 : ((i>767) ? 255 : i-512);
+	for (V=-128;V<128;V++) r_ofs[V+128]=(int)(255 + 1.402*V +0.5f)-255;
+	for (U=-128;U<128;U++) b_ofs[U+128]=(int)(255 +1.772*U +0.5f)-255;
+	for (U=-128;U<128;U++) for (V=-128;V<128;V++)
+	{
+		if (is_tie(-0.34414*U -0.71414*V)) g_ofs[(U+128)*256+V+128]=G_TIE;
+		else g_ofs[(U+128)*256+V+128]=(int)(255 -0.34414*U -0.71414*V +0.5f)-255;
+	}
+}
+
+/* convert one decoded 512x512 YUV tile to bottom-up BGR rows in iNHW (3*4*IM_SIZE bytes) */
+void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
+{
+	int i,Y,U,V,R,G,B,m,t;
+	unsigned char *icolorY,*icolorU,*icolorV;
+	float Y_q_setting,Y_inv;
+
+	// here to work on Windows Vista
+	icolorY=(unsigned char*)im->im_bufferY;
+	icolorU=(unsigned char*)im->im_bufferU;
+	icolorV=(unsigned char*)im->im_bufferV;
+
+	if (im->setup->quality_setting>=NORM)
+	{
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				//Y = icolorY[i]*298;
+				Y = icolorY[i]+512;
+				U = icolorU[i];
+				V = icolorV[i];
+
+				//Matrix  YCbCr (or YUV) to RGB, from the tables in init_color_tables
+				G = g_ofs[(U<<8)+V];
+				iNHW[t]=clip_tab[Y+r_ofs[V]];
+				if (G!=G_TIE) iNHW[t+1]=clip_tab[Y+G];
+				else
+				{
+					G = (int)(icolorY[i]  -0.34414*(U-128) -0.71414*(V-128) +0.5f);
+					if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+					else iNHW[t+1]=G;
+				}
+				iNHW[t+2]=clip_tab[Y+b_ofs[U]];
+			}
+		}
+	}
+	else if (im->setup->quality_setting==LOW1 || im->setup->quality_setting==LOW2)
+	{
+		if (im->setup->quality_setting==LOW1) Y_inv=1.025641; // 1/0.975
+		else if (im->setup->quality_setting==LOW2) Y_inv=1.075269; // 1/0.93
+
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				//Y = icolorY[i]*298;
+				Y_q_setting =(float)(icolorY[i]*Y_inv);
+				U = icolorU[i]-128;
+				V = icolorV[i]-128;
+
+				//Matrix  YCbCr (or YUV) to RGB
+				/*R = ((Y         + 409*V + R_COMP)>>8);
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);
+				B = ((Y + 516*U         + B_COMP)>>8);*/
+				R = (int)(Y_q_setting  + 1.402*V +0.5f);
+				G = (int)(Y_q_setting  -0.34414*U -0.71414*V +0.5f);
+				B = (int)(Y_q_setting  +1.772*U +0.5f);
+
+				//Clip RGB Values
+				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
+				else iNHW[t]=R;
+
+				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+				else iNHW[t+1]=G;
+
+				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
+				else iNHW[t+2]=B;
+			}
+		}
+	}
+	else if (im->setup->quality_setting==LOW3)
+	{
+		Y_inv=1.063830; // 1/0.94
+
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				//Y = icolorY[i]*298;
+				Y = icolorY[i];
+				U = icolorU[i]-128;
+				V = icolorV[i]-128;
+
+				//Matrix  YCbCr (or YUV) to RGB
+				/*R = ((Y         + 409*V + R_COMP)>>8);
+				G = ((Y - 100*U - 208*V + G_COMP)>>8);
+				B = ((Y + 516*U         + B_COMP)>>8);*/
+				R = (int)((Y + 1.402*V)*Y_inv +0.5f);
+				G = (int)((Y -0.34414*U -0.71414*V)*Y_inv +0.5f);
+				B = (int)((Y +1.772*U)*Y_inv +0.5f);
+
+				//Clip RGB Values
+				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
+				else iNHW[t]=R;
+
+				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+				else iNHW[t+1]=G;
+
+				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
+				else iNHW[t+2]=B;
+			}
+		}
+	}
+	else if (im->setup->quality_setting<LOW3)
+	{
+		if (im->setup->quality_setting==LOW4) Y_inv=1.012139; // 1/0.94
+		else if (im->setup->quality_setting==LOW5) Y_inv=1.048174; // 1/0.906
+		else if (im->setup->quality_setting==LOW6) Y_inv=1.138331; // 1/0.8
+		else if (im->setup->quality_setting==LOW7) Y_inv=1.186945;
+		else if (im->setup->quality_setting==LOW8) Y_inv=1.177434;
+		else if (im->setup->quality_setting==LOW9) Y_inv=1.190611;
+		else if (im->setup->quality_setting==LOW10) Y_inv=1.281502;
+		else if (im->setup->quality_setting==LOW11) Y_inv=1.392014;
+		else if (im->setup->quality_setting==LOW12) Y_inv=1.521263;
+		else if (im->setup->quality_setting==LOW13) Y_inv=1.587597;
+		else if (im->setup->quality_setting==LOW14) Y_inv=1.665887;
+		else if (im->setup->quality_setting==LOW15) Y_inv=1.741126;
+		else if (im->setup->quality_setting==LOW16) Y_inv=1.820444;
+		else if (im->setup->quality_setting==LOW17) Y_inv=1.916257;
+		else if (im->setup->quality_setting==LOW18) Y_inv=1.985939;
+		else if (im->setup->quality_setting==LOW19) Y_inv=2.060881;
+
+
+		for (m=0;m<4;m++)
+		{
+			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			{
+				Y = icolorY[i]*298;
+				U = icolorU[i];
+				V = icolorV[i];
+
+				//Matrix  YCbCr (or YUV) to RGB
+				R = (((int)((Y         + 409*V + R_COMP)*Y_inv +128.5f))>>8);
+				G = (((int)((Y - 100*U - 208*V + G_COMP)*Y_inv +128.5f))>>8);
+				B = (((int)((Y + 516*U         + B_COMP)*Y_inv +128.5f))>>8);
+
+				//Clip RGB Values
+				if ((R>>8)!=0) iNHW[t]=( (R<0) ? 0 : 255 );
+				else iNHW[t]=R;
+
+				if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
+				else iNHW[t+1]=G;
+
+				if ((B>>8)!=0) iNHW[t+2]=( (B<0) ? 0 : 255 );
+				else iNHW[t+2]=B;
+			}
+		}
+	}
+
+	free(im->im_bufferY);
+	free(im->im_bufferU);
+	free(im->im_bufferV);
+}
+
 void decode_image(image_buffer *im,decode_state *os,ntile *nt1,FILE *compressed_file)
 {
 	int nhw,stage,wavelet_order,end_transform,i,j,e=0,count,scan,exw1,res,nhw_selectII;
@@ -61,6 +246,9 @@ void decode_image(image_buffer *im,decode_state *os,ntile *nt1,FILE *compressed_
 	unsigned short *nhwres1,*nhwres2,*nhwres1I,*nhwres3I,*nhwres3,*nhwres4,*nhwres5,*nhwres6;
 
 	wavelet_order=parse_file(im,os,nt1,compressed_file);
+	
+	if (im->setup->quality_setting>=NORM && !nt1->first_tile) init_color_tables();
+	
 	retrieve_pixel_Y_comp(im,os,4*IM_SIZE,os->packet1,im->im_process);
 	free(os->packet1);
 	/* +2*IM_DIM zeroed: the neighbor checks on the last row read one row past the end */
