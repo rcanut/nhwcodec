@@ -126,7 +126,7 @@ typedef struct{
 
 typedef struct{
 	unsigned char tile_number;
-	unsigned char first_tile;
+	int first_tile;
 	int width;
 	int height;
 }ntile;
