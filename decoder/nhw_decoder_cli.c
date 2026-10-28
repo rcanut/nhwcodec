@@ -108,9 +108,6 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 		
-		nt1.width = width;
-		nt1.height = height;
-		
 		tiles_x=(width+2*IM_DIM-1)/(2*IM_DIM);
 		tiles_y=(height+2*IM_DIM-1)/(2*IM_DIM);
 		ntiles=tiles_x*tiles_y;
@@ -198,6 +195,8 @@ int main(int argc, char **argv)
 	}
 	rewind(compressed_file);
 	
+	nt1.width = 2*IM_DIM;
+	nt1.height = 2*IM_DIM;
 	nt1.first_tile = 0;
 
 	/* Decode Image */
@@ -208,8 +207,8 @@ int main(int argc, char **argv)
 	convert_tile_rgb(&im, image);
 
 	/* this should come from image to convert */
-	im_ctx.width = 512;
-	im_ctx.height = 512;
+	im_ctx.width = 2*IM_DIM;
+	im_ctx.height = 2*IM_DIM;
 	im_ctx.bpp = 24;
 	setup_bmp_header((char*)bmp_header, &im_ctx);
 	write_image_bmp(image, &im_ctx, 3*2*IM_DIM, ofname);
