@@ -491,7 +491,7 @@ L_COD2:	if (codebook[i]==128)
 void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 {
 	int i,j,e,Y,a,res,scan,count,mem,t1,t2,t3,size,size2;
-	unsigned char *highres,*ch_comp,*comp_tmp,*Y_comp,*Y_comp2;
+	unsigned char *highres,*highres_comp1,*ch_comp,*comp_tmp,*Y_comp,*Y_comp2;
 	
 	highres=(unsigned char*)enc->tree1;
 	
@@ -626,24 +626,247 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 	}
 	
 	free(Y_comp);
-
-	for (i=1,e=0,Y=0,a=0;i<size;i++)
+	
+	////////////////////////////////////////////////////////////////////
+	if (im->setup->quality_setting<=LOW5)
 	{
-L11:	if (highres[i]==highres[i-1])
+	
+	highres_comp1=(unsigned char*)calloc((IM_SIZE>>1),sizeof(char));
+	ch_comp=(unsigned char*)highres_comp1;
+
+	ch_comp[0]=highres[0];
+
+	for (i=1,j=1,a=0,res=0;i<size;i++)
+	{
+		scan=highres[i]-highres[i-1];
+		count=highres[i+1]-highres[i];
+
+		if (scan==0 && count==0)
 		{
-			e++;
-			if (e<16) 
+			if (highres[i+a+2]==highres[i+a+1]) a++;
+
+			i+=(a+2);
+			ch_comp[j]=(a<<3);
+			
+			if (highres[i]-highres[i-1]==2) 
 			{
-				if (e==8) a++;
-				i++;goto L11;
+				if (highres[i+1]-highres[i]==-2) 
+				{
+					ch_comp[j]+=2;i++;
+				}
+				else if (highres[i+1]-highres[i]==0) 
+				{
+					ch_comp[j]+=3;i++;
+				}
+				else ch_comp[j]+=1;
 			}
-			else if (e==16) {Y++;goto L15;}
+			else if (highres[i]-highres[i-1]==-2)
+			{
+				if (highres[i+1]-highres[i]==2) 
+				{
+					ch_comp[j]+=4;i++;
+				}
+				else if (highres[i+1]-highres[i]==0) 
+				{
+					ch_comp[j]+=5;i++;
+				}
+				else ch_comp[j]+=6;
+				
+			}
+			else if (highres[i]-highres[i-1]==4) ch_comp[j]+=7;
+			else  i--;
+
+			a=0;
+			j++;
 		}
-L15:	e=0;
+		else if (abs(scan)<=6 && abs(count)<=8)
+		{
+			scan+=6;count+=8;
+			if (scan==12 || count==16) 
+			{
+				if (abs(highres[i+2]-highres[i+1])<=32 && i<(size-2)) 
+				{
+					e=highres[i+2]-highres[i+1]+32;scan+=26;count+=8;goto COMP3T;
+				}
+				else 
+				{
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
+			}
+			else 
+			{
+				if (scan<8) ch_comp[j++]=32+ (scan<<2) + (count>>1);
+				else
+				{
+					if (scan==8)
+					{
+						ch_comp[j++]= 16 + (count>>1);
+					}
+					else
+					{
+						ch_comp[j++]= 24 + (count>>1);
+					}
+				}
+
+				i++;
+			}
+		}
+		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<(size-2))
+		{
+			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
+COMP3T:		if (scan==64 || count==32 || e==64) 
+			{
+				ch_comp[j++]=128+(highres[i]>>1);
+			}
+			else 
+			{
+				count>>=1;
+				//ch_comp[j++]=64;
+				ch_comp[j++]=64 +(scan) + (count>>3);
+				ch_comp[j++]=((count&7)<<5) + (e>>1);
+	
+				i+=2;
+			}
+		}
+		else
+		{
+			ch_comp[j++]=128+(highres[i]>>1);
+		}
 	}
 
-	a+=Y;
+	t1 = j;
+	
+	ch_comp=(unsigned char*)highres_comp1;
 
+	ch_comp[0]=highres[0];
+
+	for (i=1,j=1,a=0;i<size;i++)
+	{
+		scan=highres[i]-highres[i-1];
+		count=highres[i+1]-highres[i];
+
+		if (scan==0 && count==0)
+		{
+RES_COMPR4T:	if (highres[i+a+2]==highres[i+a+1])
+			{
+				a++;
+				if (a<7) goto RES_COMPR4T;
+				if (a==7) goto END_RES4T;
+			}
+END_RES4T:	
+			i+=(a+2);
+			ch_comp[j]=(a<<2);
+			
+			if (highres[i]-highres[i-1]==2) 
+			{
+				ch_comp[j]+=1;
+			}
+			else if (highres[i]-highres[i-1]==-2)
+			{
+				ch_comp[j]+=2;	
+			}
+			else if (highres[i]-highres[i-1]==0) ch_comp[j]+=3;
+			else i--; 
+
+			a=0;
+			j++;
+		}
+		else if (abs(scan)<=4 && abs(count)<=8)
+		{
+			scan+=4;count+=8;
+			if (scan==8 || count==16) 
+			{
+				if (abs(highres[i+2]-highres[i+1])<=32 && i<(size-2)) 
+				{
+					e=highres[i+2]-highres[i+1]+32;scan+=28;count+=8;goto COMP4T;
+				}
+				else
+				{
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
+			}
+			else 
+			{
+				ch_comp[j++]=32+ (scan<<2) + (count>>1);
+				//if (highres[i+2]==highres[i+1] && i<12286) { ch_comp[j-1]+=1;i+=2;}
+				//else i++;
+				i++;
+			}
+		}
+		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<(size-2))
+		{
+			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
+COMP4T:		if (scan==64 || count==32 || e==64) 
+			{
+				ch_comp[j++]=128+(highres[i]>>1);
+			}
+			else 
+			{
+				count>>=1;
+				//ch_comp[j++]=64;
+				ch_comp[j++]=64 +(scan) + (count>>3);
+				ch_comp[j++]=((count&7)<<5) + (e>>1);
+	
+				i+=2;
+			}
+		}
+		else
+		{
+			ch_comp[j++]=128+(highres[i]>>1);
+		}
+	}
+
+	t2 = j;
+	
+	ch_comp=(unsigned char*)highres_comp1;
+
+	ch_comp[0]=highres[0];
+
+	for (i=1,j=1,a=0;i<size;i++)
+	{
+		scan=highres[i]-highres[i-1];
+		count=highres[i+1]-highres[i];
+
+		if (scan==0 && count==0)
+		{
+RES_COMPR5T:if (highres[i+a+2]==highres[i+a+1])
+			{
+				a++;
+				if (a<63) goto RES_COMPR5T;
+				if (a==63) goto END_RES5T;
+			}
+END_RES5T:	
+			i+=(a+1);
+			ch_comp[j++]=a;
+			a=0;
+		}
+		else if (abs(scan)<=32 && abs(count)<=16 && abs(highres[i+2]-highres[i+1])<=32 && i<(size-2))
+		{
+			scan+=32;count+=16;e=highres[i+2]-highres[i+1]+32;
+			if (scan==64 || count==32 || e==64) 
+			{
+				ch_comp[j++]=128+(highres[i]>>1);
+			}
+			else 
+			{
+				count>>=1;
+				//ch_comp[j++]=64;
+				ch_comp[j++]=64 +(scan) + (count>>3);
+				ch_comp[j++]=((count&7)<<5) + (e>>1);
+	
+				i+=2;
+			}
+		}
+		else
+		{
+			ch_comp[j++]=128+(highres[i]>>1);
+		}
+	}
+	
+	t3 = j;
+	
+	free(highres_comp1);
+	
 	enc->highres_mem_len=0;
 	enc->highres_comp=(unsigned char*)calloc((IM_SIZE>>1),sizeof(char));
 	
@@ -656,10 +879,76 @@ L15:	e=0;
 	ch_comp=(unsigned char*)enc->highres_comp;
 
 	ch_comp[0]=highres[0];
+	
+	if (t3<t2) 
+	{
+		if (t3<t1) 
+		{		
+			j = t3;
+			
+			im->setup->RES_LOW = 2;
+			
+			goto L4;
+		}
+		else
+		{		
+			j = t1;
+			
+			im->setup->RES_LOW = 0;
+		}
+	}
+	else if (t2<t1)
+	{	
+		j = t2;
+		
+		im->setup->RES_LOW = 1;
+		
+		goto L2;
+	}
+	else
+	{
+		j = t1;
+		
+		im->setup->RES_LOW = 0;
+	}
+	
+	}
+	else
+	{
+		for (i=1,e=0,Y=0,a=0;i<size;i++)
+		{
+L11:		if (highres[i]==highres[i-1])
+			{
+				e++;
+				if (e<16) 
+				{
+					if (e==8) a++;
+					i++;goto L11;
+				}
+				else if (e==16) {Y++;goto L15;}
+			}
+L15:		e=0;
+		}
 
-	if (Y>(299*size/16384)) {im->setup->RES_LOW=2;goto L4;}
-	else if (a>(179*size/16384)) {im->setup->RES_LOW=1;goto L2;} 
-	else im->setup->RES_LOW=0;
+		a+=Y;
+	
+		enc->highres_mem_len=0;
+		enc->highres_comp=(unsigned char*)calloc((IM_SIZE>>1),sizeof(char));
+	
+		if (im->setup->quality_setting>LOW5)
+		{
+			enc->highres_word=(unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+			enc->highres_mem=(unsigned short*)malloc((IM_SIZE>>2)*sizeof(short));
+		}
+	
+		ch_comp=(unsigned char*)enc->highres_comp;
+
+		ch_comp[0]=highres[0];
+	
+		if (Y>(299*size/16384)) {im->setup->RES_LOW=2;goto L4;}
+		else if (a>(179*size/16384)) {im->setup->RES_LOW=1;goto L2;} 
+		else im->setup->RES_LOW=0;
+	}
 
 	for (i=1,j=1,a=0,res=0,mem=0;i<size;i++)
 	{
