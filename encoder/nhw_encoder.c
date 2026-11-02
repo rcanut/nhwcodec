@@ -3187,6 +3187,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *co
 	fwrite(&im->setup->RES_LOW,1,1,compressed);
 	fwrite(&im->setup->quality_setting,1,1,compressed);
 	fwrite(&nt1->tile_number,1,1,compressed);
+	if (im->setup->quality_setting<=LOW5) fwrite(&enc->Y_res_comp,2,1,compressed);
 	fwrite(&enc->size_tree1,2,1,compressed);
 	fwrite(&enc->size_tree2,2,1,compressed);
 	fwrite(&enc->size_data1,4,1,compressed);

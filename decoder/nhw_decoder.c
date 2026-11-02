@@ -1710,7 +1710,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 {
 	int i,j,ch,e,a=0,mem,run,nhw,size,size2,t1,t2,t3;
 	char uv_small_dc_offset[8][2]={{0,4},{0,-4},{4,0},{-4,0},{4,4},{4,-4},{-4,4},{-4,-4}};
-	unsigned char *Y_comp;
+	unsigned char *Y_comp, *res_comp, *res2, *res3;
 
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
 
@@ -1723,6 +1723,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	imd->setup->wavelet_type=WVLTS_53;
 	imd->setup->wvlts_order=2;
 
+	if (imd->setup->quality_setting<=LOW5) fread(&os->Y_res_comp,2,1,compressed_file);
 	fread(&os->d_size_tree1,2,1,compressed_file);
 	fread(&os->d_size_tree2,2,1,compressed_file);
 	fread(&os->d_size_data1,4,1,compressed_file);
@@ -1817,7 +1818,8 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	}
 
 	
-	os->res_ch=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
+	res3=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
+	//os->res_ch=(unsigned char*)malloc(((IM_SIZE>>2)+(IM_SIZE>>3))*sizeof(char));
 	/* +1 zeroed word: the bitstream reader peeks one word past the end */
 	os->packet1=(unsigned int*)calloc(os->d_size_data1+1,sizeof(int));
 	os->packet2=(unsigned int*)calloc((os->d_size_data2-os->d_size_data1)+1,sizeof(int));
@@ -1876,7 +1878,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 		fread(os->highres_comp,os->highres_comp_len,1,compressed_file);
 	}
 
-	fread(os->res_ch,os->end_ch_res,1,compressed_file);
+	fread(res3,os->end_ch_res,1,compressed_file);
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
 	
@@ -1917,10 +1919,54 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 		//printf("t2 = %d  t3 = %d\n", t2,t3);
 	}
 
-	os->res_comp[0]=os->res_ch[0];
-
 	if ((imd->setup->RES_HIGH&3)==1) goto L6; 
 	if ((imd->setup->RES_HIGH&3)==2) goto L8;
+	
+	if (imd->setup->quality_setting<=LOW5)
+	{
+		
+	res_comp = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+	res2 = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+	
+	for (i=os->Y_res_comp,j=0;i<os->end_ch_res;i++) res2[j++]=res3[i];
+	
+	res_comp[0] = res3[0];
+	
+	for (i=1,j=1;i<os->Y_res_comp;i++)
+	{
+		if (res3[i]==60) 
+		{
+			res_comp[j++] = res3[i+1];
+			res_comp[j++] = res3[i+1];
+			res_comp[j++] = res3[i+1];
+				
+			i++;
+		}
+		else res_comp[j++] = res3[i];
+	}
+
+	os->res_ch = (unsigned char*)malloc((j+os->end_ch_res-os->Y_res_comp)*sizeof(char));
+	
+	for (i=0;i<j;i++) os->res_ch[i] = res_comp[i];
+	
+	for (i=0;i<(os->end_ch_res-os->Y_res_comp);i++) os->res_ch[i+j] = res2[i];
+	
+	os->Y_res_comp = j;
+	
+	free(res_comp);
+	free(res2);
+	free(res3);
+	}
+	else
+	{
+		os->res_ch = (unsigned char*)malloc(os->end_ch_res*sizeof(char));
+	
+		for (i=0;i<os->end_ch_res;i++) os->res_ch[i] = res3[i];
+	
+		free(res3);
+	}
+	
+	os->res_comp[0]=os->res_ch[0];
 
 	for (j=1,i=1,a=0,mem=0;j<size;i++)
 	{
@@ -2031,7 +2077,54 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 
 	goto L7;
 
-L6: for (j=1,i=1,a=0;j<size;i++)
+L6: 
+	if (imd->setup->quality_setting<=LOW5)
+	{
+		
+	res_comp = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+	res2 = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
+	
+	for (i=os->Y_res_comp,j=0;i<os->end_ch_res;i++) res2[j++]=res3[i];
+	
+	res_comp[0] = res3[0];
+	
+	for (i=1,j=1;i<os->Y_res_comp;i++)
+	{
+		if (res3[i]==52) 
+		{
+			res_comp[j++] = res3[i+1];
+			res_comp[j++] = res3[i+1];
+			res_comp[j++] = res3[i+1];
+				
+			i++;
+		}
+		else res_comp[j++] = res3[i];
+	}
+	
+	os->res_ch = (unsigned char*)malloc((j+os->end_ch_res-os->Y_res_comp)*sizeof(char));
+	
+	for (i=0;i<j;i++) os->res_ch[i] = res_comp[i];
+	
+	for (i=0;i<(os->end_ch_res-os->Y_res_comp);i++) os->res_ch[i+j] = res2[i];
+	
+	os->Y_res_comp = j;
+	
+	free(res_comp);
+	free(res2);
+	free(res3);
+	}
+	else
+	{
+		os->res_ch = (unsigned char*)malloc(os->end_ch_res*sizeof(char));
+	
+		for (i=0;i<os->end_ch_res;i++) os->res_ch[i] = res3[i];
+	
+		free(res3);
+	}
+	
+	os->res_comp[0]=os->res_ch[0];
+	
+	for (j=1,i=1,a=0;j<size;i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
@@ -2089,7 +2182,16 @@ L6: for (j=1,i=1,a=0;j<size;i++)
 
 	goto L7;
 
-L8: for (j=1,i=1,a=0;j<size;i++)
+L8: 
+	os->res_ch = (unsigned char*)malloc(os->end_ch_res*sizeof(char));
+	
+	for (i=0;i<os->end_ch_res;i++) os->res_ch[i] = res3[i];
+	
+	free(res3);
+	
+	os->res_comp[0]=os->res_ch[0];
+	
+	for (j=1,i=1,a=0;j<size;i++)
 	{
 		if (os->res_ch[i]>=128)
 		{
@@ -2165,6 +2267,8 @@ L7:	//printf("j= %d size = %d\n",j,size);
 	}
 	
 	free(Y_comp);
+	
+	if (imd->setup->quality_setting<=LOW5) i = os->Y_res_comp;
 
 	os->res_comp[(IM_SIZE>>2)]=os->res_ch[i++];
 

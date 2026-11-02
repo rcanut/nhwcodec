@@ -1058,15 +1058,27 @@ COMP3:		if (scan==64 || count==32 || e==64)
 					ch_comp[j++]=128+(highres[i]>>1);
 				}
 			}
-			else 
+			else
 			{
-				count>>=1;
-				ch_comp[j++]=64;
-				ch_comp[j++]=64 +(scan) + (count>>3);
-				ch_comp[j++]=((count&7)<<5) + (e>>1);
+				t1 = count>>1;
+				t2 = ((t1&7)<<5) + (e>>1);
+				
+				if (t2==60 && im->setup->quality_setting<=LOW5)
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
+				else
+				{
+					count>>=1;
+					ch_comp[j++]=64;
+					ch_comp[j++]=64 +(scan) + (count>>3);
+					ch_comp[j++]=((count&7)<<5) + (e>>1);
 	
-				i+=2;
+					i+=2;
+				}
 			}
+			
 		}
 		else
 		{
@@ -1175,14 +1187,25 @@ COMP4:		if (scan==64 || count==32 || e==64)
 					ch_comp[j++]=128+(highres[i]>>1);
 				}
 			}
-			else 
+			else
 			{
-				count>>=1;
-				ch_comp[j++]=64;
-				ch_comp[j++]=64 +(scan) + (count>>3);
-				ch_comp[j++]=((count&7)<<5) + (e>>1);
+				t1 = count>>1;
+				t2 = ((t1&7)<<5) + (e>>1);
+				
+				if (t2==52 && im->setup->quality_setting<=LOW5)
+				{
+					ch_comp[j++]=128;
+					ch_comp[j++]=128+(highres[i]>>1);
+				}
+				else
+				{
+					count>>=1;
+					ch_comp[j++]=64;
+					ch_comp[j++]=64 +(scan) + (count>>3);
+					ch_comp[j++]=((count&7)<<5) + (e>>1);
 	
-				i+=2;
+					i+=2;
+				}
 			}
 		}
 		else
@@ -1307,6 +1330,38 @@ L3:
 	}
 
 	if (i<j) ch_comp[e++]=comp_tmp[j-1];
+	
+	if (im->setup->quality_setting<=LOW5)
+	{
+		if (im->setup->RES_LOW==0 || im->setup->RES_LOW==1)
+		{
+			comp_tmp[0]=ch_comp[0];
+		
+			for (i=1,j=1;i<e;i++)
+			{	
+				if (i<(e-2) && ch_comp[i+2]==ch_comp[i] && ch_comp[i+1]==ch_comp[i])
+				{
+					if (im->setup->RES_LOW==0) 
+					{
+						comp_tmp[j++]=60;
+						comp_tmp[j++]=ch_comp[i];
+						i+=2;
+					}
+					else if (im->setup->RES_LOW==1) 
+					{
+						comp_tmp[j++]=52;
+						comp_tmp[j++]=ch_comp[i];
+						i+=2;
+					}
+				}
+				else comp_tmp[j++]=ch_comp[i];
+			}
+			
+			for (i=0;i<j;i++) ch_comp[i] = comp_tmp[i];
+		
+			e = j;
+		}
+	}
 
 	free(comp_tmp);
 

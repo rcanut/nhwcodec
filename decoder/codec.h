@@ -183,6 +183,7 @@ typedef struct{
 	unsigned short res_f2;
 	unsigned short d_size_tree1;
 	unsigned short d_size_tree2;
+	unsigned short Y_res_comp;
 	unsigned char *d_tree1;
 	unsigned char *d_tree2;
 	unsigned short exw_Y_end;
