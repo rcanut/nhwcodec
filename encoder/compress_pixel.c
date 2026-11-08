@@ -1569,10 +1569,12 @@ END_RES7:
 
 L22:
 	free(enc->tree1);
+	
+	fpaq_compress(ch_comp, j, &enc->ch_res, &enc->end_ch_res);
 
-	enc->ch_res=(unsigned char*)malloc(j*sizeof(char));
-	enc->end_ch_res=j;
-	memcpy(enc->ch_res,ch_comp,enc->end_ch_res*sizeof(char));
+	//enc->ch_res=(unsigned char*)malloc(j*sizeof(char));
+	//enc->end_ch_res=j;
+	//memcpy(enc->ch_res,ch_comp,enc->end_ch_res*sizeof(char));
 	free(enc->highres_comp);
 }
 

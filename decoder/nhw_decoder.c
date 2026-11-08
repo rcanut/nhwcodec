@@ -1710,7 +1710,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 {
 	int i,j,ch,e,a=0,mem,run,nhw,size,size2,t1,t2,t3;
 	char uv_small_dc_offset[8][2]={{0,4},{0,-4},{4,0},{-4,0},{4,4},{4,-4},{-4,4},{-4,-4}};
-	unsigned char *Y_comp, *res_comp, *res2, *res3;
+	unsigned char *Y_comp, *res_comp, *res2, *res3, *res4;
 
 	imd->setup=(codec_setup*)malloc(sizeof(codec_setup));
 
@@ -1818,7 +1818,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	}
 
 	
-	res3=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
+	res4=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
 	//os->res_ch=(unsigned char*)malloc(((IM_SIZE>>2)+(IM_SIZE>>3))*sizeof(char));
 	/* +1 zeroed word: the bitstream reader peeks one word past the end */
 	os->packet1=(unsigned int*)calloc(os->d_size_data1+1,sizeof(int));
@@ -1878,11 +1878,11 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 		fread(os->highres_comp,os->highres_comp_len,1,compressed_file);
 	}
 
-	fread(res3,os->end_ch_res,1,compressed_file);
+	fread(res4,os->end_ch_res,1,compressed_file);
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
 	
-	//printf("%d\n",nt1->tile_number);
+	fpaq_decompress(res4, os->end_ch_res, &res3, &os->end_ch_res);
 	
 	size = (IM_SIZE>>2);
 	

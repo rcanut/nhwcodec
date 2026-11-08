@@ -50,6 +50,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdint.h>
+#include <stddef.h>
+
 /*==========================================*/
 
 #define LOSSY  
@@ -226,6 +229,8 @@ extern void quantizationUV(image_buffer *im);
 extern void Y_highres_compression(image_buffer *im,encode_state *enc,ntile *nt1);
 extern void highres_compression(image_buffer *im,encode_state *enc);
 extern int wavlts2packet(image_buffer *im,encode_state *enc);
+extern int fpaq_compress(const uint8_t *input, size_t input_size,
+                  uint8_t **output, unsigned short *output_size);
 
 #endif
 

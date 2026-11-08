@@ -50,6 +50,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdint.h>
+#include <stddef.h>
+
 /*==========================================*/
 
 //ENTER YOUR MODE
@@ -227,6 +230,8 @@ extern void upfilter97(short *x,int M,int E,short *res);
 
 extern void retrieve_pixel_Y_comp(image_buffer *imd,decode_state *os,int p1,unsigned int *d1,short *im3);
 extern void retrieve_pixel_UV_comp(image_buffer *imd,decode_state *os,int p1,unsigned int *d1,short *im3);
+extern int fpaq_decompress(const uint8_t *input, unsigned short input_size,
+                    uint8_t **output, unsigned short *output_size);
 
 #endif
 
