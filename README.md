@@ -7,8 +7,6 @@ The NHW codec is an experimental codec that compresses 24bit bitmap color images
 
 To work with any image resolution, it uses 512x512 tiling of a NHW core.
 
--Compression is not optimal for now.-
-
 The NHW codec presents some innovations and a unique approach: more image neatness/sharpness, and aims to be competitive with current codecs like for example AVIF.
 
 Another advantage of the NHW codec is that it has a high speed, making it suitable for mobile, embedded devices.
