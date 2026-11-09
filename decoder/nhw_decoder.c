@@ -1819,7 +1819,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 
 	
 	res4=(unsigned char*)malloc(os->end_ch_res*sizeof(char));
-	//os->res_ch=(unsigned char*)malloc(((IM_SIZE>>2)+(IM_SIZE>>3))*sizeof(char));
+	
 	/* +1 zeroed word: the bitstream reader peeks one word past the end */
 	os->packet1=(unsigned int*)calloc(os->d_size_data1+1,sizeof(int));
 	os->packet2=(unsigned int*)calloc((os->d_size_data2-os->d_size_data1)+1,sizeof(int));
@@ -1882,7 +1882,11 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
 	
-	fpaq_decompress(res4, os->end_ch_res, &res3, &os->end_ch_res);
+	e = fpaq_decompress(res4, os->end_ch_res, &res3, &os->end_ch_res);
+	
+	if (e!=0) exit(-1);
+	
+	free(res4);
 	
 	size = (IM_SIZE>>2);
 	
