@@ -28,7 +28,7 @@ To enable multithreading (OpenMP), add the compiler flag:  `-fopenmp` (gcc/clang
 `$ mkdir build && cd build && cmake ../ && make`
 
 
-To encode an image (512x512 bitmap color image for now):
+To encode:
 
 encoder options: quality settings: -q[1..23] {default: 20}
 
