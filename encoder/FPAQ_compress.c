@@ -148,9 +148,11 @@ static void update_prob(uint16_t *p, int bit)
     unsigned v = *p;
 
     if (bit == 0)
-        v -= v >> 6;
+        v -= v >> 4;
     else if (v < 65472)
-        v += (65472 - v + 63) >> 6;
+        v += (65472 - v + 63) >> 4;
+	
+	if (v > 65535) v = 65535;
 
     *p = (uint16_t)v;
 }
@@ -221,7 +223,7 @@ static void encode_byte(Encoder *e, uint8_t value)
         ctx = (ctx << 1) | bit;
     }
 
-    p = e->probs[(value >> 6) & 3];
+    p = e->probs[(value >> 4) & 3];
     (void)p;
 }
 

@@ -148,9 +148,11 @@ static void update_prob(uint16_t *p, int bit)
     unsigned v = *p;
 
     if (bit == 0)
-        v -= v >> 6;
+        v -= v >> 4;
     else if (v < 65472)
-        v += (65472 - v + 63) >> 6;
+        v += (65472 - v + 63) >> 4;
+	
+	if (v > 65535) v = 65535;
 
     *p = (uint16_t)v;
 }
@@ -229,7 +231,7 @@ static uint8_t decode_byte(Decoder *d)
         ctx = (ctx << 1) | bit;
     }
 
-    p = d->probs[((ctx & 255) >> 6) & 3];
+    p = d->probs[((ctx & 255) >> 4) & 3];
     (void)p;
 
     return (uint8_t)ctx;
