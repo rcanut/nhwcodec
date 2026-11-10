@@ -22,7 +22,7 @@
 
 #define TOP     0xFFFFFFFFU
 #define PSCALE  65536U
-#define HEADER_SIZE 12U
+#define HEADER_SIZE 2
 
 typedef struct {
     uint8_t *data;
@@ -42,13 +42,6 @@ typedef struct {
 } BitReader;
 
 typedef struct {
-    uint32_t low, high;
-    uint64_t pending;
-    BitWriter bw;
-    uint16_t probs[4][256];
-} Encoder;
-
-typedef struct {
     uint32_t low, high, code;
     BitReader br;
     uint16_t probs[4][256];
@@ -61,7 +54,7 @@ static int buffer_append(BitWriter *w, uint8_t value)
         return -1;
 
     if (w->size == w->capacity) {
-        size_t new_capacity = w->capacity ? w->capacity * 2 : 256;
+        size_t new_capacity = w->capacity ? w->capacity * 2 : 1024;
 
         if (new_capacity < w->capacity) {
             w->error = 1;
@@ -155,18 +148,6 @@ static void update_prob(uint16_t *p, int bit)
 	if (v > 65535) v = 65535;
 
     *p = (uint16_t)v;
-}
-
-/* Arithmetic encoder */
-
-static void output_bit_plus_pending(Encoder *e, int bit)
-{
-    put_bit(&e->bw, bit);
-
-    while (e->pending) {
-        put_bit(&e->bw, !bit);
-        e->pending--;
-    }
 }
 
 /* Arithmetic decoder */
@@ -265,12 +246,12 @@ int fpaq_decompress(const uint8_t *input, unsigned short input_size,
     *output = NULL;
     *output_size = 0;
 
-    if (input_size < HEADER_SIZE || memcmp(input, "FPAQ", 4) != 0)
+    if (input_size < HEADER_SIZE)
         return -1;
 
     uint64_t decoded_size = 0;
-    for (int i = 0; i < 8; i++)
-        decoded_size = (decoded_size << 8) | input[4 + i];
+        
+	decoded_size = (input[0] << 8) | input[1];
 
     if (decoded_size > (uint64_t)SIZE_MAX)
         return -1;

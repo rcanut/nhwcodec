@@ -48,12 +48,6 @@ typedef struct {
     uint16_t probs[4][256];
 } Encoder;
 
-typedef struct {
-    uint32_t low, high, code;
-    BitReader br;
-    uint16_t probs[4][256];
-} Decoder;
-
 /* Append one byte to a dynamically growing output buffer. */
 static int buffer_append(BitWriter *w, uint8_t value)
 {
@@ -61,7 +55,7 @@ static int buffer_append(BitWriter *w, uint8_t value)
         return -1;
 
     if (w->size == w->capacity) {
-        size_t new_capacity = w->capacity ? w->capacity * 2 : 256;
+        size_t new_capacity = w->capacity ? w->capacity * 2 : 1024;
 
         if (new_capacity < w->capacity) {
             w->error = 1;
@@ -273,13 +267,13 @@ int fpaq_compress(const uint8_t *input, size_t input_size,
     BitWriter header;
     memset(&header, 0, sizeof(header));
 
-    (void)buffer_append(&header, 'F');
+  /*(void)buffer_append(&header, 'F');
     (void)buffer_append(&header, 'P');
     (void)buffer_append(&header, 'A');
-    (void)buffer_append(&header, 'Q');
+    (void)buffer_append(&header, 'Q');*/
 
     uint64_t n = (uint64_t)input_size;
-    for (int i = 7; i >= 0; i--)
+    for (int i = 1; i >= 0; i--)
         (void)buffer_append(&header, (uint8_t)(n >> (i * 8)));
 
     if (header.error) {
@@ -319,6 +313,7 @@ int fpaq_compress(const uint8_t *input, size_t input_size,
         memcpy(result + header.size, e.bw.data, e.bw.size);
 
     free(e.bw.data);
+	
     *output = result;
     *output_size = total_size;
     return 0;
