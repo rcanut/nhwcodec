@@ -82,9 +82,9 @@ void init_color_tables()
 }
 
 /* convert one decoded 512x512 YUV tile to bottom-up BGR rows in iNHW (3*4*IM_SIZE bytes) */
-void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
+void convert_tile_rgb(image_buffer *im, unsigned char *iNHW, ntile *nt1)
 {
-	int i,Y,U,V,R,G,B,m,t;
+	int i,j,Y,U,V,R,G,B,m,t,scan,SIZE_END,DIM_END;
 	unsigned char *icolorY,*icolorU,*icolorV;
 	float Y_q_setting,Y_inv;
 
@@ -92,17 +92,55 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
 	icolorY=(unsigned char*)im->im_bufferY;
 	icolorU=(unsigned char*)im->im_bufferU;
 	icolorV=(unsigned char*)im->im_bufferV;
+	
+	if (nt1->tile_number==1 || nt1->tile_number==3)
+	{
+		R = (nt1->width)>>9;
+		R = (R<<9);
+		G = nt1->width - R;
+		
+		if (G>0)
+		{
+			DIM_END = (G+1);
+			
+			if (DIM_END>(2*IM_DIM)) DIM_END = 2*IM_DIM;
+		}
+		else DIM_END = 2*IM_DIM;
+		
+		SIZE_END = 4*IM_SIZE;
+	}
+	else if (nt1->tile_number==2)
+	{
+		R = (nt1->height)>>9;
+		R = (R<<9);
+		G = nt1->height - R;
+		
+		if (G>0)
+		{
+			SIZE_END = (G+1)*(2*IM_DIM);
+			
+			if (SIZE_END>(4*IM_SIZE)) SIZE_END = 4*IM_SIZE;
+		}
+		else SIZE_END = 4*IM_SIZE;
+		
+		DIM_END = 2*IM_DIM;
+	}
+	else
+	{
+		DIM_END = 2*IM_DIM;
+		
+		SIZE_END = 4*IM_SIZE;
+	}
 
 	if (im->setup->quality_setting>=NORM)
 	{
-		for (m=0;m<4;m++)
+		for (i=0,t=0;i<SIZE_END;i+=(2*IM_DIM))
 		{
-			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			for (j=0,scan=i,t=(3*i);j<DIM_END;j++,scan++,t+=3)
 			{
-				//Y = icolorY[i]*298;
-				Y = icolorY[i]+512;
-				U = icolorU[i];
-				V = icolorV[i];
+				Y = icolorY[scan]+512;
+				U = icolorU[scan];
+				V = icolorV[scan];
 
 				//Matrix  YCbCr (or YUV) to RGB, from the tables in init_color_tables
 				G = g_ofs[(U<<8)+V];
@@ -110,7 +148,7 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
 				if (G!=G_TIE) iNHW[t+1]=clip_tab[Y+G];
 				else
 				{
-					G = (int)(icolorY[i]  -0.34414*(U-128) -0.71414*(V-128) +0.5f);
+					G = (int)(icolorY[scan]  -0.34414*(U-128) -0.71414*(V-128) +0.5f);
 					if ((G>>8)!=0) iNHW[t+1]=( (G<0) ? 0 : 255 );
 					else iNHW[t+1]=G;
 				}
@@ -122,15 +160,15 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
 	{
 		if (im->setup->quality_setting==LOW1) Y_inv=1.025641; // 1/0.975
 		else if (im->setup->quality_setting==LOW2) Y_inv=1.075269; // 1/0.93
-
-		for (m=0;m<4;m++)
+		
+		for (i=0,t=0;i<SIZE_END;i+=(2*IM_DIM))
 		{
-			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			for (j=0,scan=i,t=(3*i);j<DIM_END;j++,scan++,t+=3)
 			{
 				//Y = icolorY[i]*298;
-				Y_q_setting =(float)(icolorY[i]*Y_inv);
-				U = icolorU[i]-128;
-				V = icolorV[i]-128;
+				Y_q_setting =(float)(icolorY[scan]*Y_inv);
+				U = icolorU[scan]-128;
+				V = icolorV[scan]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
 				/*R = ((Y         + 409*V + R_COMP)>>8);
@@ -155,15 +193,15 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
 	else if (im->setup->quality_setting==LOW3)
 	{
 		Y_inv=1.063830; // 1/0.94
-
-		for (m=0;m<4;m++)
+		
+		for (i=0,t=0;i<SIZE_END;i+=(2*IM_DIM))
 		{
-			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			for (j=0,scan=i,t=(3*i);j<DIM_END;j++,scan++,t+=3)
 			{
 				//Y = icolorY[i]*298;
-				Y = icolorY[i];
-				U = icolorU[i]-128;
-				V = icolorV[i]-128;
+				Y = icolorY[scan];
+				U = icolorU[scan]-128;
+				V = icolorV[scan]-128;
 
 				//Matrix  YCbCr (or YUV) to RGB
 				/*R = ((Y         + 409*V + R_COMP)>>8);
@@ -204,14 +242,13 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW)
 		else if (im->setup->quality_setting==LOW18) Y_inv=1.985939;
 		else if (im->setup->quality_setting==LOW19) Y_inv=2.060881;
 
-
-		for (m=0;m<4;m++)
+		for (i=0,t=0;i<SIZE_END;i+=(2*IM_DIM))
 		{
-			for (i=m*IM_SIZE,t=3*m*IM_SIZE;i<(m+1)*IM_SIZE;i++,t+=3)
+			for (j=0,scan=i,t=(3*i);j<DIM_END;j++,scan++,t+=3)
 			{
-				Y = icolorY[i]*298;
-				U = icolorU[i];
-				V = icolorV[i];
+				Y = icolorY[scan]*298;
+				U = icolorU[scan];
+				V = icolorV[scan];
 
 				//Matrix  YCbCr (or YUV) to RGB
 				R = (((int)((Y         + 409*V + R_COMP)*Y_inv +128.5f))>>8);

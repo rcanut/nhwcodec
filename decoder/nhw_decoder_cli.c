@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 				exit(-1);
 			}
 			
-			convert_tile_rgb(&tim, tile);
+			convert_tile_rgb(&tim, tile, &nt2);
 			free(tim.setup);
 			for (int y=0; y<2*IM_DIM; y++)
 			{
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
 	fclose(compressed_file);
 
 	image=(unsigned char*)malloc(3*4*IM_SIZE*sizeof(char));
-	convert_tile_rgb(&im, image);
+	convert_tile_rgb(&im, image, &nt1);
 
 	/* this should come from image to convert */
 	im_ctx.width = 2*IM_DIM;
