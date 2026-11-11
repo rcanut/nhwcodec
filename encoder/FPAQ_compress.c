@@ -42,6 +42,7 @@ typedef struct {
 } BitReader;
 
 typedef struct {
+	uint8_t context_index;
     uint32_t low, high;
     uint64_t pending;
     BitWriter bw;
@@ -209,7 +210,7 @@ static void encode_bit(Encoder *e, int bit, uint16_t *prob)
 static void encode_byte(Encoder *e, uint8_t value)
 {
     int ctx = 1;
-    uint16_t *p = e->probs[0];
+    uint16_t *p = e->probs[e->context_index];
 
     for (int i = 7; i >= 0; i--) {
         int bit = (value >> i) & 1;
@@ -217,8 +218,7 @@ static void encode_byte(Encoder *e, uint8_t value)
         ctx = (ctx << 1) | bit;
     }
 
-    p = e->probs[(value >> 4) & 3];
-    (void)p;
+	e->context_index = (value >> 6) & 3;
 }
 
 /* Initialization */
@@ -228,6 +228,7 @@ static void encoder_init(Encoder *e)
     memset(e, 0, sizeof(*e));
     e->low = 0;
     e->high = TOP;
+	e->context_index = 0;
     init_probs(e->probs);
 }
 

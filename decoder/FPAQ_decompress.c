@@ -42,6 +42,7 @@ typedef struct {
 } BitReader;
 
 typedef struct {
+	uint8_t context_index;
     uint32_t low, high, code;
     BitReader br;
     uint16_t probs[4][256];
@@ -204,7 +205,7 @@ static void decode_bit(Decoder *d, int *bit, uint16_t *prob)
 static uint8_t decode_byte(Decoder *d)
 {
     int ctx = 1;
-    uint16_t *p = d->probs[0];
+    uint16_t *p = d->probs[d->context_index];
 
     for (int i = 0; i < 8; i++) {
         int bit;
@@ -212,8 +213,7 @@ static uint8_t decode_byte(Decoder *d)
         ctx = (ctx << 1) | bit;
     }
 
-    p = d->probs[((ctx & 255) >> 4) & 3];
-    (void)p;
+	d->context_index = ((ctx & 255) >> 6) & 3;
 
     return (uint8_t)ctx;
 }
@@ -225,6 +225,7 @@ static void decoder_init(Decoder *d, const uint8_t *data, size_t size)
     d->high = TOP;
     d->br.data = data;
     d->br.size = size;
+	d->context_index = 0;
     init_probs(d->probs);
 
     for (int i = 0; i < 32; i++)
