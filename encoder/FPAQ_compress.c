@@ -22,7 +22,6 @@
 
 #define TOP     0xFFFFFFFFU
 #define PSCALE  65536U
-#define HEADER_SIZE 12U
 
 typedef struct {
     uint8_t *data;
@@ -43,6 +42,7 @@ typedef struct {
 
 typedef struct {
 	uint8_t context_index;
+	uint8_t context_decrease;
     uint32_t low, high;
     uint64_t pending;
     BitWriter bw;
@@ -138,16 +138,27 @@ static void init_probs(uint16_t p[4][256])
 
 /* Probability update: same adaptation rule as the original */
 
-static void update_prob(uint16_t *p, int bit)
+static void update_prob(uint16_t *p, int bit, uint8_t ctx_dec)
 {
     unsigned v = *p;
 
     if (bit == 0)
-        v -= v >> 4;
+	{
+		v -= v >> 4;
+		
+		if (ctx_dec) v += v >> 6;
+		else v += 18;
+	}
     else if (v < 65472)
-        v += (65472 - v + 63) >> 4;
+	{
+		v += (65472 - v + 63) >> 4;
+		
+		if (ctx_dec) v -= v >> 6;
+		else v -= 18;
+	}
 	
-	if (v > 65535) v = 65535;
+	if (v < 0) v = 0;
+	else if (v > 65535) v = 65535;
 
     *p = (uint16_t)v;
 }
@@ -182,7 +193,7 @@ static void encode_bit(Encoder *e, int bit, uint16_t *prob)
     else
         e->low = split;
 
-    update_prob(prob, bit);
+    update_prob(prob, bit, e->context_decrease);
 
     for (;;) {
         if (e->high < 0x80000000U) {
@@ -209,8 +220,10 @@ static void encode_bit(Encoder *e, int bit, uint16_t *prob)
 
 static void encode_byte(Encoder *e, uint8_t value)
 {
-    int ctx = 1;
+    int context2, ctx = 1;
     uint16_t *p = e->probs[e->context_index];
+	
+	context2 = e->context_index;
 
     for (int i = 7; i >= 0; i--) {
         int bit = (value >> i) & 1;
@@ -219,6 +232,9 @@ static void encode_byte(Encoder *e, uint8_t value)
     }
 
 	e->context_index = (value >> 6) & 3;
+	
+	if (abs(e->context_index-context2)==3) e->context_decrease = 1;
+	else e->context_decrease = 0;
 }
 
 /* Initialization */
@@ -229,6 +245,7 @@ static void encoder_init(Encoder *e)
     e->low = 0;
     e->high = TOP;
 	e->context_index = 0;
+	e->context_decrease = 0;
     init_probs(e->probs);
 }
 

@@ -43,6 +43,7 @@ typedef struct {
 
 typedef struct {
 	uint8_t context_index;
+	uint8_t context_decrease;
     uint32_t low, high, code;
     BitReader br;
     uint16_t probs[4][256];
@@ -137,19 +138,31 @@ static void init_probs(uint16_t p[4][256])
 
 /* Probability update: same adaptation rule as the original */
 
-static void update_prob(uint16_t *p, int bit)
+static void update_prob(uint16_t *p, int bit, uint8_t ctx_dec)
 {
     unsigned v = *p;
 
     if (bit == 0)
-        v -= v >> 4;
+	{
+		v -= v >> 4;
+		
+		if (ctx_dec) v += v >> 6;
+		else v += 18;
+	}
     else if (v < 65472)
-        v += (65472 - v + 63) >> 4;
+	{
+		v += (65472 - v + 63) >> 4;
+		
+		if (ctx_dec) v -= v >> 6;
+		else v -= 18;
+	}
 	
-	if (v > 65535) v = 65535;
+	if (v < 0) v = 0;
+	else if (v > 65535) v = 65535;
 
     *p = (uint16_t)v;
 }
+
 
 /* Arithmetic decoder */
 
@@ -174,7 +187,7 @@ static void decode_bit(Decoder *d, int *bit, uint16_t *prob)
         d->low = split;
     }
 
-    update_prob(prob, *bit);
+    update_prob(prob, *bit, d->context_decrease);
 
     for (;;) {
         if (d->high < 0x80000000U) {
@@ -204,8 +217,10 @@ static void decode_bit(Decoder *d, int *bit, uint16_t *prob)
 
 static uint8_t decode_byte(Decoder *d)
 {
-    int ctx = 1;
+    int context2, ctx = 1;
     uint16_t *p = d->probs[d->context_index];
+	
+	context2 = d->context_index;
 
     for (int i = 0; i < 8; i++) {
         int bit;
@@ -214,6 +229,9 @@ static uint8_t decode_byte(Decoder *d)
     }
 
 	d->context_index = ((ctx & 255) >> 6) & 3;
+	
+	if (abs(d->context_index-context2)==3) d->context_decrease = 1;
+	else d->context_decrease = 0;
 
     return (uint8_t)ctx;
 }
@@ -226,6 +244,7 @@ static void decoder_init(Decoder *d, const uint8_t *data, size_t size)
     d->br.data = data;
     d->br.size = size;
 	d->context_index = 0;
+	d->context_decrease = 0;
     init_probs(d->probs);
 
     for (int i = 0; i < 32; i++)
