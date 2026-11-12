@@ -149,9 +149,9 @@ static void update_prob(uint16_t *p, int bit, uint8_t ctx_dec)
 		if (ctx_dec) v += v >> 6;
 		else v += 18;
 	}
-    else if (v < 65472)
+    else if (v < 64950)
 	{
-		v += (65472 - v + 63) >> 4;
+		v += (64950 - v + 63) >> 4;
 		
 		if (ctx_dec) v -= v >> 6;
 		else v -= 18;
@@ -230,7 +230,7 @@ static uint8_t decode_byte(Decoder *d)
 
 	d->context_index = ((ctx & 255) >> 6) & 3;
 	
-	if (abs(d->context_index-context2)==3) d->context_decrease = 1;
+	if (abs(d->context_index-context2)==3 && !d->context_decrease) d->context_decrease = 1;
 	else d->context_decrease = 0;
 
     return (uint8_t)ctx;

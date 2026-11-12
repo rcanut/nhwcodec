@@ -149,9 +149,9 @@ static void update_prob(uint16_t *p, int bit, uint8_t ctx_dec)
 		if (ctx_dec) v += v >> 6;
 		else v += 18;
 	}
-    else if (v < 65472)
+    else if (v < 64950)
 	{
-		v += (65472 - v + 63) >> 4;
+		v += (64950 - v + 63) >> 4;
 		
 		if (ctx_dec) v -= v >> 6;
 		else v -= 18;
@@ -233,7 +233,7 @@ static void encode_byte(Encoder *e, uint8_t value)
 
 	e->context_index = (value >> 6) & 3;
 	
-	if (abs(e->context_index-context2)==3) e->context_decrease = 1;
+	if (abs(e->context_index-context2)==3 && !e->context_decrease) e->context_decrease = 1;
 	else e->context_decrease = 0;
 }
 
