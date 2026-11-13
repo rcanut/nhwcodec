@@ -25,15 +25,6 @@
 #define HEADER_SIZE 2
 
 typedef struct {
-    uint8_t *data;
-    size_t size;
-    size_t capacity;
-    uint8_t byte;
-    int bits;
-    int error;
-} BitWriter;
-
-typedef struct {
     const uint8_t *data;
     size_t size;
     size_t pos;
@@ -48,64 +39,6 @@ typedef struct {
     BitReader br;
     uint16_t probs[4][256];
 } Decoder;
-
-/* Append one byte to a dynamically growing output buffer. */
-static int buffer_append(BitWriter *w, uint8_t value)
-{
-    if (w->error)
-        return -1;
-
-    if (w->size == w->capacity) {
-        size_t new_capacity = w->capacity ? w->capacity * 2 : 1024;
-
-        if (new_capacity < w->capacity) {
-            w->error = 1;
-            return -1;
-        }
-
-        uint8_t *p = (uint8_t *)realloc(w->data, new_capacity);
-        if (!p) {
-            w->error = 1;
-            return -1;
-        }
-
-        w->data = p;
-        w->capacity = new_capacity;
-    }
-
-    w->data[w->size++] = value;
-    return 0;
-}
-
-/* Bit writer */
-
-static void put_bit(BitWriter *w, int bit)
-{
-    if (w->error)
-        return;
-
-    w->byte = (uint8_t)((w->byte << 1) | (bit & 1));
-    w->bits++;
-
-    if (w->bits == 8) {
-        (void)buffer_append(w, w->byte);
-        w->byte = 0;
-        w->bits = 0;
-    }
-}
-
-static void flush_bits(BitWriter *w)
-{
-    if (w->error)
-        return;
-
-    if (w->bits) {
-        w->byte = (uint8_t)(w->byte << (8 - w->bits));
-        (void)buffer_append(w, w->byte);
-        w->byte = 0;
-        w->bits = 0;
-    }
-}
 
 /* Bit reader. Like the original file version, reads past the end as zeroes. */
 
