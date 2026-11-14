@@ -284,8 +284,6 @@ void decode_image(image_buffer *im,decode_state *os,ntile *nt1,FILE *compressed_
 
 	wavelet_order=parse_file(im,os,nt1,compressed_file);
 	
-	if (im->setup->quality_setting>=NORM && !nt1->first_tile) init_color_tables();
-	
 	retrieve_pixel_Y_comp(im,os,4*IM_SIZE,os->packet1,im->im_process);
 	free(os->packet1);
 	/* +2*IM_DIM zeroed: the neighbor checks on the last row read one row past the end */
@@ -1755,6 +1753,8 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	fread(&imd->setup->RES_LOW,1,1,compressed_file);
 	fread(&imd->setup->quality_setting,1,1,compressed_file);
 	fread(&nt1->tile_number,1,1,compressed_file);
+	
+	if (imd->setup->quality_setting>=NORM && !nt1->first_tile) init_color_tables();
 
 	imd->setup->colorspace=YUV;
 	imd->setup->wavelet_type=WVLTS_53;
