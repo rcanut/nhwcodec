@@ -1919,7 +1919,14 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	fread(os->packet1,os->d_size_data1*4,1,compressed_file);
 	fread(os->packet2,(os->d_size_data2-os->d_size_data1)*4,1,compressed_file);
 	
-	e = fpaq_decompress(res4, os->end_ch_res, &res3, &os->end_ch_res);
+	if (imd->setup->quality_setting>LOW5 || (imd->setup->RES_HIGH&3)==2)
+	{
+		e = fpaq_decompress(res4, os->end_ch_res, &os->res_ch, &os->end_ch_res);
+	}
+	else
+	{
+		e = fpaq_decompress(res4, os->end_ch_res, &res3, &os->end_ch_res);
+	}
 	
 	if (e!=0) exit(-1);
 	
@@ -1967,9 +1974,6 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	{
 		
 	res_comp = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
-	res2 = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
-	
-	for (i=os->Y_res_comp,j=0;i<os->end_ch_res;i++) res2[j++]=res3[i];
 	
 	res_comp[0] = res3[0];
 	
@@ -1990,21 +1994,13 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	
 	for (i=0;i<j;i++) os->res_ch[i] = res_comp[i];
 	
-	for (i=0;i<(os->end_ch_res-os->Y_res_comp);i++) os->res_ch[i+j] = res2[i];
+	for (i=os->Y_res_comp,e=j;i<os->end_ch_res;i++) os->res_ch[e++] = res3[i];
 	
 	os->Y_res_comp = j;
 	
 	free(res_comp);
-	free(res2);
 	free(res3);
-	}
-	else
-	{
-		os->res_ch = (unsigned char*)malloc(os->end_ch_res*sizeof(char));
 	
-		for (i=0;i<os->end_ch_res;i++) os->res_ch[i] = res3[i];
-	
-		free(res3);
 	}
 	
 	os->res_comp[0]=os->res_ch[0];
@@ -2123,9 +2119,6 @@ L6:
 	{
 		
 	res_comp = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
-	res2 = (unsigned char*)malloc((IM_SIZE>>2)*sizeof(char));
-	
-	for (i=os->Y_res_comp,j=0;i<os->end_ch_res;i++) res2[j++]=res3[i];
 	
 	res_comp[0] = res3[0];
 	
@@ -2141,26 +2134,18 @@ L6:
 		}
 		else res_comp[j++] = res3[i];
 	}
-	
+
 	os->res_ch = (unsigned char*)malloc((j+os->end_ch_res-os->Y_res_comp)*sizeof(char));
 	
 	for (i=0;i<j;i++) os->res_ch[i] = res_comp[i];
 	
-	for (i=0;i<(os->end_ch_res-os->Y_res_comp);i++) os->res_ch[i+j] = res2[i];
+	for (i=os->Y_res_comp,e=j;i<os->end_ch_res;i++) os->res_ch[e++] = res3[i];
 	
 	os->Y_res_comp = j;
 	
 	free(res_comp);
-	free(res2);
 	free(res3);
-	}
-	else
-	{
-		os->res_ch = (unsigned char*)malloc(os->end_ch_res*sizeof(char));
 	
-		for (i=0;i<os->end_ch_res;i++) os->res_ch[i] = res3[i];
-	
-		free(res3);
 	}
 	
 	os->res_comp[0]=os->res_ch[0];
@@ -2224,12 +2209,6 @@ L6:
 	goto L7;
 
 L8: 
-	os->res_ch = (unsigned char*)malloc(os->end_ch_res*sizeof(char));
-	
-	for (i=0;i<os->end_ch_res;i++) os->res_ch[i] = res3[i];
-	
-	free(res3);
-	
 	os->res_comp[0]=os->res_ch[0];
 	
 	for (j=1,i=1,a=0;j<size;i++)
