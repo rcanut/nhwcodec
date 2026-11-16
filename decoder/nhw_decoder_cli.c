@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 				t_height = nt2.height&511;
 				t_width = tstride;
 			}
-			else if (nt1.tile_number==1 || nt1.tile_number==3) 
+			else if (nt2.tile_number==1 || nt2.tile_number==3) 
 			{
 				t_width = 3*(nt2.width&511);
 				t_height = 2*IM_DIM;
