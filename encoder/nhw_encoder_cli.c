@@ -200,18 +200,14 @@ int main(int argc, char **argv)
 	
 	nt2.height = height;
 	
-	t1 = width>>9;
+	t1 = width&511;
 		
-	t1 = t1<<9;
-		
-	if ((width-t1)!=0) t1 = (width>>9)+1; 
+	if (t1!=0) t1 = (width>>9)+1; 
 	else t1 = 0;
 		
-	t2 = height>>9;
-		
-	t2 = t2<<9;
+	t2 = height&511;
 	
-	if ((height-t2)!=0) t2 = (height>>9)+1; 
+	if (t2!=0) t2 = (height>>9)+1; 
 	else t2 = 0;
 
 	if (width == 2*IM_DIM && height == 2*IM_DIM)

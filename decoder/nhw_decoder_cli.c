@@ -77,6 +77,7 @@ int main(int argc, char **argv)
 	FILE *compressed_file;
 	unsigned char *image;
 	char magic[4];
+	int t_width,t_height;
 
 	if (argc<3)
 	{
@@ -176,9 +177,26 @@ int main(int argc, char **argv)
 			
 			convert_tile_rgb(&tim, tile, &nt2);
 			free(tim.setup);
-			for (int y=0; y<2*IM_DIM; y++)
+			
+			if (nt2.tile_number==2) 
 			{
-				memcpy(image+(size_t)((t/tiles_x)*2*IM_DIM+y)*cstride+(t%tiles_x)*tstride, tile+y*tstride, tstride);
+				t_height = nt2.height&511;
+				t_width = tstride;
+			}
+			else if (nt1.tile_number==1 || nt1.tile_number==3) 
+			{
+				t_width = 3*(nt2.width&511);
+				t_height = 2*IM_DIM;
+			}
+			else 
+			{
+				t_width = tstride;
+				t_height = 2*IM_DIM;
+			}
+				
+			for (int y=0; y<t_height; y++)
+			{
+				memcpy(image+(size_t)((t/tiles_x)*2*IM_DIM+y)*cstride+(t%tiles_x)*tstride, tile+y*tstride, t_width);
 			}
 			free(tile);
 		}

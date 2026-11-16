@@ -506,17 +506,9 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 	
 	if (nt1->tile_number==3)
 	{
-		t1 = (nt1->height>>9);
+		t2 = nt1->height&511;
 		
-		t1 = (t1<<9);
-		
-		t2 = nt1->height - t1;
-		
-		t1 = (nt1->width>>9);
-		
-		t1 = (t1<<9);
-		
-		t3 = nt1->width - t1;
+		t3 = nt1->width&511;
 		
 		if (t2<t3) nt1->tile_number=2;
 		else nt1->tile_number=1;	
@@ -538,12 +530,8 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 		{
 			highres[i] =  Y_comp2[i];
 		}
-			
-		t1 = (nt1->height>>9);
 		
-		t1 = (t1<<9);
-		
-		t2 = nt1->height - t1;
+		t2 = nt1->height&511;
 		
 		t3 = (t2>>2)+2;
 		
@@ -552,12 +540,8 @@ void Y_highres_compression(image_buffer *im,encode_state *enc, ntile *nt1)
 		if (size>(IM_SIZE>>2)) size = (IM_SIZE>>2);
 	}
 	else if (nt1->tile_number==1 || nt1->tile_number==3)
-	{
-		t1 = (nt1->width>>9);
-		
-		t1 = (t1<<9);
-		
-		t2 = nt1->width - t1;
+	{		
+		t2 = nt1->width&511;
 		
 		t3 = (t2>>2)+2;
 		

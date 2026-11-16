@@ -95,9 +95,7 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW, ntile *nt1)
 	
 	if (nt1->tile_number==1 || nt1->tile_number==3)
 	{
-		R = (nt1->width)>>9;
-		R = (R<<9);
-		G = nt1->width - R;
+		G = nt1->width&511;
 		
 		if (G>0)
 		{
@@ -111,9 +109,7 @@ void convert_tile_rgb(image_buffer *im, unsigned char *iNHW, ntile *nt1)
 	}
 	else if (nt1->tile_number==2)
 	{
-		R = (nt1->height)>>9;
-		R = (R<<9);
-		G = nt1->height - R;
+		G = nt1->height&511;
 		
 		if (G>0)
 		{
@@ -1935,12 +1931,8 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	size = (IM_SIZE>>2);
 	
 	if (nt1->tile_number==1 || nt1->tile_number==3)
-	{
-		t1 = (nt1->width>>9);
-		
-		t1 = (t1<<9);
-		
-		t2 = nt1->width - t1;
+	{		
+		t2 = nt1->width&511;
 		
 		t3 = (t2>>2)+2;
 		
@@ -1952,11 +1944,7 @@ int parse_file(image_buffer *imd,decode_state *os,ntile *nt1,FILE *compressed_fi
 	}
 	else if (nt1->tile_number==2)
 	{
-		t1 = (nt1->height>>9);
-		
-		t1 = (t1<<9);
-		
-		t2 = nt1->height - t1;
+		t2 = nt1->height&511;
 		
 		t3 = (t2>>2)+2;
 		
