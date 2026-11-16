@@ -196,10 +196,10 @@ int main(int argc, char **argv)
 				t_width = tstride;
 				t_height = 2*IM_DIM;
 			}
-			
-#ifdef _OPENMP
-				t_width = tstride;
-				t_height = 2*IM_DIM;
+
+#ifdef _OPENMP				
+			t_width = tstride;
+			t_height = 2*IM_DIM;
 #endif
 				
 			for (int y=0; y<t_height; y++)
