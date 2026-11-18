@@ -191,6 +191,7 @@ typedef struct{
 	unsigned char *d_tree2;
 	unsigned short exw_Y_end;
 	unsigned short end_ch_res;
+	unsigned short end_ch_res2;
 	unsigned short qsetting3_len;
 	unsigned int *high_qsetting3;
 	unsigned short highres_comp_len;
@@ -202,6 +203,7 @@ typedef struct{
 	unsigned char *res_U_64;
 	unsigned char *res_V_64;
 	unsigned char *res_ch;
+	unsigned char *res_ch2;
 	unsigned char *res_comp;
 }decode_state;
 

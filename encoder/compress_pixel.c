@@ -1361,14 +1361,14 @@ void highres_compression(image_buffer *im,encode_state *enc)
 {
 	int i,j,e,a,res,scan,count;
 	unsigned char *highres,*ch_comp;
+	
+	enc->highres_comp2=(unsigned char*)calloc((IM_SIZE>>1),sizeof(char));
 
 	highres=(unsigned char*)enc->tree1;
-	ch_comp=(unsigned char*)enc->highres_comp;
+	ch_comp=(unsigned char*)enc->highres_comp2;
 
 	for (i=(IM_SIZE>>2);i<(IM_SIZE>>2)+(IM_SIZE>>3);i++) highres[i]&=252;
 	im->setup->RES_HIGH=im->setup->RES_LOW;
-
-	j=enc->Y_res_comp;
 	
 	for (i=(IM_SIZE>>2)+1,e=0,a=0;i<(IM_SIZE>>2)+(IM_SIZE>>3);i++)
 	{
@@ -1386,6 +1386,8 @@ L12:	if (i<((IM_SIZE>>2)+(IM_SIZE>>3)) && highres[i]==highres[i-1])
 		
 L16:	e=0;
 	}
+	
+	j = 0;
 	
 	ch_comp[j++]=highres[(IM_SIZE>>2)];
 	
@@ -1554,7 +1556,11 @@ END_RES7:
 L22:
 	free(enc->tree1);
 	
-	res = fpaq_compress(ch_comp, j, &enc->ch_res, &enc->end_ch_res);
+	res = fpaq_compress(enc->highres_comp, enc->Y_res_comp, &enc->ch_res, &enc->end_ch_res);
+	
+	if (res!=0) exit(-1);
+	
+	res = fpaq_compress(enc->highres_comp2, j, &enc->ch_res2, &enc->end_ch_res2);
 	
 	if (res!=0) exit(-1);
 
@@ -1562,6 +1568,7 @@ L22:
 	//enc->end_ch_res=j;
 	//memcpy(enc->ch_res,ch_comp,enc->end_ch_res*sizeof(char));
 	free(enc->highres_comp);
+	free(enc->highres_comp2);
 }
 
 

@@ -174,19 +174,23 @@ typedef struct{
 	unsigned short size_tree2;
 	unsigned short tree_end;
 	unsigned short Y_res_comp;
+	unsigned short Y_res_comp2;
 	unsigned short exw_Y_end;
 	unsigned short end_ch_res;
+	unsigned short end_ch_res2;
 	unsigned short qsetting3_len;
 	unsigned int *high_qsetting3;
 	unsigned short highres_mem_len;
 	unsigned short highres_comp_len;
 	unsigned short *highres_mem;
 	unsigned char *highres_comp;
+	unsigned char *highres_comp2;
 	unsigned char *highres_word;
 	unsigned char *res_U_64;
 	unsigned char *res_V_64;
 	unsigned char *exw_Y;
 	unsigned char *ch_res;
+	unsigned char *ch_res2;
 	unsigned int *high_res;
 }encode_state;
 

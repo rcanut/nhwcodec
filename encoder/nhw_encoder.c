@@ -3187,7 +3187,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *co
 	fwrite(&im->setup->RES_LOW,1,1,compressed);
 	fwrite(&im->setup->quality_setting,1,1,compressed);
 	fwrite(&nt1->tile_number,1,1,compressed);
-	if (im->setup->quality_setting<=LOW5) fwrite(&enc->Y_res_comp,2,1,compressed);
+	//if (im->setup->quality_setting<=LOW5) fwrite(&enc->Y_res_comp,2,1,compressed);
 	fwrite(&enc->size_tree1,2,1,compressed);
 	fwrite(&enc->size_tree2,2,1,compressed);
 	fwrite(&enc->size_data1,4,1,compressed);
@@ -3235,6 +3235,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *co
 	}
 	
 	fwrite(&enc->end_ch_res,2,1,compressed);
+	fwrite(&enc->end_ch_res2,2,1,compressed);
 	fwrite(enc->tree1,enc->size_tree1,1,compressed);
 	fwrite(enc->tree2,enc->size_tree2,1,compressed);
 	fwrite(enc->exw_Y,enc->exw_Y_end,1,compressed);
@@ -3290,6 +3291,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *co
 	}
 	
 	fwrite(enc->ch_res,enc->end_ch_res,1,compressed);
+	fwrite(enc->ch_res2,enc->end_ch_res2,1,compressed);
 	fwrite(enc->encode,enc->size_data2*4,1,compressed);
 
 	free(enc->encode);
@@ -3340,6 +3342,7 @@ int write_compressed_file(image_buffer *im,encode_state *enc,ntile *nt1,FILE *co
 	free(enc->tree2);
 	free(enc->exw_Y);
 	free(enc->ch_res);
+	free(enc->ch_res2);
 
 	if (im->setup->quality_setting>LOW5)  	
 	{
